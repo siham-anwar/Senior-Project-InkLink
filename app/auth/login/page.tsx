@@ -6,32 +6,31 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
+import { useAuthStore } from '@/app/store/authstore'
 
 export default function LoginPage() {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const login = useAuthStore((state) => state.login)
+  const loading = useAuthStore((state) => state.isLoading)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    setLoading(true)
-    
-    // Simulate authentication - replace with actual backend call
-    setTimeout(() => {
-      if (email && password) {
-        // Store user session (you'll replace this with actual auth)
-        sessionStorage.setItem('user', JSON.stringify({ email, name: email.split('@')[0] }))
-        setLoading(false)
-        // Redirect to homepage
-        router.push('/home')
-      } else {
-        setError('Please fill in all fields')
-        setLoading(false)
-      }
-    }, 1000)
+
+    if (!email || !password) {
+      setError('Please fill in all fields')
+      return
+    }
+
+    try {
+      await login(email, password)
+      router.push('/home')
+    } catch {
+      setError('Invalid email or password')
+    }
   }
 
   return (

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
+import { useAuthStore } from '@/app/store/authstore'
 
 export default function SignupPage() {
   const router = useRouter()
@@ -13,8 +14,9 @@ export default function SignupPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const signup = useAuthStore((state) => state.signup)
+  const loading = useAuthStore((state) => state.isLoading)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -30,15 +32,12 @@ export default function SignupPage() {
       return
     }
 
-    setLoading(true)
-    // Simulate account creation - replace with actual backend call
-    setTimeout(() => {
-      // Store user session (you'll replace this with actual auth)
-      sessionStorage.setItem('user', JSON.stringify({ email, name }))
-      setLoading(false)
-      // Redirect to homepage
+    try {
+      await signup({ name, email, password })
       router.push('/home')
-    }, 1000)
+    } catch {
+      setError('Unable to create account')
+    }
   }
 
   return (
