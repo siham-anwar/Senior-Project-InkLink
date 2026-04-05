@@ -267,7 +267,7 @@ export default function HomePage() {
                       <p className="text-sm font-semibold text-foreground">{username}</p>
                       <p className="text-xs text-muted-foreground">{userEmail}</p>
                     </div>
-                    <Link href="#" className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-secondary transition-colors text-foreground">
+                    <Link href="/profile" className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-secondary transition-colors text-foreground">
                       <User size={16} />
                       View Profile
                     </Link>
@@ -302,14 +302,14 @@ export default function HomePage() {
             <Search size={18} />
             <span className="text-sm font-medium">Search</span>
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 hover:bg-secondary rounded-full transition-colors flex-shrink-0">
+          <Link href="/library" className="flex items-center gap-2 px-4 py-2 hover:bg-secondary rounded-full transition-colors flex-shrink-0">
             <BookOpen size={18} />
             <span className="text-sm font-medium">Library</span>
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2 hover:bg-secondary rounded-full transition-colors flex-shrink-0">
+          </Link>
+          <Link href="/notifications" className="flex items-center gap-2 px-4 py-2 hover:bg-secondary rounded-full transition-colors flex-shrink-0">
             <Bell size={18} />
             <span className="text-sm font-medium">Notifications</span>
-          </button>
+          </Link>
           <Link href="#" className="flex items-center gap-2 px-4 py-2 hover:bg-secondary rounded-full transition-colors flex-shrink-0">
             <Plus size={18} />
             <span className="text-sm font-medium">Create</span>
