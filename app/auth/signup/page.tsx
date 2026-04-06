@@ -7,10 +7,11 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { useAuthStore } from '@/app/store/authstore'
+import { extractApiErrorMessage } from '@/lib/api'
 
 export default function SignupPage() {
   const router = useRouter()
-  const [name, setName] = useState('')
+  const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -27,16 +28,16 @@ export default function SignupPage() {
       return
     }
     
-    if (!name || !email || !password) {
+    if (!username || !password) {
       setError('Please fill in all fields')
       return
     }
 
     try {
-      await signup({ name, email, password })
+      await signup({ username, email, password })
       router.push('/home')
-    } catch {
-      setError('Unable to create account')
+    } catch (err) {
+      setError(extractApiErrorMessage(err, 'Unable to create account'))
     }
   }
 
@@ -54,15 +55,15 @@ export default function SignupPage() {
           </div>
         )}
         <div>
-          <label htmlFor="name" className="block text-sm font-medium mb-2">
-            Full Name
+          <label htmlFor="username" className="block text-sm font-medium mb-2">
+            Username
           </label>
           <Input
-            id="name"
+            id="username"
             type="text"
-            placeholder="John Doe"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            placeholder="your_username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             required
             className="bg-input border-border"
           />
@@ -78,7 +79,6 @@ export default function SignupPage() {
             placeholder="you@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            required
             className="bg-input border-border"
           />
         </div>

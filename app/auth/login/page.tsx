@@ -7,10 +7,11 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { useAuthStore } from '@/app/store/authstore'
+import { extractApiErrorMessage } from '@/lib/api'
 
 export default function LoginPage() {
   const router = useRouter()
-  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const login = useAuthStore((state) => state.login)
@@ -20,16 +21,16 @@ export default function LoginPage() {
     e.preventDefault()
     setError('')
 
-    if (!email || !password) {
+    if (!username || !password) {
       setError('Please fill in all fields')
       return
     }
 
     try {
-      await login(email, password)
+      await login(username, password)
       router.push('/home')
-    } catch {
-      setError('Invalid email or password')
+    } catch (err) {
+      setError(extractApiErrorMessage(err, 'Invalid email or password'))
     }
   }
 
@@ -47,15 +48,15 @@ export default function LoginPage() {
           </div>
         )}
         <div>
-          <label htmlFor="email" className="block text-sm font-medium mb-2">
-            Email Address
+          <label htmlFor="username" className="block text-sm font-medium mb-2">
+            Username
           </label>
           <Input
-            id="email"
-            type="email"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            id="username"
+            type="text"
+            placeholder="your_username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             required
             className="bg-input border-border"
           />

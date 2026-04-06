@@ -1,20 +1,23 @@
 export interface Chapter {
   id: string
+  _id?: string
   title: string
   content: string // Serialized Yjs content or HTML
-  createdAt: Date
-  updatedAt: Date
+  createdAt: Date | string
+  updatedAt: Date | string
 }
 
 export interface Work {
   id: string
+  _id?: string
   title: string
   coverImage?: string
   summary: string
   tags: string[]
   chapters: Chapter[]
-  createdAt: Date
-  updatedAt: Date
+  status?: 'draft' | 'published'
+  createdAt: Date | string
+  updatedAt: Date | string
 }
 
 export type PostStatus = 'successful' | 'Warning' | 'Fail'

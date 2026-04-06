@@ -6,20 +6,15 @@ interface AuthState {
   token: string | null;
   isLoading: boolean;
 
-  login: (email: string, password: string) => Promise<any>;
+  login: (username: string, password: string) => Promise<any>;
   signup: (data: any) => Promise<any>;
   fetchUser: () => Promise<void>;
+  bootstrapSession: () => Promise<void>;
   logout: () => Promise<void>;
 }
 
-const persistAuth = (user: any, token: string | null) => {
+const persistAuth = (user: any) => {
   if (typeof window === "undefined") return;
-
-  if (token) {
-    localStorage.setItem("token", token);
-  } else {
-    localStorage.removeItem("token");
-  }
 
   if (user) {
     sessionStorage.setItem("user", JSON.stringify(user));
@@ -28,24 +23,23 @@ const persistAuth = (user: any, token: string | null) => {
   }
 };
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   token: null,
   isLoading: false,
 
-  login: async (email, password) => {
+  login: async (username, password) => {
     set({ isLoading: true });
 
     try {
-      const data = await AuthService.login(email, password);
-      const token = data.accessToken ?? data.token ?? null;
-      const user = data.user ?? (token ? await AuthService.getMe() : { email });
+      const data = await AuthService.login(username, password);
+      const user = data.user ?? (await AuthService.getMe());
 
-      persistAuth(user, token);
+      persistAuth(user);
 
       set({
         user,
-        token,
+        token: null,
       });
 
       return data;
@@ -62,14 +56,13 @@ export const useAuthStore = create<AuthState>((set) => ({
 
     try {
       const data = await AuthService.signup(formData);
-      const token = data.accessToken ?? data.token ?? null;
-      const user = data.user ?? (token ? await AuthService.getMe() : formData);
+      const user = data.user ?? (await AuthService.getMe());
 
-      persistAuth(user, token);
+      persistAuth(user);
 
       set({
         user,
-        token,
+        token: null,
       });
 
       return data;
@@ -84,10 +77,28 @@ export const useAuthStore = create<AuthState>((set) => ({
   fetchUser: async () => {
     try {
       const user = await AuthService.getMe();
+      persistAuth(user);
       set({ user });
     } catch {
+      persistAuth(null);
       set({ user: null });
     }
+  },
+
+  bootstrapSession: async () => {
+    if (typeof window !== "undefined") {
+      const cachedUser = sessionStorage.getItem("user");
+
+      if (cachedUser) {
+        try {
+          set({ user: JSON.parse(cachedUser) });
+        } catch {
+          sessionStorage.removeItem("user");
+        }
+      }
+    }
+
+    await get().fetchUser();
   },
 
   logout: async () => {
@@ -95,7 +106,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       await AuthService.logout();
     } catch {}
 
-    persistAuth(null, null);
+    persistAuth(null);
 
     set({
       user: null,

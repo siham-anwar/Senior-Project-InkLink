@@ -5,38 +5,25 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Search, Bell, Plus, User, BookOpen, Crown, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useAuthStore } from '@/app/store/authstore'
 
 export default function HomePage() {
   const router = useRouter()
-  const [isDark, setIsDark] = useState(false)
+  const { user, logout } = useAuthStore()
   const [mounted, setMounted] = useState(false)
-  const [username, setUsername] = useState('@Guest')
-  const [userEmail, setUserEmail] = useState('')
   const [showProfileMenu, setShowProfileMenu] = useState(false)
 
   useEffect(() => {
     setMounted(true)
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    setIsDark(prefersDark)
-    if (prefersDark) document.documentElement.classList.add('dark')
-
-    // Get user data from session
-    const userSession = sessionStorage.getItem('user')
-    if (userSession) {
-      try {
-        const user = JSON.parse(userSession)
-        setUsername(`@${user.name || user.email?.split('@')[0] || 'Guest'}`)
-        setUserEmail(user.email || '')
-      } catch (error) {
-        console.error('Error parsing user session:', error)
-      }
-    }
   }, [])
 
-  const handleLogout = () => {
-    sessionStorage.removeItem('user')
+  const handleLogout = async () => {
+    await logout()
     router.push('/auth/login')
   }
+
+  const usernameDisplay = user?.username || user?.name || 'Guest'
+  const userEmail = user?.email || ''
 
   // Mock data that can be replaced with backend data
   const mockContinueReadingBooks = [
@@ -264,7 +251,7 @@ export default function HomePage() {
                 {showProfileMenu && (
                   <div className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-lg shadow-lg py-2 z-50">
                     <div className="px-4 py-2 border-b border-border">
-                      <p className="text-sm font-semibold text-foreground">{username}</p>
+                      <p className="text-sm font-semibold text-foreground">@{usernameDisplay}</p>
                       <p className="text-xs text-muted-foreground">{userEmail}</p>
                     </div>
                     <Link href="#" className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-secondary transition-colors text-foreground">
@@ -291,7 +278,7 @@ export default function HomePage() {
         {/* Greeting */}
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-balance">
-            Hi, @{username}
+            Hi, @{usernameDisplay}
           </h1>
           <p className="text-muted-foreground mt-2">Welcome back! Keep exploring amazing stories.</p>
         </div>

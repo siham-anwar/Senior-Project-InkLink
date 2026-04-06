@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useRef } from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Underline from '@tiptap/extension-underline'
@@ -14,9 +15,16 @@ import { Toolbar } from './toolbar'
 
 interface TiptapEditorProps {
   ydoc: Y.Doc
+  initialContent?: string
+  onContentChange?: (content: string) => void
 }
 
-export function TiptapEditor({ ydoc }: TiptapEditorProps) {
+export function TiptapEditor({ ydoc, initialContent = '', onContentChange }: TiptapEditorProps) {
+  const hasLoadedInitialContentRef = useRef(false)
+
+  useEffect(() => {
+    hasLoadedInitialContentRef.current = false
+  }, [ydoc])
 
   const editor = useEditor({
     extensions: [
@@ -38,6 +46,10 @@ export function TiptapEditor({ ydoc }: TiptapEditorProps) {
         document: ydoc,
       }),
     ],
+    content: initialContent,
+    onUpdate: ({ editor }) => {
+      onContentChange?.(editor.getHTML())
+    },
     editorProps: {
       attributes: {
         class:
@@ -45,12 +57,21 @@ export function TiptapEditor({ ydoc }: TiptapEditorProps) {
       },
     },
     immediatelyRender: false,
-  })
+  }, [ydoc])
+
+  useEffect(() => {
+    if (!editor || hasLoadedInitialContentRef.current) return
+
+    if (initialContent && editor.isEmpty) {
+      editor.commands.setContent(initialContent, false)
+      hasLoadedInitialContentRef.current = true
+    }
+  }, [editor, initialContent])
 
   return (
     <div className="flex flex-col gap-4">
       <Toolbar editor={editor} />
-      <div className="min-h-[400px] rounded-lg border border-border bg-input">
+      <div className="min-h-100 rounded-lg border border-border bg-input">
         <EditorContent editor={editor} />
       </div>
       <style jsx global>{`
