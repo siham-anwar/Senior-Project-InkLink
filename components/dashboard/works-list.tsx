@@ -1,6 +1,6 @@
 'use client'
 
-import { Work } from '@/lib/types'
+import { Work } from '../../lib/types'
 import { WorkCard } from './work-card'
 import { EmptyState } from './empty-state'
 

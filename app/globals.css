@@ -5,13 +5,16 @@
 
 /* InkLink - Light mode: white & crimson red */
 :root {
-  --background: oklch(0.99 0 0);
-  --foreground: oklch(0.15 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.15 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.15 0 0);
-  --primary: oklch(0.50 0.22 25);
+  --background: #ffffff;
+  --foreground: #0a0a0a;
+   --primary-hover: #6d0000;
+  --muted: #525252;
+  --border: #e5e5e5;
+  --card: #fafafa;
+  --card-foreground: #0a0a0a;
+  --popover: #ffffff;
+  --popover-foreground: #0a0a0a;
+  --primary:  #8b0000;
   --primary-foreground: oklch(0.99 0 0);
   --secondary: oklch(0.96 0 0);
   --secondary-foreground: oklch(0.15 0 0);
@@ -33,9 +36,13 @@
 
 /* InkLink - Dark mode: black & red */
 .dark {
-  --background: oklch(0.10 0 0);
-  --foreground: oklch(0.95 0 0);
-  --card: oklch(0.14 0 0);
+   --background: #0a0a0a;
+  --foreground: #fafafa;
+  --primary: #b91c1c;
+  --primary-hover: #991b1b;
+  --muted: #a3a3a3;
+  --border: #262626;
+  --card: #141414;
   --card-foreground: oklch(0.95 0 0);
   --popover: oklch(0.16 0 0);
   --popover-foreground: oklch(0.95 0 0);
@@ -59,10 +66,16 @@
 }
 
 @theme inline {
-  --font-sans: 'Geist', 'Geist Fallback';
-  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-card: var(--card);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Geist', 'Geist Fallback';
+  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
@@ -90,11 +103,20 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+html {
+  scroll-behavior: smooth;
 }
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background-color: color-mix(in srgb, var(--primary) 35%, transparent);
+}
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
