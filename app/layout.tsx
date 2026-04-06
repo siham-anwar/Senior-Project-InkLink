@@ -1,55 +1,30 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
-import { Analytics } from '@vercel/analytics/react'
-import { ThemeProvider } from '@/components/theme-provider'
-import { AuthSessionBootstrap } from '@/components/auth-session-bootstrap'
+import { Inter } from 'next/font/google'
 import './globals.css'
+import { ThemeProvider } from '../components/providers/theme-provider'
+import { THEME_STORAGE_SCRIPT } from "../lib/theme-script";
 
-const _geist = Geist({ subsets: ["latin"] });
-const _geistMono = Geist_Mono({ subsets: ["latin"] });
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+})
 
 export const metadata: Metadata = {
-  title: 'InkLink - Author Dashboard',
-  description: 'Collaborative writing platform for authors',
-  generator: 'v0.app',
-  icons: {
-    icon: [
-      {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
-    ],
-    apple: '/apple-icon.png',
-  },
+  title: 'InkLink – Writing Platform',
+  description: 'InkLink is a modern writing platform for readers and creators.',
 }
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className="font-sans antialiased">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <AuthSessionBootstrap />
-          {children}
-        </ThemeProvider>
-        {process.env.NODE_ENV === 'production' && <Analytics />}
+    <html lang="en" suppressHydrationWarning className={inter.variable}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_STORAGE_SCRIPT }} />
+      </head>
+      <body className="font-sans">
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   )
 }
+
