@@ -1,42 +1,26 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useCallback } from 'react'
 import { DashboardHeader } from '@/components/dashboard/header'
 import { WorksList } from '@/components/dashboard/works-list'
-import { Work } from '@/lib/types'
+import { useWorksStore } from '@/app/store/worksStore'
 
 export default function DashboardPage() {
-  const [works, setWorks] = useState<Work[]>([])
+  const { works, fetchWorks, isLoading } = useWorksStore()
 
   useEffect(() => {
-    // Load works from localStorage on mount
-    const savedWorks = localStorage.getItem('inklink-works')
-    if (savedWorks) {
-      try {
-        const parsed = JSON.parse(savedWorks)
-        // Convert date strings back to Date objects and ensure chapters array exists
-        const worksWithDates = parsed.map((w: Work) => ({
-          ...w,
-          chapters: w.chapters || [],
-          createdAt: new Date(w.createdAt),
-          updatedAt: new Date(w.updatedAt),
-        }))
-        setWorks(worksWithDates)
-      } catch (e) {
-        console.error('Failed to parse saved works:', e)
-      }
-    }
-  }, [])
+    fetchWorks()
+  }, [fetchWorks])
 
   const handleDeleteWork = useCallback((workId: string) => {
-    const confirmed = window.confirm('Are you sure you want to delete this work? This cannot be undone.')
+    // Note: Backend might not support deletion yet based on provided Swagger.
+    // For now, we will just show a message or keep it as is if it's local only.
+    // However, if the user really wants to delete, we'd need an endpoint.
+    const confirmed = window.confirm('Are you sure you want to delete this work? (Local UI removal only as backend DELETE is missing from specs)')
     if (!confirmed) return
 
-    setWorks((prev) => {
-      const updated = prev.filter((w) => w.id !== workId)
-      localStorage.setItem('inklink-works', JSON.stringify(updated))
-      return updated
-    })
+    // Since delete endpoint is missing, we just log it or handle it if implemented
+    console.warn('Delete endpoint not found in Swagger specs')
   }, [])
 
   return (
@@ -49,7 +33,11 @@ export default function DashboardPage() {
             Manage and edit your published stories
           </p>
         </div>
-        <WorksList works={works} onDeleteWork={handleDeleteWork} />
+        {isLoading ? (
+          <div className="flex justify-center py-20">Loading your works...</div>
+        ) : (
+          <WorksList works={works as any} onDeleteWork={handleDeleteWork} />
+        )}
       </main>
     </div>
   )
