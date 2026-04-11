@@ -4,11 +4,25 @@ export interface WorkDto {
   _id?: string
   id?: string
   authorId?: string
+  authorUsername?: string
   title: string
   summary?: string
   coverImage?: string
   tags?: string[]
-  status?: 'draft' | 'published'
+  status?:
+    | 'draft'
+    | 'pending_moderation'
+    | 'needs_admin_review'
+    | 'approved'
+    | 'rejected'
+    | 'published'
+  moderationConfidence?: number
+  moderationReason?: string
+  childSafe?: boolean
+  adultSafe?: boolean
+  reviewedBy?: string
+  reviewedAt?: string
+  moderationUpdatedAt?: string
   createdAt?: string
   updatedAt?: string
   chapters?: any[]
@@ -47,7 +61,13 @@ export const EditorWorksService = {
     return toWorks(res.data)
   },
 
-  create: async (dto: { title: string; summary?: string; coverImage?: string; tags?: string[]; status?: 'draft' | 'published' }) => {
+  create: async (dto: {
+    title: string
+    summary?: string
+    coverImage?: string
+    tags?: string[]
+    status?: 'draft' | 'pending_moderation'
+  }) => {
     const res = await api.post('/works', dto)
     return toWork(res.data)
   },
@@ -64,7 +84,7 @@ export const EditorWorksService = {
       summary?: string
       coverImage?: string
       tags?: string[]
-      status?: 'draft' | 'published'
+      status?: 'draft' | 'pending_moderation'
     }
   ) => {
     const res = await api.patch(`/works/${id}`, dto)
@@ -73,6 +93,11 @@ export const EditorWorksService = {
 
   publish: async (id: string) => {
     const res = await api.post(`/works/${id}/publish`)
+    return res.data
+  },
+
+  delete: async (id: string) => {
+    const res = await api.delete(`/works/${id}`)
     return res.data
   },
 
