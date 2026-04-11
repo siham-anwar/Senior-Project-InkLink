@@ -9,9 +9,16 @@ interface WorksState {
 
   fetchWorks: (authorId?: string) => Promise<void>
   fetchWorkById: (id: string) => Promise<WorkDto>
-  createWork: (dto: { title: string; summary?: string; coverImage?: string; tags?: string[]; status?: 'draft' | 'published' }) => Promise<WorkDto>
+  createWork: (dto: {
+    title: string
+    summary?: string
+    coverImage?: string
+    tags?: string[]
+    status?: 'draft' | 'pending_moderation'
+  }) => Promise<WorkDto>
   updateWork: (id: string, dto: Partial<WorkDto>) => Promise<WorkDto>
   publishWork: (id: string) => Promise<void>
+  deleteWork: (id: string) => Promise<void>
   setCurrentWork: (work: WorkDto | null) => void
 }
 
@@ -81,18 +88,35 @@ export const useWorksStore = create<WorksState>((set, get) => ({
   publishWork: async (id) => {
     set({ isLoading: true, error: null })
     try {
-      await EditorWorksService.publish(id)
-      // Update local status if needed
+      const updatedWork = await EditorWorksService.publish(id)
       set((state) => ({
-        works: state.works.map((w) => 
-          EditorWorksService.idOf(w) === id ? { ...w, status: 'published' } : w
+        works: state.works.map((w) =>
+          EditorWorksService.idOf(w) === id ? { ...w, ...updatedWork } : w,
         ),
-        currentWork: state.currentWork && EditorWorksService.idOf(state.currentWork) === id 
-          ? { ...state.currentWork, status: 'published' } 
-          : state.currentWork,
+        currentWork:
+          state.currentWork && EditorWorksService.idOf(state.currentWork) === id
+            ? { ...state.currentWork, ...updatedWork }
+            : state.currentWork,
       }))
+      return updatedWork
     } catch (err: any) {
       set({ error: err.message || 'Failed to publish work' })
+      throw err
+    } finally {
+      set({ isLoading: false })
+    }
+  },
+
+  deleteWork: async (id: string) => {
+    set({ isLoading: true, error: null })
+    try {
+      await EditorWorksService.delete(id)
+      set((state) => ({
+        works: state.works.filter((w) => EditorWorksService.idOf(w) !== id),
+        currentWork: state.currentWork && EditorWorksService.idOf(state.currentWork) === id ? null : state.currentWork,
+      }))
+    } catch (err: any) {
+      set({ error: err.message || 'Failed to delete work' })
       throw err
     } finally {
       set({ isLoading: false })

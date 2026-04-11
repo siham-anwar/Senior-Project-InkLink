@@ -1,8 +1,23 @@
+export type ModerationVerdict =
+  | 'draft'
+  | 'pending_moderation'
+  | 'needs_admin_review'
+  | 'approved'
+  | 'rejected'
+  | 'published'
+
 export interface Chapter {
   id: string
   _id?: string
+  workId?: string
   title: string
-  content: string // Serialized Yjs content or HTML
+  contentText?: string
+  moderationStatus?: 'draft' | 'pending_moderation' | 'needs_admin_review' | 'approved' | 'rejected'
+  moderationConfidence?: number
+  moderationReason?: string
+  childSafe?: boolean
+  adultSafe?: boolean
+  moderationUpdatedAt?: Date | string
   createdAt: Date | string
   updatedAt: Date | string
 }
@@ -10,12 +25,21 @@ export interface Chapter {
 export interface Work {
   id: string
   _id?: string
+  authorId?: string
+  authorUsername?: string
   title: string
   coverImage?: string
-  summary: string
+  summary?: string
   tags: string[]
-  chapters: Chapter[]
-  status?: 'draft' | 'published'
+  chapters?: Chapter[]
+  status?: ModerationVerdict
+  moderationConfidence?: number
+  moderationReason?: string
+  childSafe?: boolean
+  adultSafe?: boolean
+  reviewedBy?: string
+  reviewedAt?: Date | string
+  moderationUpdatedAt?: Date | string
   createdAt: Date | string
   updatedAt: Date | string
 }
