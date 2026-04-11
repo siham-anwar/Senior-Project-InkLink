@@ -7,6 +7,12 @@ export interface ChapterDto {
   title: string
   contentText?: string
   orderIndex?: number
+  moderationStatus?: 'draft' | 'pending_moderation' | 'needs_admin_review' | 'approved' | 'rejected'
+  moderationConfidence?: number
+  moderationReason?: string
+  childSafe?: boolean
+  adultSafe?: boolean
+  moderationUpdatedAt?: string
   createdAt?: string
   updatedAt?: string
 }

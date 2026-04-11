@@ -29,7 +29,7 @@ const CtaSection = dynamic(
 export default function Page() {
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
-      <Navbar />
+
       <main>
         <Hero />
         <Features />
@@ -39,7 +39,7 @@ export default function Page() {
         <Testimonials />
         <CtaSection />
       </main>
-      <Footer />
+
     </div>
   )
 }

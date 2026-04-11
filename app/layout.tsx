@@ -2,7 +2,11 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '../components/providers/theme-provider'
+import { SonnerRoot } from '../components/sonner-root'
 import { THEME_STORAGE_SCRIPT } from "../lib/theme-script";
+import { AuthSessionBootstrap } from '../components/auth-session-bootstrap'
+import { Navbar } from '@/components/navbar'
+import { Footer } from '@/components/footer'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -21,8 +25,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_STORAGE_SCRIPT }} />
       </head>
-      <body className="font-sans">
-        <ThemeProvider>{children}</ThemeProvider>
+      <body className="font-sans flex flex-col min-h-screen">
+        <ThemeProvider>
+          <AuthSessionBootstrap />
+          <Navbar />
+          <main className="flex-1">
+            {children}
+          </main>
+          <Footer />
+          <SonnerRoot />
+        </ThemeProvider>
       </body>
     </html>
   )
