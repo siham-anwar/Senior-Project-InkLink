@@ -15,6 +15,7 @@ export default function SignupPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [role, setRole] = useState<'user' | 'parent'>('user')
   const [error, setError] = useState('')
   const signup = useAuthStore((state) => state.signup)
   const loading = useAuthStore((state) => state.isLoading)
@@ -34,7 +35,7 @@ export default function SignupPage() {
     }
 
     try {
-      await signup({ username, email, password })
+      await signup({ username, email, password, role })
       router.push('/home')
     } catch (err) {
       setError(extractApiErrorMessage(err, 'Unable to create account'))
@@ -111,6 +112,19 @@ export default function SignupPage() {
             required
             className="bg-input border-border"
           />
+        <div>
+          <label htmlFor="role" className="block text-sm font-medium mb-2">
+            Register as
+          </label>
+          <select
+            id="role"
+            className="w-full bg-input border-border rounded-md px-3 py-2 text-sm"
+            value={role}
+            onChange={(e) => setRole(e.target.value as any)}
+          >
+            <option value="user">Reader/Writer</option>
+            <option value="parent">Parent (Manage children accounts)</option>
+          </select>
         </div>
 
         <Button

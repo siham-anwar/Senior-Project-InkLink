@@ -276,11 +276,40 @@ export default function HomePage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Greeting */}
-        <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-balance">
-            Hi, @{usernameDisplay}
-          </h1>
-          <p className="text-muted-foreground mt-2">Welcome back! Keep exploring amazing stories.</p>
+        <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold text-balance">
+              Hi, @{usernameDisplay}
+            </h1>
+            <p className="text-muted-foreground mt-2">Welcome back! Keep exploring amazing stories.</p>
+          </div>
+
+          {user?.role === 'child' && (
+            <Link href="/children" className="group">
+                <div className="bg-gradient-to-r from-rose-400 to-orange-400 p-[2px] rounded-2xl transition-transform group-hover:scale-105">
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl px-6 py-3 flex items-center gap-3">
+                        <span className="text-2xl">🎨</span>
+                        <div>
+                            <p className="font-black text-rose-500 text-sm leading-tight">KIDS MODE</p>
+                            <p className="text-slate-500 text-xs font-medium">Enter your magic library</p>
+                        </div>
+                    </div>
+                </div>
+            </Link>
+          )}
+
+          {user?.role === 'parent' && (
+            <Link href="/dashboard/parent" className="group">
+                <div className="bg-indigo-600 rounded-2xl px-6 py-4 flex items-center gap-4 shadow-xl shadow-indigo-100 transition-all group-hover:-translate-y-1">
+                    <Shield className="text-indigo-200" size={28} />
+                    <div>
+                        <p className="font-bold text-white text-sm leading-tight">Parent Dashboard</p>
+                        <p className="text-indigo-200 text-xs font-medium">Manage your children's safety</p>
+                    </div>
+                    <Plus className="text-white bg-white/20 rounded-full p-1" size={24} />
+                </div>
+            </Link>
+          )}
         </div>
 
         {/* Quick Navigation Bar */}
