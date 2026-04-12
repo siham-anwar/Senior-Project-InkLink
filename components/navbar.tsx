@@ -8,18 +8,22 @@ import { cn } from "@/lib/cn";
 import { useThemeStore } from "@/app/store/theme-store";
 import { useAuthStore } from "@/app/store/authstore";
 
-const navLinks = [
-  { href: "/", label: "Home" },
-  { href: "/library", label: "Library" },
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/editor", label: "Write" },
-] as const;
-
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const theme = useThemeStore((s) => s.theme);
   const toggleTheme = useThemeStore((s) => s.toggleTheme);
   const user = useAuthStore((s) => s.user);
+
+  const role = user?.role || 'user';
+  
+  const links = [
+    { href: "/", label: "Home" },
+    ...(role === 'child' ? [{ href: "/children", label: "Kids Mode 🎨" }] : []),
+    ...(role === 'parent' ? [{ href: "/dashboard/parent", label: "Parent Control 🛡️" }] : []),
+    { href: "/library", label: "Library" },
+    { href: "/dashboard", label: "Dashboard" },
+    ...(role !== 'child' ? [{ href: "/editor", label: "Write" }] : []),
+  ];
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/80 bg-background/80 backdrop-blur-md">
@@ -32,7 +36,7 @@ export function Navbar() {
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex" aria-label="Main">
-          {navLinks.map((link) => (
+          {links.map((link) => (
             <Link
               key={link.label}
               href={link.href}
@@ -123,7 +127,7 @@ export function Navbar() {
             className="overflow-hidden border-t border-border md:hidden"
           >
             <div className="flex flex-col gap-1 px-4 py-4">
-              {navLinks.map((link) => (
+              {links.map((link) => (
                 <Link
                   key={link.label}
                   href={link.href}

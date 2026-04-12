@@ -61,6 +61,11 @@ export const EditorWorksService = {
     return toWorks(res.data)
   },
 
+  browse: async (tag?: string) => {
+    const res = await api.get('/works/browse', { params: tag ? { tag } : undefined })
+    return toWorks(res.data)
+  },
+
   create: async (dto: {
     title: string
     summary?: string

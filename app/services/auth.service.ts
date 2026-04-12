@@ -38,6 +38,7 @@ export const AuthService = {
     username: string;
     email?: string;
     password: string;
+    role?: string;
   }) => {
     logAuthCall("SIGNUP", {
       username: data.username,
@@ -45,7 +46,7 @@ export const AuthService = {
       hasPassword: Boolean(data.password),
     });
 
-    const res = await api.post("/auth/signup", { ...data, role: "user" });
+    const res = await api.post("/auth/signup", { ...data, role: data.role || "user" });
     return {
       ...res.data,
       user: extractUser(res.data),
@@ -61,5 +62,20 @@ export const AuthService = {
   logout: async () => {
     logAuthCall("LOGOUT");
     return api.post("/auth/logout");
+  },
+
+  createChild: async (data: any) => {
+    const res = await api.post("/users/children", data);
+    return res.data;
+  },
+
+  getChildren: async () => {
+    const res = await api.get("/users/children");
+    return res.data;
+  },
+
+  removeChild: async (id: string) => {
+    const res = await api.delete(`/users/children/${id}`);
+    return res.data;
   },
 };
