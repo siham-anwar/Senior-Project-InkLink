@@ -112,6 +112,7 @@ export default function SignupPage() {
             required
             className="bg-input border-border"
           />
+        </div>
         <div>
           <label htmlFor="role" className="block text-sm font-medium mb-2">
             Register as
