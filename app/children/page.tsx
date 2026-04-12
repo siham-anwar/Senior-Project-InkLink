@@ -88,11 +88,13 @@ export default function ChildrenPage() {
               className="pl-12 h-14 rounded-[2rem] border-4 border-primary/5 focus:border-primary/40 focus:ring-4 focus:ring-primary/5 w-80 bg-white font-bold text-lg"
             />
           </div>
-          <Link href="/home">
-            <Button variant="ghost" className="rounded-2xl text-primary hover:bg-primary/5 h-14 w-14 p-0">
-              <Home size={32} />
-            </Button>
-          </Link>
+          {user?.role !== 'child' && (
+            <Link href="/home">
+              <Button variant="ghost" className="rounded-2xl text-primary hover:bg-primary/5 h-14 w-14 p-0">
+                <Home size={32} />
+              </Button>
+            </Link>
+          )}
           <div className="bg-primary text-primary-foreground px-6 py-3 rounded-[1.5rem] flex items-center gap-3 shadow-lg shadow-primary/20 hover:scale-105 transition-transform">
             <div className="bg-white/20 p-1 rounded-full">
                 <Star className="text-white fill-white" size={20} />
@@ -170,11 +172,13 @@ export default function ChildrenPage() {
              <Button variant="ghost" className="rounded-2xl h-16 w-16 text-primary hover:bg-primary/5 transition-colors">
                 <Search size={32} />
              </Button>
-             <Link href="/home">
-                <Button className="rounded-[1.5rem] h-16 px-10 bg-primary hover:bg-primary-hover shadow-lg shadow-primary/20 font-black text-xl uppercase tracking-tighter text-white">
-                   Home
-                </Button>
-             </Link>
+             {user?.role !== 'child' && (
+               <Link href="/home">
+                  <Button className="rounded-[1.5rem] h-16 px-10 bg-primary hover:bg-primary-hover shadow-lg shadow-primary/20 font-black text-xl uppercase tracking-tighter text-white">
+                     Home
+                  </Button>
+               </Link>
+             )}
         </div>
       </div>
     </div>
