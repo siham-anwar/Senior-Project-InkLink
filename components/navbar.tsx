@@ -4,15 +4,19 @@ import { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, Moon, Sun, X, User } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
 import { useThemeStore } from "@/app/store/theme-store";
 import { useAuthStore } from "@/app/store/authstore";
 
 export function Navbar() {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const theme = useThemeStore((s) => s.theme);
   const toggleTheme = useThemeStore((s) => s.toggleTheme);
   const user = useAuthStore((s) => s.user);
+
+  if (pathname === '/children') return null;
 
   const role = user?.role || 'user';
   
