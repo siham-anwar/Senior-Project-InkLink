@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Search, Bell, Plus, User, BookOpen, Crown, LogOut } from 'lucide-react'
+import { Search, Bell, Plus, User, BookOpen, Crown, LogOut, Shield } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/app/store/authstore'
 
@@ -226,53 +226,6 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground pb-24">
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-sm border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-2">
-              <span className="text-2xl font-bold text-primary">InkLink</span>
-            </Link>
-
-            {/* Right Actions */}
-            <div className="flex items-center gap-2 md:gap-4 relative">
-              <button className="p-2 hover:bg-secondary rounded-lg transition-colors" title="Premium">
-                <Crown size={20} className="text-yellow-500" />
-              </button>
-              <div className="relative">
-                <button 
-                  onClick={() => setShowProfileMenu(!showProfileMenu)}
-                  className="p-2 hover:bg-secondary rounded-lg transition-colors" 
-                  title="Profile"
-                >
-                  <User size={20} />
-                </button>
-                {showProfileMenu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-lg shadow-lg py-2 z-50">
-                    <div className="px-4 py-2 border-b border-border">
-                      <p className="text-sm font-semibold text-foreground">@{usernameDisplay}</p>
-                      <p className="text-xs text-muted-foreground">{userEmail}</p>
-                    </div>
-                    <Link href="/profile" className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-secondary transition-colors text-foreground">
-                      <User size={16} />
-                      View Profile
-                    </Link>
-                    <button 
-                      onClick={handleLogout}
-                      className="w-full flex items-center gap-2 px-4 py-2 text-sm hover:bg-secondary transition-colors text-foreground text-left"
-                    >
-                      <LogOut size={16} />
-                      Logout
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Greeting */}
@@ -300,13 +253,13 @@ export default function HomePage() {
 
           {user?.role === 'parent' && (
             <Link href="/dashboard/parent" className="group">
-                <div className="bg-indigo-600 rounded-2xl px-6 py-4 flex items-center gap-4 shadow-xl shadow-indigo-100 transition-all group-hover:-translate-y-1">
-                    <Shield className="text-indigo-200" size={28} />
+                <div className="bg-primary rounded-2xl px-6 py-4 flex items-center gap-4 shadow-xl shadow-primary/10 transition-all group-hover:-translate-y-1">
+                    <Shield className="text-primary-foreground/80" size={28} />
                     <div>
-                        <p className="font-bold text-white text-sm leading-tight">Parent Dashboard</p>
-                        <p className="text-indigo-200 text-xs font-medium">Manage your children's safety</p>
+                        <p className="font-bold text-primary-foreground text-sm leading-tight">Parent Dashboard</p>
+                        <p className="text-primary-foreground/80 text-xs font-medium">Manage your children's safety</p>
                     </div>
-                    <Plus className="text-white bg-white/20 rounded-full p-1" size={24} />
+                    <Plus className="text-primary bg-white rounded-full p-1" size={24} />
                 </div>
             </Link>
           )}
@@ -371,28 +324,6 @@ export default function HomePage() {
           </div>
         </section>
       </main>
-
-      {/* Bottom Navigation - Mobile */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-card border-t border-border">
-        <div className="flex items-center justify-around h-16">
-          <Link href="/home" className="flex flex-col items-center justify-center w-full h-full text-primary gap-1">
-            <BookOpen size={24} />
-            <span className="text-xs font-medium">Home</span>
-          </Link>
-          <a href="#" className="flex flex-col items-center justify-center w-full h-full text-muted-foreground hover:text-foreground gap-1 transition-colors">
-            <Search size={24} />
-            <span className="text-xs font-medium">Search</span>
-          </a>
-          <a href="#" className="flex flex-col items-center justify-center w-full h-full text-muted-foreground hover:text-foreground gap-1 transition-colors">
-            <Bell size={24} />
-            <span className="text-xs font-medium">Notifications</span>
-          </a>
-          <Link href="#" className="flex flex-col items-center justify-center w-full h-full text-muted-foreground hover:text-foreground gap-1 transition-colors">
-            <User size={24} />
-            <span className="text-xs font-medium">Profile</span>
-          </Link>
-        </div>
-      </nav>
     </div>
   )
 }
