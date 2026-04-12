@@ -69,7 +69,7 @@ export default function ParentDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50/50">
+    <div className="min-h-screen bg-background">
       <main className="mx-auto max-w-6xl px-6 py-12">
         <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between mb-10">
           <div>
@@ -77,11 +77,11 @@ export default function ParentDashboard() {
                 <div className="bg-primary p-2 rounded-lg">
                     <Shield className="text-primary-foreground" size={24} />
                 </div>
-                <h1 className="text-4xl font-extrabold tracking-tight text-slate-900">
+                <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
                   Parent Control
                 </h1>
             </div>
-            <p className="text-slate-500 text-lg">
+            <p className="text-muted-foreground text-lg">
               Manage your children's accounts and safety settings.
             </p>
           </div>
@@ -140,21 +140,21 @@ export default function ParentDashboard() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {loading ? (
-            [1, 2].map(i => <div key={i} className="h-64 rounded-3xl bg-white animate-pulse shadow-sm border border-slate-100" />)
+            [1, 2].map(i => <div key={i} className="h-64 rounded-3xl bg-card animate-pulse shadow-sm border border-border" />)
           ) : children.length === 0 ? (
-            <Card className="col-span-full py-16 flex flex-col items-center border-dashed border-2 bg-white/50">
-                <Baby className="h-16 w-16 text-slate-300 mb-4" />
-                <h3 className="text-xl font-bold text-slate-700">No child accounts yet</h3>
-                <p className="text-slate-400 mb-6">Start by adding an account for your child.</p>
+            <Card className="col-span-full py-16 flex flex-col items-center border-dashed border-2 bg-card/50">
+                <Baby className="h-16 w-16 text-muted-foreground/30 mb-4" />
+                <h3 className="text-xl font-bold text-foreground">No child accounts yet</h3>
+                <p className="text-muted-foreground mb-6">Start by adding an account for your child.</p>
                 <Button variant="outline" onClick={() => setIsDialogOpen(true)}>Add your first child</Button>
             </Card>
           ) : (
             children.map((child) => (
-              <Card key={child._id} className="overflow-hidden border-none shadow-sm hover:shadow-md transition-shadow rounded-3xl bg-white">
-                <CardHeader className="bg-slate-50/50 pb-4">
+              <Card key={child._id} className="overflow-hidden border-none shadow-sm hover:shadow-md transition-shadow rounded-3xl bg-card">
+                <CardHeader className="bg-muted/30 pb-4">
                   <div className="flex items-center justify-between">
-                    <div className="bg-slate-200 p-3 rounded-2xl">
-                      <Baby className="text-slate-600" size={24} />
+                    <div className="bg-muted p-3 rounded-2xl">
+                      <Baby className="text-muted-foreground" size={24} />
                     </div>
                     <Button 
                         variant="ghost" 
@@ -165,24 +165,24 @@ export default function ParentDashboard() {
                       <Trash2 size={20} />
                     </Button>
                   </div>
-                  <CardTitle className="mt-4 text-2xl font-bold text-slate-800">@{child.username}</CardTitle>
+                  <CardTitle className="mt-4 text-2xl font-bold text-foreground">@{child.username}</CardTitle>
                   <CardDescription>Created on {new Date(child.createdAt).toLocaleDateString()}</CardDescription>
                 </CardHeader>
                 <CardContent className="pt-6 space-y-4">
-                  <div className="flex items-center gap-3 text-slate-600">
-                    <Mail size={18} className="text-slate-400" />
+                  <div className="flex items-center gap-3 text-muted-foreground">
+                    <Mail size={18} className="text-muted-foreground/50" />
                     <span className="text-sm">{child.email || 'No email provided'}</span>
                   </div>
-                  <div className="flex items-center gap-3 text-slate-600">
-                    <Key size={18} className="text-slate-400" />
+                  <div className="flex items-center gap-3 text-muted-foreground">
+                    <Key size={18} className="text-muted-foreground/50" />
                     <span className="text-sm italic">Role: Child (Restricted)</span>
                   </div>
                   
                   <div className="pt-4 flex gap-2">
-                    <Button variant="outline" className="flex-1 rounded-xl text-xs h-9 border-slate-200">
+                    <Button variant="outline" className="flex-1 rounded-xl text-xs h-9 border-border">
                       View Activity
                     </Button>
-                    <Button variant="outline" className="flex-1 rounded-xl text-xs h-9 border-slate-200">
+                    <Button variant="outline" className="flex-1 rounded-xl text-xs h-9 border-border">
                       Settings
                     </Button>
                   </div>
