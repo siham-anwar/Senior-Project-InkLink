@@ -21,8 +21,10 @@ export function Navbar() {
     ...(role === 'child' ? [{ href: "/children", label: "Kids Mode 🎨" }] : []),
     ...(role === 'parent' ? [{ href: "/dashboard/parent", label: "Parent Control 🛡️" }] : []),
     { href: "/library", label: "Library" },
-    { href: "/dashboard", label: "Dashboard" },
-    ...(role !== 'child' ? [{ href: "/editor", label: "Write" }] : []),
+    ...(role !== 'child' ? [
+      { href: "/dashboard", label: "Dashboard" },
+      { href: "/editor", label: "Write" }
+    ] : []),
   ];
 
   return (
