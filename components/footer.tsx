@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { cn } from '../lib/cn'
 
 function SocialIcon({
@@ -27,6 +27,9 @@ function SocialIcon({
 }
 
 export function Footer() {
+  const pathname = usePathname();
+  if (pathname === '/children') return null;
+
   return (
     <footer className="border-t border-[var(--border)]">
       <div className="mx-auto max-w-6xl px-6 py-10">
