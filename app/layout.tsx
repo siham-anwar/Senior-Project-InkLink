@@ -7,6 +7,7 @@ import { THEME_STORAGE_SCRIPT } from "../lib/theme-script";
 import { AuthSessionBootstrap } from '../components/auth-session-bootstrap'
 import { Navbar } from '@/components/navbar'
 import { Footer } from '@/components/footer'
+import Script from 'next/script'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -23,7 +24,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning className={inter.variable}>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: THEME_STORAGE_SCRIPT }} />
+        <Script
+          id="theme-script"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: THEME_STORAGE_SCRIPT }}
+        />
       </head>
       <body className="font-sans flex flex-col min-h-screen">
         <ThemeProvider>

@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation'
 import { cn } from '../lib/cn'
-
+import Link from 'next/link'
 function SocialIcon({
   href,
   label,
