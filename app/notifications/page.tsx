@@ -1,378 +1,297 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Heart, MessageCircle, User, Bell, Trash2, CheckCircle2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { cn } from '@/lib/utils'
+import Link from 'next/link'
+import { ChevronLeft, Search, MessageCircle, BookOpen, User } from 'lucide-react'
 
-interface Notification {
+interface Update {
   id: string
-  type: 'like' | 'follow' | 'comment' | 'release' | 'system' | 'recommendation'
+  type: 'chapter' | 'announcement'
+  authorName: string
+  authorImage: string
   title: string
-  message: string
-  avatar?: string
-  user?: string
-  read: boolean
-  createdAt: string
-  actionUrl?: string
+  description: string
+  timestamp: string
+  bookTitle?: string
+  bookImage?: string
+  isRead: boolean
 }
 
-type NotificationType = 'all' | 'releases' | 'social' | 'system' | 'recommendations'
+interface Message {
+  id: string
+  senderName: string
+  senderImage: string
+  lastMessage: string
+  timestamp: string
+  unread: boolean
+  isAuthor: boolean
+}
+
+const mockUpdates: Update[] = [
+  {
+    id: '1',
+    type: 'chapter',
+    authorName: 'Sarah Chen',
+    authorImage: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop',
+    title: 'New Chapter: The Journey Begins',
+    description: 'Chapter 5 of "Echoes of Tomorrow" has been released!',
+    bookTitle: 'Echoes of Tomorrow',
+    bookImage: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=100&h=150&fit=crop',
+    timestamp: '2 hours ago',
+    isRead: false,
+  },
+  {
+    id: '2',
+    type: 'announcement',
+    authorName: 'Marcus Reid',
+    authorImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop',
+    title: 'Author Announcement',
+    description: 'Exciting news about the upcoming book release and special live reading event!',
+    timestamp: '5 hours ago',
+    isRead: false,
+  },
+  {
+    id: '3',
+    type: 'chapter',
+    authorName: 'Elena Rodriguez',
+    authorImage: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop',
+    title: 'New Chapter: Unexpected Twist',
+    description: 'Chapter 12 of "Midnight Chronicles" is now available!',
+    bookTitle: 'Midnight Chronicles',
+    bookImage: 'https://images.unsplash.com/photo-1507842217343-583f20270319?w=100&h=150&fit=crop',
+    timestamp: '1 day ago',
+    isRead: true,
+  },
+]
+
+const mockMessages: Message[] = [
+  {
+    id: '1',
+    senderName: 'Alex Thompson',
+    senderImage: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop',
+    lastMessage: 'Your latest chapter was amazing! When will the next one come out?',
+    timestamp: '15 min ago',
+    unread: true,
+    isAuthor: true,
+  },
+  {
+    id: '2',
+    senderName: 'Jordan Lee',
+    senderImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop',
+    lastMessage: 'I have a question about the plot twist in chapter 8...',
+    timestamp: '2 hours ago',
+    unread: true,
+    isAuthor: true,
+  },
+  {
+    id: '3',
+    senderName: 'Casey Morgan',
+    senderImage: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop',
+    lastMessage: 'Thanks for the shout-out in your latest post!',
+    timestamp: '1 day ago',
+    unread: false,
+    isAuthor: true,
+  },
+]
 
 export default function NotificationsPage() {
-  const [notifications, setNotifications] = useState<Notification[]>([])
-  const [activeTab, setActiveTab] = useState<NotificationType>('all')
-  const [loading, setLoading] = useState(true)
+  const [mounted, setMounted] = useState(false)
+  const [activeTab, setActiveTab] = useState<'updates' | 'messages'>('updates')
+  const [updates, setUpdates] = useState<Update[]>([])
+  const [messages, setMessages] = useState<Message[]>([])
 
   useEffect(() => {
-    // Fetch notifications from backend - replace with your API
-    const fetchNotifications = async () => {
-      try {
-        // const res = await fetch('/api/users/notifications')
-        // const data = await res.json()
-        // setNotifications(data)
-
-        // Mock data - remove when backend is ready
-        const mockNotifications: Notification[] = [
-          {
-            id: '1',
-            type: 'like',
-            title: 'Sarah liked your review',
-            message: 'Sarah Chen liked your review of "The Midnight Library"',
-            user: 'Sarah Chen',
-            avatar: '',
-            read: false,
-            createdAt: '2024-03-20T10:30:00',
-          },
-          {
-            id: '2',
-            type: 'follow',
-            title: 'Alex started following you',
-            message: 'Alex Johnson started following you',
-            user: 'Alex Johnson',
-            avatar: '',
-            read: false,
-            createdAt: '2024-03-20T09:15:00',
-          },
-          {
-            id: '3',
-            type: 'comment',
-            title: 'New comment on your review',
-            message: 'Emma replied to your review of "Fourth Wing"',
-            user: 'Emma Wilson',
-            avatar: '',
-            read: true,
-            createdAt: '2024-03-19T14:20:00',
-          },
-          {
-            id: '4',
-            type: 'release',
-            title: 'New book release in Fantasy',
-            message: '"Winds of Fate" by Sarah J. Maas is now available',
-            read: false,
-            createdAt: '2024-03-19T12:00:00',
-          },
-          {
-            id: '5',
-            type: 'release',
-            title: 'New book release in Sci-Fi',
-            message: '"The Expanse: Leviathan Wakes" sequel is out now',
-            read: true,
-            createdAt: '2024-03-18T08:30:00',
-          },
-          {
-            id: '6',
-            type: 'system',
-            title: 'Milestone achieved!',
-            message: 'You have completed 25 books! 🎉',
-            read: false,
-            createdAt: '2024-03-17T11:45:00',
-          },
-          {
-            id: '7',
-            type: 'recommendation',
-            title: 'Recommended for you',
-            message: 'Based on your reading history, you might enjoy "Project Hail Mary"',
-            read: true,
-            createdAt: '2024-03-16T15:20:00',
-          },
-          {
-            id: '8',
-            type: 'recommendation',
-            title: 'Recommended for you',
-            message: 'Readers who loved "The Hobbit" also enjoyed "Game of Thrones"',
-            read: false,
-            createdAt: '2024-03-15T10:00:00',
-          },
-        ]
-
-        setNotifications(mockNotifications)
-      } catch (error) {
-        console.error('Failed to fetch notifications:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchNotifications()
+    setMounted(true)
+    setUpdates(mockUpdates)
+    setMessages(mockMessages)
   }, [])
 
-  const getNotificationsByType = (type: NotificationType) => {
-    if (type === 'all') return notifications
-    if (type === 'releases') return notifications.filter((n) => n.type === 'release')
-    if (type === 'social') return notifications.filter((n) => ['like', 'follow', 'comment'].includes(n.type))
-    if (type === 'system') return notifications.filter((n) => n.type === 'system')
-    if (type === 'recommendations') return notifications.filter((n) => n.type === 'recommendation')
-    return []
+  const markUpdateAsRead = (id: string) => {
+    setUpdates(updates.map(u => u.id === id ? { ...u, isRead: true } : u))
   }
 
-  const getUnreadCount = (type: NotificationType) => {
-    const filtered = getNotificationsByType(type)
-    return filtered.filter((n) => !n.read).length
+  const markMessageAsRead = (id: string) => {
+    setMessages(messages.map(m => m.id === id ? { ...m, unread: false } : m))
   }
 
-  const handleMarkAsRead = async (notificationId: string) => {
-    try {
-      // await fetch(`/api/users/notifications/${notificationId}`, {
-      //   method: 'PATCH',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ read: true }),
-      // })
-      setNotifications(
-        notifications.map((n) => (n.id === notificationId ? { ...n, read: true } : n))
-      )
-    } catch (error) {
-      console.error('Failed to mark notification as read:', error)
-    }
-  }
+  const unreadUpdates = updates.filter(u => !u.isRead).length
+  const unreadMessages = messages.filter(m => m.unread).length
 
-  const handleDeleteNotification = async (notificationId: string) => {
-    try {
-      // await fetch(`/api/users/notifications/${notificationId}`, {
-      //   method: 'DELETE',
-      // })
-      setNotifications(notifications.filter((n) => n.id !== notificationId))
-    } catch (error) {
-      console.error('Failed to delete notification:', error)
-    }
-  }
-
-  const handleMarkAllAsRead = async () => {
-    try {
-      // await fetch('/api/users/notifications/mark-all-read', {
-      //   method: 'PATCH',
-      // })
-      setNotifications(notifications.map((n) => ({ ...n, read: true })))
-    } catch (error) {
-      console.error('Failed to mark all as read:', error)
-    }
-  }
-
-  const getNotificationIcon = (type: string) => {
-    switch (type) {
-      case 'like':
-        return <Heart className="w-5 h-5 text-red-600" />
-      case 'follow':
-        return <User className="w-5 h-5 text-blue-600" />
-      case 'comment':
-        return <MessageCircle className="w-5 h-5 text-purple-600" />
-      case 'release':
-        return <Bell className="w-5 h-5 text-orange-600" />
-      case 'recommendation':
-        return <Heart className="w-5 h-5 text-pink-600" />
-      default:
-        return <Bell className="w-5 h-5 text-gray-600" />
-    }
-  }
-
-  const renderNotification = (notification: Notification) => {
-    const displayedNotifications = getNotificationsByType(activeTab)
-    if (!displayedNotifications.find((n) => n.id === notification.id)) return null
-
-    return (
-      <Card
-        key={notification.id}
-        className={cn(
-          'p-4 hover:shadow-md transition-shadow',
-          !notification.read && 'bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800'
-        )}
-      >
-        <div className="flex items-start gap-4">
-          {notification.user ? (
-            <Avatar className="w-10 h-10 flex-shrink-0">
-              <AvatarImage src={notification.avatar} alt={notification.user} />
-              <AvatarFallback>{notification.user.charAt(0)}</AvatarFallback>
-            </Avatar>
-          ) : (
-            <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-              {getNotificationIcon(notification.type)}
-            </div>
-          )}
-
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <p className="font-semibold text-foreground">{notification.title}</p>
-              {!notification.read && (
-                <div className="w-2 h-2 rounded-full bg-blue-600 flex-shrink-0" />
-              )}
-            </div>
-            <p className="text-sm text-muted-foreground mb-3">{notification.message}</p>
-            <p className="text-xs text-muted-foreground">
-              {formatRelativeTime(new Date(notification.createdAt))}
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2 flex-shrink-0">
-            {!notification.read && (
-              <Button
-                onClick={() => handleMarkAsRead(notification.id)}
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0"
-              >
-                <CheckCircle2 className="w-4 h-4 text-blue-600" />
-              </Button>
-            )}
-            <Button
-              onClick={() => handleDeleteNotification(notification.id)}
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0"
-            >
-              <Trash2 className="w-4 h-4 text-destructive" />
-            </Button>
-          </div>
-        </div>
-      </Card>
-    )
-  }
-
-  const currentTabNotifications = getNotificationsByType(activeTab)
-
-  if (loading) {
-    return <div className="min-h-screen bg-background flex items-center justify-center">Loading...</div>
-  }
+  if (!mounted) return null
 
   return (
-    <div className="min-h-screen bg-background py-8 px-4 md:px-8">
-      <div className="max-w-4xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-4xl font-bold text-foreground mb-2">Notifications</h1>
-            <p className="text-muted-foreground">
-              You have {getUnreadCount('all')} unread notification{getUnreadCount('all') !== 1 ? 's' : ''}
-            </p>
+    <div className="min-h-screen bg-background text-foreground pb-20">
+      {/* Header with Tabs */}
+      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between py-6 mb-4">
+            <div className="flex items-center gap-4">
+              <Link href="/home" className="p-2 hover:bg-secondary rounded-lg transition-colors" aria-label="Back to home">
+                <ChevronLeft size={24} />
+              </Link>
+              <div>
+                <h1 className="text-3xl font-bold">Notifications</h1>
+              </div>
+            </div>
+            <Link href="/search" className="p-2 hover:bg-secondary rounded-lg transition-colors">
+              <Search size={24} />
+            </Link>
           </div>
-          {getUnreadCount('all') > 0 && (
-            <Button onClick={handleMarkAllAsRead} variant="outline" size="sm">
-              Mark all as read
-            </Button>
-          )}
+
+          {/* Tab Navigation */}
+          <div className="flex gap-8 border-t border-border pt-4">
+            <button
+              onClick={() => setActiveTab('updates')}
+              className={`pb-4 font-medium transition-colors relative flex items-center gap-2 ${
+                activeTab === 'updates'
+                  ? 'text-primary'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <BookOpen size={18} />
+              Updates
+              {unreadUpdates > 0 && (
+                <span className="ml-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold rounded-full bg-primary text-primary-foreground">
+                  {unreadUpdates}
+                </span>
+              )}
+              {activeTab === 'updates' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"></div>
+              )}
+            </button>
+            <button
+              onClick={() => setActiveTab('messages')}
+              className={`pb-4 font-medium transition-colors relative flex items-center gap-2 ${
+                activeTab === 'messages'
+                  ? 'text-primary'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <MessageCircle size={18} />
+              Messages
+              {unreadMessages > 0 && (
+                <span className="ml-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold rounded-full bg-primary text-primary-foreground">
+                  {unreadMessages}
+                </span>
+              )}
+              {activeTab === 'messages' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"></div>
+              )}
+            </button>
+          </div>
         </div>
+      </div>
 
-        {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={(value: any) => setActiveTab(value)} className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="all">
-              All
-              {getUnreadCount('all') > 0 && (
-                <span className="ml-2 text-xs font-semibold text-red-600">
-                  {getUnreadCount('all')}
-                </span>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Updates Section */}
+        {activeTab === 'updates' && (
+          <section>
+            <div className="space-y-4">
+              {updates.length > 0 ? (
+                updates.map((update) => (
+                  <div
+                    key={update.id}
+                    onClick={() => markUpdateAsRead(update.id)}
+                    className={`p-4 rounded-lg border transition-all cursor-pointer ${
+                      update.isRead
+                        ? 'bg-background border-border hover:border-primary/50'
+                        : 'bg-primary/5 border-primary/30 hover:border-primary/50'
+                    }`}
+                  >
+                    <div className="flex gap-4">
+                      <img
+                        src={update.authorImage}
+                        alt={update.authorName}
+                        className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <div>
+                            <h3 className="font-semibold text-foreground">{update.authorName}</h3>
+                            <p className="text-sm text-muted-foreground">{update.timestamp}</p>
+                          </div>
+                          {!update.isRead && (
+                            <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-2"></div>
+                          )}
+                        </div>
+                        <h4 className="font-bold text-base mb-1">{update.title}</h4>
+                        <p className="text-sm text-foreground mb-3">{update.description}</p>
+                        {update.bookImage && (
+                          <div className="flex items-center gap-3 p-2 bg-secondary/30 rounded-lg w-fit">
+                            <img
+                              src={update.bookImage}
+                              alt={update.bookTitle}
+                              className="w-8 h-12 object-cover rounded"
+                            />
+                            <span className="text-sm font-medium">{update.bookTitle}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-12">
+                  <BookOpen size={48} className="mx-auto text-muted-foreground mb-4 opacity-50" />
+                  <p className="text-muted-foreground">No updates yet</p>
+                </div>
               )}
-            </TabsTrigger>
-            <TabsTrigger value="releases">
-              Releases
-              {getUnreadCount('releases') > 0 && (
-                <span className="ml-2 text-xs font-semibold text-orange-600">
-                  {getUnreadCount('releases')}
-                </span>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="social">
-              Social
-              {getUnreadCount('social') > 0 && (
-                <span className="ml-2 text-xs font-semibold text-blue-600">
-                  {getUnreadCount('social')}
-                </span>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="system">
-              System
-              {getUnreadCount('system') > 0 && (
-                <span className="ml-2 text-xs font-semibold text-purple-600">
-                  {getUnreadCount('system')}
-                </span>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="recommendations">
-              Recommendations
-              {getUnreadCount('recommendations') > 0 && (
-                <span className="ml-2 text-xs font-semibold text-pink-600">
-                  {getUnreadCount('recommendations')}
-                </span>
-              )}
-            </TabsTrigger>
-          </TabsList>
+            </div>
+          </section>
+        )}
 
-          {/* Tab Contents */}
-          <TabsContent value={activeTab} className="space-y-3 mt-6">
-            {currentTabNotifications.length > 0 ? (
-              currentTabNotifications.map((notification) => renderNotification(notification))
-            ) : (
-              <Card className="p-12 text-center">
-                <Bell className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">No notifications in this category</p>
-              </Card>
-            )}
-          </TabsContent>
-        </Tabs>
-
-        {/* Stats Footer */}
-        {notifications.length > 0 && (
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 pt-8 border-t">
-            <Card className="p-4 text-center">
-              <p className="text-muted-foreground text-xs mb-1">Total</p>
-              <p className="text-2xl font-bold text-foreground">{notifications.length}</p>
-            </Card>
-            <Card className="p-4 text-center">
-              <p className="text-muted-foreground text-xs mb-1">Unread</p>
-              <p className="text-2xl font-bold text-blue-600">{getUnreadCount('all')}</p>
-            </Card>
-            <Card className="p-4 text-center">
-              <p className="text-muted-foreground text-xs mb-1">Social</p>
-              <p className="text-2xl font-bold text-blue-600">{getUnreadCount('social')}</p>
-            </Card>
-            <Card className="p-4 text-center">
-              <p className="text-muted-foreground text-xs mb-1">Releases</p>
-              <p className="text-2xl font-bold text-orange-600">{getUnreadCount('releases')}</p>
-            </Card>
-            <Card className="p-4 text-center">
-              <p className="text-muted-foreground text-xs mb-1">Recommended</p>
-              <p className="text-2xl font-bold text-pink-600">{getUnreadCount('recommendations')}</p>
-            </Card>
-          </div>
+        {/* Messages Section */}
+        {activeTab === 'messages' && (
+          <section>
+            <div className="space-y-2">
+              {messages.length > 0 ? (
+                messages.map((message) => (
+                  <div
+                    key={message.id}
+                    onClick={() => markMessageAsRead(message.id)}
+                    className={`p-4 rounded-lg border transition-all cursor-pointer ${
+                      message.unread
+                        ? 'bg-primary/5 border-primary/30 hover:border-primary/50'
+                        : 'bg-background border-border hover:border-primary/50'
+                    }`}
+                  >
+                    <div className="flex gap-3">
+                      <img
+                        src={message.senderImage}
+                        alt={message.senderName}
+                        className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2 mb-1">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-semibold text-foreground">{message.senderName}</h3>
+                            {message.isAuthor && (
+                              <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full flex items-center gap-1">
+                                <User size={12} />
+                                Reader
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground flex-shrink-0">{message.timestamp}</p>
+                        </div>
+                        <p className="text-sm text-muted-foreground line-clamp-2">{message.lastMessage}</p>
+                      </div>
+                      {message.unread && (
+                        <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-1"></div>
+                      )}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-12">
+                  <MessageCircle size={48} className="mx-auto text-muted-foreground mb-4 opacity-50" />
+                  <p className="text-muted-foreground">No messages yet</p>
+                </div>
+              )}
+            </div>
+          </section>
         )}
       </div>
     </div>
   )
-}
-
-function formatRelativeTime(date: Date): string {
-  const now = new Date()
-  const diff = now.getTime() - date.getTime()
-  const minutes = Math.floor(diff / 60000)
-  const hours = Math.floor(diff / 3600000)
-  const days = Math.floor(diff / 86400000)
-
-  if (minutes < 1) return 'Just now'
-  if (minutes < 60) return `${minutes}m ago`
-  if (hours < 24) return `${hours}h ago`
-  if (days < 7) return `${days}d ago`
-
-  return date.toLocaleDateString()
 }
