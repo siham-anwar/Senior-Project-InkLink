@@ -1,371 +1,263 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Mail, MapPin, Calendar, Edit2, BookOpen, Flame, Save, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-
-interface UserProfile {
-  id: string
-  name: string
-  email: string
-  bio: string
-  avatar?: string
-  location?: string
-  joinedDate: string
-  booksRead: number
-  hoursRead: number
-  currentStreak: number
-  favoriteGenres: string[]
-}
-
-interface Book {
-  id: string
-  title: string
-  author: string
-  cover?: string
-  progress?: number
-  status: 'reading' | 'completed' | 'wishlist'
-}
-
-interface Review {
-  id: string
-  bookId: string
-  bookTitle: string
-  rating: number
-  content: string
-  createdAt: string
-}
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { ArrowLeft, Camera, Edit2, Users, X } from 'lucide-react'
 
 export default function ProfilePage() {
-  const [isEditing, setIsEditing] = useState(false)
-  const [profile, setProfile] = useState<UserProfile | null>(null)
-  const [editData, setEditData] = useState<UserProfile | null>(null)
-  const [books, setBooks] = useState<Book[]>([])
-  const [reviews, setReviews] = useState<Review[]>([])
-  const [loading, setLoading] = useState(true)
+  const router = useRouter()
+  const [mounted, setMounted] = useState(false)
+  const [profileImage, setProfileImage] = useState('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop')
+  const [isEditingProfile, setIsEditingProfile] = useState(false)
+  const [showFollowingList, setShowFollowingList] = useState(false)
+  const [userData, setUserData] = useState({
+    name: 'Alex Reader',
+    username: 'alexreader',
+    bio: 'Book lover and aspiring author. Always reading, always learning.',
+    following: 342,
+  })
+  const [editData, setEditData] = useState(userData)
+
+  const mockFollowing = [
+    {
+      id: 1,
+      name: 'Sarah Chen',
+      username: 'sarahchen',
+      image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=40&h=40&fit=crop',
+      isFollowing: true,
+    },
+    {
+      id: 2,
+      name: 'James Miller',
+      username: 'jamesmiller',
+      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop',
+      isFollowing: true,
+    },
+    {
+      id: 3,
+      name: 'Emma Davis',
+      username: 'emmadavis',
+      image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop',
+      isFollowing: true,
+    },
+    {
+      id: 4,
+      name: 'Lucas Taylor',
+      username: 'lucastaylor',
+      image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=40&h=40&fit=crop',
+      isFollowing: true,
+    },
+  ]
 
   useEffect(() => {
-    // Fetch profile data - replace with your backend URL
-    const fetchData = async () => {
-      try {
-        // const profileRes = await fetch('/api/users/profile')
-        // const booksRes = await fetch('/api/users/books')
-        // const reviewsRes = await fetch('/api/users/reviews')
-        
-        // Mock data - remove when backend is ready
-        const mockProfile: UserProfile = {
-          id: 'user-1',
-          name: 'Sarah Chen',
-          email: 'sarah.chen@email.com',
-          bio: 'Bookworm | Fantasy & Mystery Lover | Coffee enthusiast',
-          avatar: '',
-          location: 'San Francisco, CA',
-          joinedDate: '2024-01-15',
-          booksRead: 24,
-          hoursRead: 156,
-          currentStreak: 12,
-          favoriteGenres: ['Fantasy', 'Mystery', 'Sci-Fi'],
-        }
-
-        const mockBooks: Book[] = [
-          { id: '1', title: 'The Midnight Library', author: 'Matt Haig', progress: 85, status: 'reading' },
-          { id: '2', title: 'Project Hail Mary', author: 'Andy Weir', progress: 45, status: 'reading' },
-          { id: '3', title: 'Fourth Wing', author: 'Rebecca Yarros', progress: 100, status: 'completed' },
-          { id: '4', title: 'Iron Widow', author: 'Gideon Defoe', status: 'wishlist' },
-          { id: '5', title: 'The House in the Cerulean Sea', author: 'TJ Klune', status: 'wishlist' },
-        ]
-
-        const mockReviews: Review[] = [
-          { id: 'r1', bookId: '3', bookTitle: 'The Silent Patient', rating: 5, content: 'An absolute page-turner! The twist ending was mind-bending.', createdAt: '2024-03-15' },
-          { id: 'r2', bookId: '2', bookTitle: 'Educated', rating: 4, content: 'Powerful and thought-provoking memoir. Highly recommend.', createdAt: '2024-02-20' },
-        ]
-
-        setProfile(mockProfile)
-        setEditData(mockProfile)
-        setBooks(mockBooks)
-        setReviews(mockReviews)
-      } catch (error) {
-        console.error('Failed to fetch profile data:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchData()
+    setMounted(true)
   }, [])
 
-  const handleSaveProfile = async () => {
-    if (!editData) return
-    try {
-      // const res = await fetch('/api/users/profile', {
-      //   method: 'PATCH',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(editData),
-      // })
-      // if (res.ok) {
-      //   setProfile(editData)
-      //   setIsEditing(false)
-      // }
-      
-      // Mock - remove when backend is ready
-      setProfile(editData)
-      setIsEditing(false)
-    } catch (error) {
-      console.error('Failed to update profile:', error)
+  const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        setProfileImage(event.target?.result as string)
+      }
+      reader.readAsDataURL(file)
     }
   }
 
-  if (loading) {
-    return <div className="min-h-screen bg-background flex items-center justify-center">Loading...</div>
+  const handleSaveProfile = () => {
+    setUserData(editData)
+    setIsEditingProfile(false)
   }
 
-  if (!profile) {
-    return <div className="min-h-screen bg-background flex items-center justify-center">Failed to load profile</div>
+  if (!mounted) {
+    return null
   }
-
-  const readingBooks = books.filter((b) => b.status === 'reading')
-  const wishlistBooks = books.filter((b) => b.status === 'wishlist')
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header with Background */}
-      <div className="h-32 bg-gradient-to-r from-red-600 to-red-700 relative">
-        <div className="absolute -bottom-16 left-8">
-          <Avatar className="w-32 h-32 border-4 border-background">
-            <AvatarImage src={profile.avatar} alt={profile.name} />
-            <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
-          </Avatar>
+    <div className="min-h-screen bg-background text-foreground pb-24">
+      {/* Header */}
+      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+          <Link href="/home" className="p-2 hover:bg-secondary rounded-lg transition-colors" aria-label="Back to home">
+            <ArrowLeft size={24} />
+          </Link>
+          <h1 className="text-xl font-bold">Profile</h1>
+          <div className="w-10"></div>
         </div>
       </div>
 
-      <div className="pt-20 px-8 pb-8">
-        {/* Profile Header */}
-        <div className="flex justify-between items-start mb-8">
-          <div className="flex-1">
-            {isEditing ? (
-              <div className="space-y-3">
-                <Input
-                  value={editData?.name || ''}
-                  onChange={(e) => setEditData(editData ? { ...editData, name: e.target.value } : null)}
-                  placeholder="Full name"
-                  className="text-3xl font-bold h-auto p-2 bg-background border-2"
-                />
-                <Textarea
-                  value={editData?.bio || ''}
-                  onChange={(e) => setEditData(editData ? { ...editData, bio: e.target.value } : null)}
-                  placeholder="Bio"
-                  className="bg-background border-2 resize-none"
-                />
-                <Input
-                  value={editData?.email || ''}
-                  onChange={(e) => setEditData(editData ? { ...editData, email: e.target.value } : null)}
-                  placeholder="Email"
-                  type="email"
-                  className="bg-background border-2"
-                />
-                <Input
-                  value={editData?.location || ''}
-                  onChange={(e) => setEditData(editData ? { ...editData, location: e.target.value } : null)}
-                  placeholder="Location"
-                  className="bg-background border-2"
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Profile Picture Section */}
+        <div className="flex flex-col items-center mb-8">
+          <div className="relative mb-6">
+            <img
+              src={profileImage}
+              alt={userData.name}
+              className="w-32 h-32 rounded-full object-cover border-4 border-primary/20"
+            />
+            <label htmlFor="profile-upload" className="absolute bottom-0 right-0 p-2 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-colors cursor-pointer">
+              <Camera size={20} />
+            </label>
+            <input
+              id="profile-upload"
+              type="file"
+              accept="image/*"
+              onChange={handleProfileImageChange}
+              className="hidden"
+            />
+          </div>
+
+          {/* Profile Info */}
+          {!isEditingProfile ? (
+            <div className="text-center mb-6">
+              <h2 className="text-3xl font-bold mb-1">{userData.name}</h2>
+              <p className="text-muted-foreground mb-4">@{userData.username}</p>
+              <p className="text-foreground mb-6 max-w-md">{userData.bio}</p>
+              <div className="flex items-center justify-center gap-6 mb-6">
+                <button
+                  onClick={() => setShowFollowingList(true)}
+                  className="flex flex-col items-center hover:opacity-80 transition-opacity cursor-pointer"
+                >
+                  <span className="text-2xl font-bold">{userData.following}</span>
+                  <span className="text-xs text-muted-foreground">Following</span>
+                </button>
+              </div>
+              <button
+                onClick={() => {
+                  setEditData(userData)
+                  setIsEditingProfile(true)
+                }}
+                className="inline-flex items-center gap-2 px-6 py-2 border border-border rounded-lg hover:bg-secondary transition-colors mb-4 font-medium"
+              >
+                <Edit2 size={18} />
+                Edit Profile
+              </button>
+            </div>
+          ) : (
+            <div className="w-full max-w-md space-y-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium mb-2">Name</label>
+                <input
+                  type="text"
+                  value={editData.name}
+                  onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+                  className="w-full px-3 py-2 bg-secondary border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-foreground"
                 />
               </div>
-            ) : (
-              <>
-                <h1 className="text-3xl font-bold text-foreground mb-2">{profile.name}</h1>
-                <p className="text-muted-foreground mb-4">{profile.bio}</p>
-                <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Mail className="w-4 h-4" />
-                    {profile.email}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <MapPin className="w-4 h-4" />
-                    {profile.location}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Calendar className="w-4 h-4" />
-                    Joined {new Date(profile.joinedDate).toLocaleDateString()}
+              <div>
+                <label className="block text-sm font-medium mb-2">Username</label>
+                <input
+                  type="text"
+                  value={editData.username}
+                  onChange={(e) => setEditData({ ...editData, username: e.target.value })}
+                  className="w-full px-3 py-2 bg-secondary border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-foreground"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Bio</label>
+                <textarea
+                  value={editData.bio}
+                  onChange={(e) => setEditData({ ...editData, bio: e.target.value })}
+                  rows={3}
+                  className="w-full px-3 py-2 bg-secondary border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none text-foreground"
+                />
+              </div>
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => setIsEditingProfile(false)}
+                  className="flex-1 px-4 py-2 border border-border rounded-lg hover:bg-secondary transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveProfile}
+                  className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Author Dashboard Button */}
+          <Link
+            href="/dashboard"
+            className="px-8 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-semibold"
+          >
+            Author Dashboard
+          </Link>
+        </div>
+
+        {/* Following List Section */}
+        <div className="mt-12 pt-8 border-t border-border">
+          <div className="flex items-center gap-2 mb-6">
+            <Users size={24} />
+            <h3 className="text-2xl font-bold">Following ({userData.following})</h3>
+          </div>
+          <div className="space-y-3">
+            {mockFollowing.map((author) => (
+              <Link
+                key={author.id}
+                href={`/author/${author.username}`}
+                className="flex items-center justify-between p-4 bg-secondary/30 border border-border rounded-lg hover:border-primary/50 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <img
+                    src={author.image}
+                    alt={author.name}
+                    className="w-12 h-12 rounded-full object-cover"
+                  />
+                  <div>
+                    <h4 className="font-semibold">{author.name}</h4>
+                    <p className="text-sm text-muted-foreground">@{author.username}</p>
                   </div>
                 </div>
-              </>
-            )}
-          </div>
-          <div className="flex gap-2">
-            {isEditing ? (
-              <>
-                <Button
-                  onClick={handleSaveProfile}
-                  className="gap-2 bg-red-600 hover:bg-red-700"
-                  size="sm"
-                >
-                  <Save className="w-4 h-4" />
-                  Save
-                </Button>
-                <Button
-                  onClick={() => {
-                    setIsEditing(false)
-                    setEditData(profile)
-                  }}
-                  variant="outline"
-                  size="sm"
-                  className="gap-2"
-                >
-                  <X className="w-4 h-4" />
-                  Cancel
-                </Button>
-              </>
-            ) : (
-              <Button
-                onClick={() => setIsEditing(true)}
-                variant="outline"
-                size="sm"
-                className="gap-2"
-              >
-                <Edit2 className="w-4 h-4" />
-                Edit Profile
-              </Button>
-            )}
+                <div className="text-sm font-medium text-primary">Following</div>
+              </Link>
+            ))}
           </div>
         </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <Card className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-muted-foreground text-sm mb-1">Books Read</p>
-                <p className="text-2xl font-bold text-foreground">{profile.booksRead}</p>
-              </div>
-              <BookOpen className="w-8 h-8 text-red-600" />
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-muted-foreground text-sm mb-1">Hours Read</p>
-                <p className="text-2xl font-bold text-foreground">{profile.hoursRead}</p>
-              </div>
-              <Calendar className="w-8 h-8 text-red-600" />
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-muted-foreground text-sm mb-1">Current Streak</p>
-                <p className="text-2xl font-bold text-foreground">{profile.currentStreak} days</p>
-              </div>
-              <Flame className="w-8 h-8 text-red-600" />
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <div>
-              <p className="text-muted-foreground text-sm mb-3">Favorite Genres</p>
-              <div className="flex flex-wrap gap-2">
-                {profile.favoriteGenres.map((genre) => (
-                  <Badge key={genre} variant="secondary">{genre}</Badge>
-                ))}
-              </div>
-            </div>
-          </Card>
-        </div>
-
-        {/* Tabs Section */}
-        <Tabs defaultValue="reading" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-8">
-            <TabsTrigger value="reading">Currently Reading</TabsTrigger>
-            <TabsTrigger value="wishlist">Wishlist</TabsTrigger>
-            <TabsTrigger value="reviews">Reviews</TabsTrigger>
-          </TabsList>
-
-          {/* Currently Reading Tab */}
-          <TabsContent value="reading">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {readingBooks.map((book) => (
-                <Card key={book.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                  <div className="relative h-64 bg-muted overflow-hidden">
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-red-100 to-red-200">
-                      <BookOpen className="w-12 h-12 text-red-600" />
-                    </div>
-                  </div>
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold text-foreground mb-1 line-clamp-2">{book.title}</h3>
-                    <p className="text-sm text-muted-foreground mb-3">{book.author}</p>
-                    {book.progress !== undefined && (
-                      <>
-                        <div className="w-full bg-muted rounded-full h-2 mb-2">
-                          <div
-                            className="bg-red-600 h-2 rounded-full transition-all"
-                            style={{ width: `${book.progress}%` }}
-                          />
-                        </div>
-                        <p className="text-xs text-muted-foreground">{book.progress}% complete</p>
-                      </>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-
-          {/* Wishlist Tab */}
-          <TabsContent value="wishlist">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {wishlistBooks.map((book) => (
-                <Card key={book.id} className="overflow-hidden hover:shadow-lg transition-shadow group">
-                  <div className="relative h-64 bg-muted overflow-hidden">
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-red-100 to-red-200 group-hover:scale-105 transition-transform">
-                      <BookOpen className="w-12 h-12 text-red-600" />
-                    </div>
-                  </div>
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold text-foreground mb-1 line-clamp-2">{book.title}</h3>
-                    <p className="text-sm text-muted-foreground mb-3">{book.author}</p>
-                    <Button className="w-full bg-red-600 hover:bg-red-700" size="sm">
-                      Add to Library
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-
-          {/* Reviews Tab */}
-          <TabsContent value="reviews">
-            <div className="space-y-4">
-              {reviews.map((review) => (
-                <Card key={review.id} className="p-6">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-semibold text-foreground">{review.bookTitle}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {new Date(review.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <div className="flex gap-1 mb-3">
-                    {Array(5)
-                      .fill(0)
-                      .map((_, i) => (
-                        <span key={i} className={i < review.rating ? 'text-yellow-400' : 'text-muted'}>
-                          ★
-                        </span>
-                      ))}
-                  </div>
-                  <p className="text-foreground">{review.content}</p>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-        </Tabs>
       </div>
+
+      {/* Following List Modal */}
+      {showFollowingList && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-background border border-border rounded-lg p-6 w-full max-w-md max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold">Following</h3>
+              <button
+                onClick={() => setShowFollowingList(false)}
+                className="p-1 hover:bg-secondary rounded-lg transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <div className="space-y-3">
+              {mockFollowing.map((author) => (
+                <Link
+                  key={author.id}
+                  href={`/author/${author.username}`}
+                  onClick={() => setShowFollowingList(false)}
+                  className="flex items-center justify-between p-3 hover:bg-secondary rounded-lg transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={author.image}
+                      alt={author.name}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                    <div>
+                      <p className="font-semibold text-sm">{author.name}</p>
+                      <p className="text-xs text-muted-foreground">@{author.username}</p>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
