@@ -306,10 +306,10 @@ export default function HomePage() {
             <BookOpen size={18} />
             <span className="text-sm font-medium">Library</span>
           </Link>
-          <button className="flex items-center gap-2 px-4 py-2 hover:bg-secondary rounded-full transition-colors flex-shrink-0">
+          <Link href="/notifications" className="flex items-center gap-2 px-4 py-2 hover:bg-secondary rounded-full transition-colors flex-shrink-0">
             <Bell size={18} />
             <span className="text-sm font-medium">Notifications</span>
-          </button>
+          </Link>
           <Link href="#" className="flex items-center gap-2 px-4 py-2 hover:bg-secondary rounded-full transition-colors flex-shrink-0">
             <Plus size={18} />
             <span className="text-sm font-medium">Create</span>
@@ -379,10 +379,10 @@ export default function HomePage() {
             <Search size={24} />
             <span className="text-xs font-medium">Search</span>
           </Link>
-          <a href="#" className="flex flex-col items-center justify-center w-full h-full text-muted-foreground hover:text-foreground gap-1 transition-colors">
+          <Link href="/notifications" className="flex flex-col items-center justify-center w-full h-full text-muted-foreground hover:text-foreground gap-1 transition-colors">
             <Bell size={24} />
             <span className="text-xs font-medium">Notifications</span>
-          </a>
+          </Link>
           <Link href="#" className="flex flex-col items-center justify-center w-full h-full text-muted-foreground hover:text-foreground gap-1 transition-colors">
             <User size={24} />
             <span className="text-xs font-medium">Profile</span>
