@@ -1,35 +1,51 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, Moon, Sun, X, User } from "lucide-react";
+import { Menu, Moon, Sun, X, User, Bell } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
 import { useThemeStore } from "@/app/store/theme-store";
 import { useAuthStore } from "@/app/store/authstore";
+import { notificationsService } from "@/app/services/notifications.service";
 
 export function Navbar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const theme = useThemeStore((s) => s.theme);
   const toggleTheme = useThemeStore((s) => s.toggleTheme);
   const user = useAuthStore((s) => s.user);
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    if (!user) { setUnreadCount(0); return; }
+    notificationsService.getUnreadCount().then(setUnreadCount);
+    const interval = setInterval(
+      () => notificationsService.getUnreadCount().then(setUnreadCount),
+      60_000, // refresh every 60 s
+    );
+    return () => clearInterval(interval);
+  }, [user]);
+
   if (pathname === '/children') return null;
 
   const role = user?.role || 'user';
-  
-  const links = [
-    { href: "/", label: "Home" },
-    ...(role === 'child' ? [{ href: "/children", label: "Kids Mode 🎨" }] : []),
-    ...(role === 'parent' ? [{ href: "/dashboard/parent", label: "Parent Control 🛡️" }] : []),
-    { href: "/library", label: "Library" },
-    ...(role !== 'child' ? [
-      { href: "/dashboard", label: "Dashboard" },
-      { href: "/editor", label: "Write" }
-    ] : []),
-  ];
+
+  const links = role === 'child' 
+    ? [
+        { href: "/children", label: "Kids Mode 🎨" },
+        { href: "/library", label: "My Stories" },
+      ]
+    : [
+        { href: "/home", label: "My Readings" },
+        { href: "/explore", label: "Explore" },
+        ...(role === 'parent' ? [{ href: "/dashboard/parent", label: "Parent Control 🛡️" }] : []),
+        { href: "/library", label: "Library" },
+        { href: "/dashboard", label: "Dashboard" },
+        { href: "/editor", label: "Write" }
+      ];
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/80 bg-background/80 backdrop-blur-md">
@@ -67,6 +83,21 @@ export function Navbar() {
               <Moon className="h-4 w-4" />
             )}
           </motion.button>
+
+          {user && (
+            <Link
+              href="/notifications"
+              aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
+              className="relative flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:border-primary/40"
+            >
+              <Bell className="h-4 w-4" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </Link>
+          )}
 
           {user ? (
             <Link
@@ -110,6 +141,22 @@ export function Navbar() {
               <Moon className="h-4 w-4" />
             )}
           </motion.button>
+
+          {user && (
+            <Link
+              href="/notifications"
+              aria-label="Notifications"
+              className="relative flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-foreground"
+            >
+              <Bell className="h-4 w-4" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </Link>
+          )}
+
           <button
             type="button"
             aria-expanded={open}
@@ -148,13 +195,28 @@ export function Navbar() {
               ))}
               <div className="mt-2 flex flex-col gap-2 border-t border-border pt-4">
                 {user ? (
-                  <Link
-                    href="/profile"
-                    onClick={() => setOpen(false)}
-                    className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-card"
-                  >
-                    Profile ({user.username})
-                  </Link>
+                  <>
+                    <Link
+                      href="/notifications"
+                      onClick={() => setOpen(false)}
+                      className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium hover:bg-card"
+                    >
+                      <Bell className="h-4 w-4" />
+                      Notifications
+                      {unreadCount > 0 && (
+                        <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                          {unreadCount > 9 ? '9+' : unreadCount}
+                        </span>
+                      )}
+                    </Link>
+                    <Link
+                      href="/profile"
+                      onClick={() => setOpen(false)}
+                      className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-card"
+                    >
+                      Profile ({user.username})
+                    </Link>
+                  </>
                 ) : (
                   <>
                     <Link
