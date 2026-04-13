@@ -74,8 +74,8 @@ export default function ParentDashboard() {
         <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between mb-10">
           <div>
             <div className="flex items-center gap-3 mb-2">
-                <div className="bg-indigo-600 p-2 rounded-lg">
-                    <Shield className="text-white" size={24} />
+                <div className="bg-primary p-2 rounded-lg">
+                    <Shield className="text-primary-foreground" size={24} />
                 </div>
                 <h1 className="text-4xl font-extrabold tracking-tight text-slate-900">
                   Parent Control
@@ -88,7 +88,7 @@ export default function ParentDashboard() {
 
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button size="lg" className="rounded-full px-8 bg-indigo-600 hover:bg-indigo-700 shadow-xl shadow-indigo-100 transition-all hover:scale-105">
+              <Button size="lg" className="rounded-full px-8 bg-primary hover:bg-primary-hover text-primary-foreground shadow-md transition-all hover:scale-105 active:scale-95">
                 <Plus className="mr-2 h-5 w-5" />
                 Add Child Account
               </Button>
@@ -132,7 +132,7 @@ export default function ParentDashboard() {
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-                <Button onClick={handleCreateChild} className="bg-indigo-600 hover:bg-indigo-700">Create Account</Button>
+                <Button onClick={handleCreateChild} className="bg-primary hover:bg-primary-hover text-primary-foreground">Create Account</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -193,29 +193,29 @@ export default function ParentDashboard() {
         </div>
 
         {/* Info Section */}
-        <div className="mt-16 bg-indigo-900 rounded-[2.5rem] p-10 text-white relative overflow-hidden shadow-2xl shadow-indigo-200">
+        <div className="mt-16 bg-primary/10 rounded-[2.5rem] p-10 relative overflow-hidden border border-primary/20">
             <div className="relative z-10 max-w-2xl">
-                <h2 className="text-3xl font-bold mb-4 flex items-center gap-3">
-                    <Shield className="text-indigo-300" />
+                <h2 className="text-3xl font-bold mb-4 flex items-center gap-3 text-primary">
+                    <Shield className="text-primary" />
                     Safe Browsing Active
                 </h2>
-                <p className="text-indigo-100 text-lg leading-relaxed">
+                <p className="text-foreground/70 text-lg leading-relaxed">
                     Child accounts are automatically restricted to content flagged as "Child Safe" by our moderation AI. 
                     They cannot access adult-only stories, modify their own permissions, or bypass these restrictions. 
                 </p>
                 <div className="mt-8 flex gap-4">
-                    <div className="bg-white/10 backdrop-blur-sm p-4 rounded-2xl border border-white/10">
-                        <p className="text-xs font-bold text-indigo-300 uppercase tracking-widest mb-1">AI Moderated</p>
-                        <p className="text-sm">Real-time safety checks</p>
+                    <div className="bg-primary/5 backdrop-blur-sm p-4 rounded-2xl border border-primary/10">
+                        <p className="text-xs font-bold text-primary uppercase tracking-widest mb-1">AI Moderated</p>
+                        <p className="text-sm text-foreground/60">Real-time safety checks</p>
                     </div>
-                    <div className="bg-white/10 backdrop-blur-sm p-4 rounded-2xl border border-white/10">
-                        <p className="text-xs font-bold text-indigo-300 uppercase tracking-widest mb-1">Parent Scoped</p>
-                        <p className="text-sm">Full control over access</p>
+                    <div className="bg-primary/5 backdrop-blur-sm p-4 rounded-2xl border border-primary/10">
+                        <p className="text-xs font-bold text-primary uppercase tracking-widest mb-1">Parent Scoped</p>
+                        <p className="text-sm text-foreground/60">Full control over access</p>
                     </div>
                 </div>
             </div>
             {/* Background elements */}
-            <Baby className="absolute -bottom-10 -right-10 h-64 w-64 text-white/5 -rotate-12" />
+            <Baby className="absolute -bottom-10 -right-10 h-64 w-64 text-primary/5 -rotate-12" />
         </div>
       </main>
     </div>
