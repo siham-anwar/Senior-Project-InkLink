@@ -1,355 +1,441 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Search, Grid, List, BookOpen, Trash2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { cn } from '@/lib/utils'
+import Link from 'next/link'
+import { Search, Plus, Bookmark, BookMarked, Heart, X, ChevronLeft } from 'lucide-react'
 
 interface Book {
-  id: string
+  id: number
   title: string
   author: string
-  cover?: string
-  status: 'reading' | 'completed' | 'wishlist'
+  image: string
   progress?: number
-  addedDate: string
+  reads?: string
+}
+
+interface ReadList {
+  id: number
+  name: string
+  description: string
+  bookCount: number
+  books: number[]
 }
 
 export default function LibraryPage() {
-  const [books, setBooks] = useState<Book[]>([])
-  const [filteredBooks, setFilteredBooks] = useState<Book[]>([])
-  const [searchQuery, setSearchQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState<'all' | 'reading' | 'completed' | 'wishlist'>('all')
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
-  const [loading, setLoading] = useState(true)
+  const [mounted, setMounted] = useState(false)
+  const [currentReadBooks, setCurrentReadBooks] = useState<Book[]>([])
+  const [bookmarkedBooks, setBookmarkedBooks] = useState<Book[]>([])
+  const [readLists, setReadLists] = useState<ReadList[]>([])
+  const [showCreateReadList, setShowCreateReadList] = useState(false)
+  const [newListName, setNewListName] = useState('')
+  const [newListDescription, setNewListDescription] = useState('')
+  const [activeTab, setActiveTab] = useState<'current' | 'bookmarks' | 'lists'>('current')
 
   useEffect(() => {
-    // Fetch books from backend - replace with your API
-    const fetchBooks = async () => {
-      try {
-        // const res = await fetch('/api/users/library')
-        // const data = await res.json()
-        // setBooks(data)
+    setMounted(true)
+    // Mock data - Replace with backend API calls
+    const mockCurrentRead: Book[] = [
+      {
+        id: 1,
+        title: 'The Midnight Kingdom',
+        author: 'Sarah Chen',
+        image: 'https://images.unsplash.com/photo-1507842217343-583f20270319?w=300&h=400&fit=crop',
+        progress: 65,
+        reads: '2.4M',
+      },
+      {
+        id: 2,
+        title: 'Hearts Intertwined',
+        author: 'Maya Rodriguez',
+        image: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=300&h=400&fit=crop',
+        progress: 42,
+        reads: '5.1M',
+      },
+      {
+        id: 3,
+        title: 'Summer of Stars',
+        author: 'Jessica Williams',
+        image: 'https://images.unsplash.com/photo-1543002588-d83cedbc4f0d?w=300&h=400&fit=crop',
+        progress: 78,
+        reads: '4.5M',
+      },
+      {
+        id: 4,
+        title: 'Echoes of Yesterday',
+        author: 'Alex Turner',
+        image: 'https://images.unsplash.com/photo-1495446815901-a7297e01c869?w=300&h=400&fit=crop',
+        progress: 30,
+        reads: '3.8M',
+      },
+      {
+        id: 5,
+        title: 'Whispers in the Wind',
+        author: 'Emma Stone',
+        image: 'https://images.unsplash.com/photo-1507842217343-583f20270319?w=300&h=400&fit=crop',
+        progress: 55,
+        reads: '6.2M',
+      },
+      {
+        id: 6,
+        title: 'Beyond the Horizon',
+        author: 'Daniel Brooks',
+        image: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=300&h=400&fit=crop',
+        progress: 20,
+        reads: '4.9M',
+      },
+      {
+        id: 7,
+        title: 'Midnight Chronicles',
+        author: 'Sophie Laurent',
+        image: 'https://images.unsplash.com/photo-1543002588-d83cedbc4f0d?w=300&h=400&fit=crop',
+        progress: 88,
+        reads: '5.5M',
+      },
+      {
+        id: 8,
+        title: 'Love in the City',
+        author: 'James Wilson',
+        image: 'https://images.unsplash.com/photo-1495446815901-a7297e01c869?w=300&h=400&fit=crop',
+        progress: 45,
+        reads: '3.2M',
+      },
+    ]
 
-        // Mock data - remove when backend is ready
-        const mockBooks: Book[] = [
-          {
-            id: '1',
-            title: 'The Midnight Library',
-            author: 'Matt Haig',
-            status: 'reading',
-            progress: 85,
-            addedDate: '2024-02-01',
-          },
-          {
-            id: '2',
-            title: 'Project Hail Mary',
-            author: 'Andy Weir',
-            status: 'reading',
-            progress: 45,
-            addedDate: '2024-01-15',
-          },
-          {
-            id: '3',
-            title: 'Fourth Wing',
-            author: 'Rebecca Yarros',
-            status: 'completed',
-            addedDate: '2023-12-20',
-          },
-          {
-            id: '4',
-            title: 'Atomic Habits',
-            author: 'James Clear',
-            status: 'completed',
-            addedDate: '2023-11-10',
-          },
-          {
-            id: '5',
-            title: 'Iron Widow',
-            author: 'Gideon Defoe',
-            status: 'wishlist',
-            addedDate: '2024-03-01',
-          },
-          {
-            id: '6',
-            title: 'The House in the Cerulean Sea',
-            author: 'TJ Klune',
-            status: 'wishlist',
-            addedDate: '2024-02-15',
-          },
-          {
-            id: '7',
-            title: 'Legendborn',
-            author: 'Kara Thomas',
-            status: 'wishlist',
-            addedDate: '2024-01-20',
-          },
-          {
-            id: '8',
-            title: 'The Silent Patient',
-            author: 'Alex Michaelides',
-            status: 'completed',
-            addedDate: '2023-10-05',
-          },
-        ]
+    const mockBookmarked: Book[] = [
+      {
+        id: 10,
+        title: 'The Lost Library',
+        author: 'Amanda Price',
+        image: 'https://images.unsplash.com/photo-1507842217343-583f20270319?w=300&h=400&fit=crop',
+        reads: '1.8M',
+      },
+      {
+        id: 11,
+        title: 'Starlight Dreams',
+        author: 'Michael Chen',
+        image: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=300&h=400&fit=crop',
+        reads: '2.9M',
+      },
+      {
+        id: 12,
+        title: 'Ocean\'s Call',
+        author: 'Lisa Anderson',
+        image: 'https://images.unsplash.com/photo-1543002588-d83cedbc4f0d?w=300&h=400&fit=crop',
+        reads: '3.1M',
+      },
+      {
+        id: 13,
+        title: 'Mountain Echoes',
+        author: 'David Miller',
+        image: 'https://images.unsplash.com/photo-1495446815901-a7297e01c869?w=300&h=400&fit=crop',
+        reads: '2.4M',
+      },
+    ]
 
-        setBooks(mockBooks)
-      } catch (error) {
-        console.error('Failed to fetch books:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
+    const mockReadLists: ReadList[] = [
+      {
+        id: 1,
+        name: 'Romantic Reads',
+        description: 'My favorite romance novels',
+        bookCount: 5,
+        books: [1, 2, 5, 10, 11],
+      },
+      {
+        id: 2,
+        name: 'Sci-Fi Adventures',
+        description: 'Epic space and futuristic stories',
+        bookCount: 4,
+        books: [3, 4, 6, 12],
+      },
+    ]
 
-    fetchBooks()
+    setCurrentReadBooks(mockCurrentRead)
+    setBookmarkedBooks(mockBookmarked)
+    setReadLists(mockReadLists)
   }, [])
 
-  // Filter books based on search and status
-  useEffect(() => {
-    let filtered = books
-
-    // Apply status filter
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter((book) => book.status === statusFilter)
-    }
-
-    // Apply search filter
-    if (searchQuery) {
-      filtered = filtered.filter(
-        (book) =>
-          book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          book.author.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    }
-
-    setFilteredBooks(filtered)
-  }, [books, searchQuery, statusFilter])
-
-  const getStatusLabel = (status: string) => {
-    const labels: Record<string, string> = {
-      reading: 'Currently Reading',
-      completed: 'Completed',
-      wishlist: 'Wishlist',
-    }
-    return labels[status] || status
-  }
-
-  const getStatusCount = (status: 'reading' | 'completed' | 'wishlist') => {
-    return books.filter((b) => b.status === status).length
-  }
-
-  const handleRemoveBook = async (bookId: string) => {
-    try {
-      // await fetch(`/api/users/library/${bookId}`, { method: 'DELETE' })
-      setBooks(books.filter((b) => b.id !== bookId))
-    } catch (error) {
-      console.error('Failed to remove book:', error)
+  const handleCreateReadList = () => {
+    if (newListName.trim()) {
+      const newList: ReadList = {
+        id: readLists.length + 1,
+        name: newListName,
+        description: newListDescription,
+        bookCount: 0,
+        books: [],
+      }
+      setReadLists([...readLists, newList])
+      setNewListName('')
+      setNewListDescription('')
+      setShowCreateReadList(false)
     }
   }
 
-  if (loading) {
-    return <div className="min-h-screen bg-background flex items-center justify-center">Loading...</div>
+  const handleDeleteReadList = (id: number) => {
+    setReadLists(readLists.filter((list) => list.id !== id))
   }
+
+  if (!mounted) return null
 
   return (
-    <div className="min-h-screen bg-background py-8 px-4 md:px-8">
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Header */}
-        <div>
-          <h1 className="text-4xl font-bold text-foreground mb-2">My Library</h1>
-          <p className="text-muted-foreground">
-            You have {books.length} book{books.length !== 1 ? 's' : ''} in your library
-          </p>
-        </div>
-
-        {/* Search and Filter Bar */}
-        <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search books by title or author..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
+    <div className="min-h-screen bg-background text-foreground pb-20">
+      {/* Header with Tabs */}
+      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between py-6 mb-4">
+            <div className="flex items-center gap-4">
+              <Link href="/home" className="p-2 hover:bg-secondary rounded-lg transition-colors" aria-label="Back to home">
+                <ChevronLeft size={24} />
+              </Link>
+              <div>
+                <h1 className="text-3xl font-bold">My Library</h1>
+              </div>
+            </div>
+            <Link href="/search" className="p-2 hover:bg-secondary rounded-lg transition-colors">
+              <Search size={24} />
+            </Link>
           </div>
-
-          <Select value={statusFilter} onValueChange={(value: any) => setStatusFilter(value)}>
-            <SelectTrigger className="w-full md:w-48">
-              <SelectValue placeholder="Filter by status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Books ({books.length})</SelectItem>
-              <SelectItem value="reading">Currently Reading ({getStatusCount('reading')})</SelectItem>
-              <SelectItem value="completed">Completed ({getStatusCount('completed')})</SelectItem>
-              <SelectItem value="wishlist">Wishlist ({getStatusCount('wishlist')})</SelectItem>
-            </SelectContent>
-          </Select>
-
-          {/* View Mode Toggle */}
-          <div className="flex gap-2 bg-muted p-1 rounded-lg w-full md:w-auto">
-            <Button
-              onClick={() => setViewMode('grid')}
-              variant={viewMode === 'grid' ? 'default' : 'ghost'}
-              size="sm"
-              className="flex-1 md:flex-none"
+          
+          {/* Tab Navigation */}
+          <div className="flex gap-8 border-t border-border pt-4">
+            <button
+              onClick={() => setActiveTab('current')}
+              className={`pb-4 font-medium transition-colors relative ${
+                activeTab === 'current'
+                  ? 'text-primary'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
             >
-              <Grid className="w-4 h-4" />
-            </Button>
-            <Button
-              onClick={() => setViewMode('list')}
-              variant={viewMode === 'list' ? 'default' : 'ghost'}
-              size="sm"
-              className="flex-1 md:flex-none"
+              Currently Reading
+              {activeTab === 'current' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"></div>
+              )}
+            </button>
+            <button
+              onClick={() => setActiveTab('bookmarks')}
+              className={`pb-4 font-medium transition-colors relative ${
+                activeTab === 'bookmarks'
+                  ? 'text-primary'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
             >
-              <List className="w-4 h-4" />
-            </Button>
+              Bookmarked
+              {activeTab === 'bookmarks' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"></div>
+              )}
+            </button>
+            <button
+              onClick={() => setActiveTab('lists')}
+              className={`pb-4 font-medium transition-colors relative ${
+                activeTab === 'lists'
+                  ? 'text-primary'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              My Reading Lists
+              {activeTab === 'lists' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"></div>
+              )}
+            </button>
           </div>
         </div>
+      </div>
 
-        {/* Books Grid/List */}
-        {filteredBooks.length > 0 ? (
-          viewMode === 'grid' ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {filteredBooks.map((book) => (
-                <Card
-                  key={book.id}
-                  className="overflow-hidden hover:shadow-lg transition-shadow group flex flex-col"
-                >
-                  {/* Book Cover */}
-                  <div className="relative h-64 bg-gradient-to-br from-red-100 to-red-200 overflow-hidden flex items-center justify-center">
-                    <BookOpen className="w-12 h-12 text-red-600" />
-                  </div>
-
-                  {/* Book Info */}
-                  <CardContent className="p-4 flex-1 flex flex-col">
-                    <h3 className="font-semibold text-foreground mb-1 line-clamp-2 flex-1">
-                      {book.title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground mb-3">{book.author}</p>
-
-                    {/* Progress Bar */}
-                    {book.progress !== undefined && (
-                      <div className="mb-3">
-                        <div className="w-full bg-muted rounded-full h-2 mb-1">
-                          <div
-                            className="bg-red-600 h-2 rounded-full transition-all"
-                            style={{ width: `${book.progress}%` }}
-                          />
-                        </div>
-                        <p className="text-xs text-muted-foreground">{book.progress}% complete</p>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Currently Reading Section */}
+        {activeTab === 'current' && (
+          <section>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold">Currently Reading</h2>
+              <span className="text-sm text-muted-foreground">{currentReadBooks.length} books</span>
+            </div>
+            <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+              {currentReadBooks.length > 0 ? (
+                currentReadBooks.map((book) => (
+                  <Link key={book.id} href={`/book/${book.id}`} className="group cursor-pointer block">
+                    <div className="flex gap-4 p-4 bg-secondary/30 border border-border rounded-lg hover:border-primary/50 transition-colors">
+                      <div className="flex-shrink-0 w-24 h-32">
+                        <img
+                          src={book.image}
+                          alt={book.title}
+                          className="w-full h-full object-cover rounded transition-transform duration-300 group-hover:scale-105"
+                        />
                       </div>
-                    )}
-
-                    {/* Status Badge */}
-                    <div className="flex items-center justify-between">
-                      <span
-                        className={cn(
-                          'text-xs font-medium px-2 py-1 rounded-full',
-                          book.status === 'reading'
-                            ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-100'
-                            : book.status === 'completed'
-                              ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-100'
-                              : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-100'
-                        )}
-                      >
-                        {getStatusLabel(book.status)}
-                      </span>
-                      <Button
-                        onClick={() => handleRemoveBook(book.id)}
-                        variant="ghost"
-                        size="sm"
-                        className="opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {filteredBooks.map((book) => (
-                <Card key={book.id} className="p-4 hover:shadow-lg transition-shadow">
-                  <div className="flex items-center justify-between gap-6">
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-foreground mb-1">{book.title}</h3>
-                      <p className="text-sm text-muted-foreground mb-2">{book.author}</p>
-                      {book.progress !== undefined && (
-                        <div className="w-32 bg-muted rounded-full h-1.5">
-                          <div
-                            className="bg-red-600 h-1.5 rounded-full"
-                            style={{ width: `${book.progress}%` }}
-                          />
+                      <div className="flex-1 flex flex-col justify-between py-2">
+                        <div>
+                          <h3 className="font-bold text-lg line-clamp-2 group-hover:text-primary transition-colors">{book.title}</h3>
+                          <p className="text-muted-foreground text-sm mb-3">{book.author}</p>
                         </div>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-4">
-                      {book.progress !== undefined && (
-                        <span className="text-sm text-muted-foreground min-w-16">{book.progress}%</span>
-                      )}
-                      <span
-                        className={cn(
-                          'text-xs font-medium px-3 py-1 rounded-full min-w-28 text-center',
-                          book.status === 'reading'
-                            ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-100'
-                            : book.status === 'completed'
-                              ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-100'
-                              : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-100'
+                        {book.progress && (
+                          <div>
+                            <div className="w-full bg-muted/30 rounded-full h-2 mb-1">
+                              <div
+                                className="bg-primary h-full rounded-full transition-all"
+                                style={{ width: `${book.progress}%` }}
+                              />
+                            </div>
+                            <p className="text-xs text-muted-foreground">{book.progress}% done</p>
+                          </div>
                         )}
-                      >
-                        {getStatusLabel(book.status)}
-                      </span>
-                      <Button
-                        onClick={() => handleRemoveBook(book.id)}
-                        variant="ghost"
-                        size="sm"
-                      >
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
+                      </div>
                     </div>
-                  </div>
-                </Card>
-              ))}
+                  </Link>
+                ))
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground">No books in your current reading list</p>
+                </div>
+              )}
             </div>
-          )
-        ) : (
-          <Card className="p-12 text-center">
-            <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground mb-4">
-              {searchQuery ? 'No books found matching your search.' : 'Your library is empty.'}
-            </p>
-            <Button className="bg-red-600 hover:bg-red-700">Add Books</Button>
-          </Card>
+          </section>
         )}
 
-        {/* Stats Footer */}
-        {filteredBooks.length > 0 && (
-          <div className="grid grid-cols-3 gap-4 pt-8 border-t">
-            <Card className="p-4 text-center">
-              <p className="text-muted-foreground text-sm">Currently Reading</p>
-              <p className="text-2xl font-bold text-red-600">{getStatusCount('reading')}</p>
-            </Card>
-            <Card className="p-4 text-center">
-              <p className="text-muted-foreground text-sm">Completed</p>
-              <p className="text-2xl font-bold text-green-600">{getStatusCount('completed')}</p>
-            </Card>
-            <Card className="p-4 text-center">
-              <p className="text-muted-foreground text-sm">Wishlist</p>
-              <p className="text-2xl font-bold text-yellow-600">{getStatusCount('wishlist')}</p>
-            </Card>
-          </div>
+        {/* Bookmarks Section */}
+        {activeTab === 'bookmarks' && (
+          <section>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold">Bookmarked</h2>
+              <span className="text-sm text-muted-foreground">{bookmarkedBooks.length} books</span>
+            </div>
+            {bookmarkedBooks.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {bookmarkedBooks.map((book) => (
+                  <Link key={book.id} href={`/book/${book.id}`} className="group cursor-pointer">
+                    <div className="relative overflow-hidden rounded-lg mb-3 bg-muted h-56">
+                      <img
+                        src={book.image}
+                        alt={book.title}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
+                      <div className="absolute top-2 right-2">
+                        <button className="p-2 bg-primary/90 hover:bg-primary rounded-full transition-colors">
+                          <Bookmark size={16} className="text-primary-foreground fill-current" />
+                        </button>
+                      </div>
+                    </div>
+                    <h3 className="font-bold text-sm line-clamp-2 leading-tight group-hover:text-primary transition-colors">{book.title}</h3>
+                    <p className="text-muted-foreground text-xs">{book.author}</p>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">No bookmarked books yet</p>
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* Read Lists Section */}
+        {activeTab === 'lists' && (
+          <section>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold">My Reading Lists</h2>
+              <button
+                onClick={() => setShowCreateReadList(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+              >
+                <Plus size={18} />
+                <span className="text-sm font-medium">Create List</span>
+              </button>
+            </div>
+
+            {/* Create Read List Modal */}
+            {showCreateReadList && (
+              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                <div className="bg-background border border-border rounded-lg p-6 w-full max-w-md">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-xl font-bold">Create Reading List</h3>
+                    <button
+                      onClick={() => setShowCreateReadList(false)}
+                      className="p-1 hover:bg-secondary rounded-lg transition-colors"
+                    >
+                      <X size={20} />
+                    </button>
+                  </div>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">List Name</label>
+                      <input
+                        type="text"
+                        value={newListName}
+                        onChange={(e) => setNewListName(e.target.value)}
+                        placeholder="e.g., Sci-Fi Adventures"
+                        className="w-full px-3 py-2 bg-secondary border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Description (optional)</label>
+                      <textarea
+                        value={newListDescription}
+                        onChange={(e) => setNewListDescription(e.target.value)}
+                        placeholder="Describe your reading list..."
+                        rows={3}
+                        className="w-full px-3 py-2 bg-secondary border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                      />
+                    </div>
+                    <div className="flex gap-3 pt-4">
+                      <button
+                        onClick={() => setShowCreateReadList(false)}
+                        className="flex-1 px-4 py-2 border border-border rounded-lg hover:bg-secondary transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleCreateReadList}
+                        className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium"
+                      >
+                        Create
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Read Lists Grid */}
+            {readLists.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {readLists.map((list) => (
+                  <div
+                    key={list.id}
+                    className="bg-secondary/50 border border-border rounded-lg p-4 hover:border-primary/50 transition-colors group"
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <h3 className="font-bold text-lg line-clamp-2">{list.name}</h3>
+                      <button
+                        onClick={() => handleDeleteReadList(list.id)}
+                        className="p-1 opacity-0 group-hover:opacity-100 hover:bg-destructive/10 rounded-lg transition-all"
+                      >
+                        <X size={18} className="text-destructive" />
+                      </button>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{list.description}</p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">{list.bookCount} books</span>
+                      <Link
+                        href={`/library/list/${list.id}`}
+                        className="text-sm font-medium text-primary hover:underline"
+                      >
+                        View
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground mb-4">No reading lists yet</p>
+                <button
+                  onClick={() => setShowCreateReadList(true)}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                >
+                  <Plus size={18} />
+                  Create Your First List
+                </button>
+              </div>
+            )}
+          </section>
         )}
       </div>
     </div>
