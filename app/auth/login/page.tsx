@@ -27,8 +27,14 @@ export default function LoginPage() {
     }
 
     try {
-      await login(username, password)
-      router.push('/home')
+      const data = await login(username, password)
+      const userRole = data.user?.role
+      
+      if (userRole === 'child') {
+        router.push('/children')
+      } else {
+        router.push('/home')
+      }
     } catch (err) {
       setError(extractApiErrorMessage(err, 'Invalid email or password'))
     }
