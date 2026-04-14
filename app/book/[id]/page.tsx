@@ -3,7 +3,7 @@
 import { use, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Moon, Sun, Share2, Flag, MoreVertical, Heart, Eye, BookOpen, ArrowLeft, Bookmark, Lock } from 'lucide-react'
+import { Moon, Sun, Share2, Flag, MoreVertical, Heart, Eye, BookOpen, ArrowLeft, Bookmark } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export default function BookDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -33,12 +33,6 @@ export default function BookDetailPage({ params }: { params: Promise<{ id: strin
     }
   }
 
-  const handleLockedChapterClick = (chapter: any) => {
-    if (mounted) {
-      router.push(`/chapter-purchase?bookId=${id}&chapterId=${chapter.id}&price=${chapter.price}`)
-    }
-  }
-
   // Mock book data
   const mockBook = {
     id: id,
@@ -55,13 +49,13 @@ export default function BookDetailPage({ params }: { params: Promise<{ id: strin
     tags: ['Fantasy', 'Adventure', 'Magic', 'Dark Fantasy', 'Epic'],
     synopsis: 'Journey through a world of shadows and secrets in The Midnight Kingdom. Follow Aria, a young warrior, as she uncovers the truth about her past and discovers her true power. With stunning world-building and unforgettable characters, this epic fantasy will keep you on the edge of your seat.',
     chapters: [
-      { id: 1, name: 'Chapter 1: The Beginning', publishedDate: 'Mar 15, 2024', views: '1.2M', isPremium: false, price: 0 },
-      { id: 2, name: 'Chapter 2: Shadows Rise', publishedDate: 'Mar 18, 2024', views: '980K', isPremium: true, price: 50 },
-      { id: 3, name: 'Chapter 3: Lost and Found', publishedDate: 'Mar 22, 2024', views: '850K', isPremium: false, price: 0 },
-      { id: 4, name: 'Chapter 4: Whispers in the Dark', publishedDate: 'Mar 25, 2024', views: '720K', isPremium: true, price: 50 },
-      { id: 5, name: 'Chapter 5: The Truth Revealed', publishedDate: 'Mar 29, 2024', views: '650K', isPremium: false, price: 0 },
-      { id: 6, name: 'Chapter 6: Power Within', publishedDate: 'Apr 1, 2024', views: '580K', isPremium: true, price: 75 },
-      { id: 7, name: 'Chapter 7: Final Battle', publishedDate: 'Apr 5, 2024', views: '520K', isPremium: false, price: 0 },
+      { id: 1, name: 'Chapter 1: The Beginning', publishedDate: 'Mar 15, 2024', views: '1.2M' },
+      { id: 2, name: 'Chapter 2: Shadows Rise', publishedDate: 'Mar 18, 2024', views: '980K' },
+      { id: 3, name: 'Chapter 3: Lost and Found', publishedDate: 'Mar 22, 2024', views: '850K' },
+      { id: 4, name: 'Chapter 4: Whispers in the Dark', publishedDate: 'Mar 25, 2024', views: '720K' },
+      { id: 5, name: 'Chapter 5: The Truth Revealed', publishedDate: 'Mar 29, 2024', views: '650K' },
+      { id: 6, name: 'Chapter 6: Power Within', publishedDate: 'Apr 1, 2024', views: '580K' },
+      { id: 7, name: 'Chapter 7: Final Battle', publishedDate: 'Apr 5, 2024', views: '520K' },
     ],
   }
 
@@ -247,39 +241,19 @@ export default function BookDetailPage({ params }: { params: Promise<{ id: strin
             {activeTab === 'parts' && (
               <div className="space-y-3">
                 {mockBook.chapters.map((chapter) => (
-                  <div key={chapter.id}>
-                    {chapter.isPremium ? (
-                      <button
-                        onClick={() => handleLockedChapterClick(chapter)}
-                        className="w-full flex items-center justify-between p-4 hover:bg-secondary transition-colors rounded-lg cursor-pointer border border-border"
-                      >
-                        <div className="flex-1 text-left">
-                          <div className="flex items-center gap-2">
-                            <h4 className="font-semibold text-foreground">{chapter.name}</h4>
-                            <Lock size={16} className="text-yellow-500" />
-                          </div>
-                          <p className="text-sm text-muted-foreground">{chapter.views} views</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm font-semibold text-primary mb-1">{chapter.price} ETB</p>
-                          <p className="text-xs text-muted-foreground">{chapter.publishedDate}</p>
-                        </div>
-                      </button>
-                    ) : (
-                      <Link
-                        href={`/book/${id}/chapter/${chapter.id}`}
-                        className="flex items-center justify-between p-4 hover:bg-secondary transition-colors rounded-lg cursor-pointer border border-border block"
-                      >
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-foreground">{chapter.name}</h4>
-                          <p className="text-sm text-muted-foreground">{chapter.views} views</p>
-                        </div>
-                        <div className="text-right text-sm text-muted-foreground">
-                          {chapter.publishedDate}
-                        </div>
-                      </Link>
-                    )}
-                  </div>
+                  <Link
+                    key={chapter.id}
+                    href={`/book/${id}/chapter/${chapter.id}`}
+                    className="flex items-center justify-between p-4 hover:bg-secondary transition-colors rounded-lg cursor-pointer border border-border block"
+                  >
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-foreground">{chapter.name}</h4>
+                      <p className="text-sm text-muted-foreground">{chapter.views} views</p>
+                    </div>
+                    <div className="text-right text-sm text-muted-foreground">
+                      {chapter.publishedDate}
+                    </div>
+                  </Link>
                 ))}
               </div>
             )}

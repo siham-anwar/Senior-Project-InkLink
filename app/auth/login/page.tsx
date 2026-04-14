@@ -3,43 +3,55 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
-import { useAuthStore } from '@/app/store/authstore'
-import { extractApiErrorMessage } from '@/lib/api'
 
 export default function LoginPage() {
   const router = useRouter()
-  const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const login = useAuthStore((state) => state.login)
-  const loading = useAuthStore((state) => state.isLoading)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-
-    if (!username || !password) {
-      setError('Please fill in all fields')
-      return
-    }
-
-    try {
-      await login(username, password)
-      router.push('/home')
-    } catch (err) {
-      setError(extractApiErrorMessage(err, 'Invalid email or password'))
-    }
+    setLoading(true)
+    
+    // Simulate authentication - replace with actual backend call
+    setTimeout(() => {
+      if (email && password) {
+        // Store user session (you'll replace this with actual auth)
+        sessionStorage.setItem('user', JSON.stringify({ email, name: email.split('@')[0] }))
+        setLoading(false)
+        // Redirect to homepage
+        router.push('/home')
+      } else {
+        setError('Please fill in all fields')
+        setLoading(false)
+      }
+    }, 1000)
   }
 
   return (
-    <Card className="w-full max-w-md p-8 shadow-lg border border-border">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-primary mb-2">InkLink</h1>
-        <p className="text-muted-foreground">Welcome back to your reading sanctuary</p>
-      </div>
+    <div className="min-h-screen bg-background text-foreground flex items-center justify-center px-4">
+      {/* Back Button */}
+      <button 
+        onClick={() => router.back()}
+        className="absolute top-4 left-4 p-2 hover:bg-secondary rounded-lg transition-colors flex items-center gap-2"
+        title="Go back"
+      >
+        <ArrowLeft size={20} />
+        <span className="hidden sm:inline text-sm font-medium">Back</span>
+      </button>
+
+      <Card className="w-full max-w-md p-8 shadow-lg border border-border">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-primary mb-2">InkLink</h1>
+          <p className="text-muted-foreground">Welcome back to your reading sanctuary</p>
+        </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {error && (
@@ -48,15 +60,15 @@ export default function LoginPage() {
           </div>
         )}
         <div>
-          <label htmlFor="username" className="block text-sm font-medium mb-2">
-            Username
+          <label htmlFor="email" className="block text-sm font-medium mb-2">
+            Email Address
           </label>
           <Input
-            id="username"
-            type="text"
-            placeholder="your_username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            id="email"
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
             className="bg-input border-border"
           />
@@ -94,12 +106,7 @@ export default function LoginPage() {
           </Link>
         </p>
       </div>
-
-      <div className="mt-4 pt-4 border-t border-border">
-        <Link href="/" className="text-sm text-primary hover:text-primary/90 flex items-center gap-2">
-          ← Back to Home
-        </Link>
-      </div>
     </Card>
+    </div>
   )
 }

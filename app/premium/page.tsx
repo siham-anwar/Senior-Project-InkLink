@@ -1,22 +1,17 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Check } from 'lucide-react'
-import { PRICING_PLANS } from '../config/pricing'
+import { PRICING_PLANS } from '@/config/pricing'
 
 export default function PremiumPage() {
   const router = useRouter()
-  const [mounted, setMounted] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState<'weekly' | 'monthly' | 'yearly' | null>(null)
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
   const handleContinue = () => {
-    if (mounted && selectedPlan) {
+    if (selectedPlan) {
       router.push(`/premium/checkout?plan=${selectedPlan}`)
     }
   }

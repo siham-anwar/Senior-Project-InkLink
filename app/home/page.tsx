@@ -3,27 +3,40 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Search, Bell, Plus, User, BookOpen, Crown, LogOut, Shield } from 'lucide-react'
+import { Search, Bell, Plus, User, BookOpen, Crown, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { useAuthStore } from '@/app/store/authstore'
 
 export default function HomePage() {
   const router = useRouter()
-  const { user, logout } = useAuthStore()
+  const [isDark, setIsDark] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [username, setUsername] = useState('@Guest')
+  const [userEmail, setUserEmail] = useState('')
   const [showProfileMenu, setShowProfileMenu] = useState(false)
 
   useEffect(() => {
     setMounted(true)
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    setIsDark(prefersDark)
+    if (prefersDark) document.documentElement.classList.add('dark')
+
+    // Get user data from session
+    const userSession = sessionStorage.getItem('user')
+    if (userSession) {
+      try {
+        const user = JSON.parse(userSession)
+        setUsername(`@${user.name || user.email?.split('@')[0] || 'Guest'}`)
+        setUserEmail(user.email || '')
+      } catch (error) {
+        console.error('Error parsing user session:', error)
+      }
+    }
   }, [])
 
-  const handleLogout = async () => {
-    await logout()
+  const handleLogout = () => {
+    sessionStorage.removeItem('user')
     router.push('/auth/login')
   }
-
-  const usernameDisplay = user?.username || user?.name || 'Guest'
-  const userEmail = user?.email || ''
 
   // Mock data that can be replaced with backend data
   const mockContinueReadingBooks = [
@@ -166,7 +179,7 @@ export default function HomePage() {
   ]
 
   const ContinueReadingCard = ({ book }: { book: typeof mockContinueReadingBooks[0] }) => (
-    <Link href={`/book/${book.id}`} className="flex-shrink-0 w-40 group cursor-pointer">
+    <Link href={`/book/${book.id}`} className="group cursor-pointer block h-full">
       <div className="relative overflow-hidden rounded-lg mb-3 bg-muted">
         <img
           src={book.image}
@@ -190,7 +203,7 @@ export default function HomePage() {
   )
 
   const BookCard = ({ book }: { book: typeof mockTopPicksBooks[0] }) => (
-    <Link href={`/book/${book.id}`} className="flex-shrink-0 w-40 group cursor-pointer">
+    <Link href={`/book/${book.id}`} className="group cursor-pointer block h-full">
       <div className="relative overflow-hidden rounded-lg mb-3 bg-muted">
         <img
           src={book.image}
@@ -205,7 +218,7 @@ export default function HomePage() {
   )
 
   const RatedBookCard = ({ book }: { book: typeof mockTopRatedBooks[0] }) => (
-    <div className="flex-shrink-0 w-40 group cursor-pointer">
+    <div className="group cursor-pointer block h-full">
       <div className="relative overflow-hidden rounded-lg mb-3 bg-muted">
         <img
           src={book.image}
@@ -226,51 +239,69 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground pb-24">
+      {/* Header */}
+      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-sm border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <Link href="/" className="flex items-center gap-2">
+              <span className="text-2xl font-bold text-primary">InkLink</span>
+            </Link>
+
+            {/* Right Actions */}
+            <div className="flex items-center gap-2 md:gap-4 relative">
+              <Link href="/premium" className="p-2 hover:bg-secondary rounded-lg transition-colors" title="Premium">
+                <Crown size={20} className="text-yellow-500" />
+              </Link>
+              <div className="relative">
+                <button 
+                  onClick={() => setShowProfileMenu(!showProfileMenu)}
+                  className="p-2 hover:bg-secondary rounded-lg transition-colors" 
+                  title="Profile"
+                >
+                  <User size={20} />
+                </button>
+                {showProfileMenu && (
+                  <div className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-lg shadow-lg py-2 z-50">
+                    <div className="px-4 py-2 border-b border-border">
+                      <p className="text-sm font-semibold text-foreground">{username}</p>
+                      <p className="text-xs text-muted-foreground">{userEmail}</p>
+                    </div>
+                    <Link href="/profile" className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-secondary transition-colors text-foreground">
+                      <User size={16} />
+                      View Profile
+                    </Link>
+                    <button 
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-2 px-4 py-2 text-sm hover:bg-secondary transition-colors text-foreground text-left"
+                    >
+                      <LogOut size={16} />
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Greeting */}
-        <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-balance">
-              Hi, @{usernameDisplay}
-            </h1>
-            <p className="text-muted-foreground mt-2">Welcome back! Keep exploring amazing stories.</p>
-          </div>
-
-          {user?.role === 'child' && (
-            <Link href="/children" className="group">
-                <div className="bg-gradient-to-r from-rose-400 to-orange-400 p-[2px] rounded-2xl transition-transform group-hover:scale-105">
-                    <div className="bg-white dark:bg-slate-900 rounded-2xl px-6 py-3 flex items-center gap-3">
-                        <span className="text-2xl">🎨</span>
-                        <div>
-                            <p className="font-black text-rose-500 text-sm leading-tight">KIDS MODE</p>
-                            <p className="text-slate-500 text-xs font-medium">Enter your magic library</p>
-                        </div>
-                    </div>
-                </div>
-            </Link>
-          )}
-
-          {user?.role === 'parent' && (
-            <Link href="/dashboard/parent" className="group">
-                <div className="bg-primary rounded-2xl px-6 py-4 flex items-center gap-4 shadow-xl shadow-primary/10 transition-all group-hover:-translate-y-1">
-                    <Shield className="text-primary-foreground/80" size={28} />
-                    <div>
-                        <p className="font-bold text-primary-foreground text-sm leading-tight">Parent Dashboard</p>
-                        <p className="text-primary-foreground/80 text-xs font-medium">Manage your children's safety</p>
-                    </div>
-                    <Plus className="text-primary bg-white rounded-full p-1" size={24} />
-                </div>
-            </Link>
-          )}
+        <div className="mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-balance">
+            Hi, @{username}
+          </h1>
+          <p className="text-muted-foreground mt-2">Welcome back! Keep exploring amazing stories.</p>
         </div>
 
         {/* Quick Navigation Bar */}
         <div className="flex items-center gap-3 mb-8 pb-4 border-b border-border overflow-x-auto scrollbar-hide">
-          <button className="flex items-center gap-2 px-4 py-2 bg-secondary rounded-full hover:bg-secondary/80 transition-colors flex-shrink-0">
+          <Link href="/search" className="flex items-center gap-2 px-4 py-2 bg-secondary rounded-full hover:bg-secondary/80 transition-colors flex-shrink-0">
             <Search size={18} />
             <span className="text-sm font-medium">Search</span>
-          </button>
+          </Link>
           <Link href="/library" className="flex items-center gap-2 px-4 py-2 hover:bg-secondary rounded-full transition-colors flex-shrink-0">
             <BookOpen size={18} />
             <span className="text-sm font-medium">Library</span>
@@ -291,10 +322,14 @@ export default function HomePage() {
             <h2 className="text-2xl font-bold">Continue Reading</h2>
             <a href="#" className="text-primary text-sm font-medium hover:underline">See all</a>
           </div>
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-            {mockContinueReadingBooks.map((book) => (
-              <ContinueReadingCard key={book.id} book={book} />
-            ))}
+          <div className="overflow-x-auto pb-4 scrollbar-hide">
+            <div className="flex gap-4 w-max">
+              {mockContinueReadingBooks.map((book) => (
+                <div key={book.id} className="flex-shrink-0 w-40">
+                  <ContinueReadingCard book={book} />
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
@@ -304,10 +339,14 @@ export default function HomePage() {
             <h2 className="text-2xl font-bold">Top Picks for You</h2>
             <a href="#" className="text-primary text-sm font-medium hover:underline">See all</a>
           </div>
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-            {mockTopPicksBooks.map((book) => (
-              <BookCard key={book.id} book={book} />
-            ))}
+          <div className="overflow-x-auto pb-4 scrollbar-hide">
+            <div className="flex gap-4 w-max">
+              {mockTopPicksBooks.map((book) => (
+                <div key={book.id} className="flex-shrink-0 w-40">
+                  <BookCard book={book} />
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
@@ -317,13 +356,39 @@ export default function HomePage() {
             <h2 className="text-2xl font-bold">Top Rated</h2>
             <a href="#" className="text-primary text-sm font-medium hover:underline">See all</a>
           </div>
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-            {mockTopRatedBooks.map((book) => (
-              <RatedBookCard key={book.id} book={book} />
-            ))}
+          <div className="overflow-x-auto pb-4 scrollbar-hide">
+            <div className="flex gap-4 w-max">
+              {mockTopRatedBooks.map((book) => (
+                <div key={book.id} className="flex-shrink-0 w-40">
+                  <RatedBookCard book={book} />
+                </div>
+              ))}
+            </div>
           </div>
         </section>
       </main>
+
+      {/* Bottom Navigation - Mobile */}
+      <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-card border-t border-border">
+        <div className="flex items-center justify-around h-16">
+          <Link href="/home" className="flex flex-col items-center justify-center w-full h-full text-primary gap-1">
+            <BookOpen size={24} />
+            <span className="text-xs font-medium">Home</span>
+          </Link>
+          <Link href="/search" className="flex flex-col items-center justify-center w-full h-full text-muted-foreground hover:text-foreground gap-1 transition-colors">
+            <Search size={24} />
+            <span className="text-xs font-medium">Search</span>
+          </Link>
+          <Link href="/notifications" className="flex flex-col items-center justify-center w-full h-full text-muted-foreground hover:text-foreground gap-1 transition-colors">
+            <Bell size={24} />
+            <span className="text-xs font-medium">Notifications</span>
+          </Link>
+          <Link href="/profile" className="flex flex-col items-center justify-center w-full h-full text-muted-foreground hover:text-foreground gap-1 transition-colors">
+            <User size={24} />
+            <span className="text-xs font-medium">Profile</span>
+          </Link>
+        </div>
+      </nav>
     </div>
   )
 }

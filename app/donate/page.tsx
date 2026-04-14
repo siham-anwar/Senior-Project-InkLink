@@ -1,11 +1,11 @@
 'use client'
 
-import { use, useState, Suspense } from 'react'
+import { use, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Lock, Check } from 'lucide-react'
 
-function DonateContent() {
+export default function DonatePage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const author = searchParams.get('author') || 'Unknown Author'
@@ -167,13 +167,5 @@ function DonateContent() {
         </div>
       </div>
     </div>
-  )
-}
-
-export default function DonatePage() {
-  return (
-    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
-      <DonateContent />
-    </Suspense>
   )
 }

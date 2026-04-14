@@ -4,12 +4,12 @@ import { use, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Heart, MessageCircle, ChevronLeft, ChevronRight, Gift, Moon, Sun } from 'lucide-react'
-import { useTheme } from 'next-themes'
+import { useTheme } from '@/components/providers/theme-provider'
 
-export default async function ChapterReadingPage({ params }: { params: Promise<{ id: string; chapterId: string }> }) {
+export default function ChapterReadingPage({ params }: { params: Promise<{ id: string; chapterId: string }> }) {
   const { id, chapterId } = use(params)
   const router = useRouter()
-  const { theme, setTheme } = useTheme()
+  const { theme, toggleTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const [isLiked, setIsLiked] = useState(false)
   const [likes, setLikes] = useState(1250)
@@ -104,7 +104,7 @@ Aria stood alone once more, the weight of destiny pressing down upon her shoulde
           <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              onClick={toggleTheme}
               className="p-2 hover:bg-secondary rounded-lg transition-colors"
               aria-label="Toggle theme"
               title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
@@ -225,7 +225,7 @@ Aria stood alone once more, the weight of destiny pressing down upon her shoulde
         <div className="flex gap-4 justify-between mb-12">
           {previousChapterExists ? (
             <Link
-              href={`/book/${(await params).id}/chapter/${mockChapter.chapterNumber - 1}`}
+              href={`/book/${params.id}/chapter/${mockChapter.chapterNumber - 1}`}
               className="flex items-center gap-2 px-6 py-3 bg-secondary hover:bg-secondary/80 rounded-lg transition-colors font-medium"
             >
               <ChevronLeft size={20} />
@@ -237,7 +237,7 @@ Aria stood alone once more, the weight of destiny pressing down upon her shoulde
 
           {nextChapterExists ? (
             <Link
-              href={`/book/${(await params).id}/chapter/${mockChapter.chapterNumber + 1}`}
+              href={`/book/${params.id}/chapter/${mockChapter.chapterNumber + 1}`}
               className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg transition-colors font-medium"
             >
               Next Chapter
