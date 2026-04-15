@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft, Heart, MessageCircle, ChevronLeft, ChevronRight, Gift, Moon, Sun } from 'lucide-react'
 import { useTheme } from 'next-themes'
 
-export default async function ChapterReadingPage({ params }: { params: Promise<{ id: string; chapterId: string }> }) {
+export default function ChapterReadingPage({ params }: { params: Promise<{ id: string; chapterId: string }> }) {
   const { id, chapterId } = use(params)
   const router = useRouter()
   const { theme, setTheme } = useTheme()
@@ -19,10 +19,6 @@ export default async function ChapterReadingPage({ params }: { params: Promise<{
     { id: 2, author: 'Jordan Books', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=40&h=40&fit=crop', text: 'Can\'t wait for the next chapter. This story is addictive!' },
   ])
   const [newComment, setNewComment] = useState('')
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
 
   useEffect(() => {
     setMounted(true)
@@ -225,7 +221,7 @@ Aria stood alone once more, the weight of destiny pressing down upon her shoulde
         <div className="flex gap-4 justify-between mb-12">
           {previousChapterExists ? (
             <Link
-              href={`/book/${(await params).id}/chapter/${mockChapter.chapterNumber - 1}`}
+              href={`/book/${id}/chapter/${mockChapter.chapterNumber - 1}`}
               className="flex items-center gap-2 px-6 py-3 bg-secondary hover:bg-secondary/80 rounded-lg transition-colors font-medium"
             >
               <ChevronLeft size={20} />
@@ -237,7 +233,7 @@ Aria stood alone once more, the weight of destiny pressing down upon her shoulde
 
           {nextChapterExists ? (
             <Link
-              href={`/book/${(await params).id}/chapter/${mockChapter.chapterNumber + 1}`}
+              href={`/book/${id}/chapter/${mockChapter.chapterNumber + 1}`}
               className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg transition-colors font-medium"
             >
               Next Chapter
