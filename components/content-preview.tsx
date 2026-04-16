@@ -97,3 +97,5 @@ export function ContentPreview() {
     </section>
   );
 }
+
+// Updated documentation for clarity
