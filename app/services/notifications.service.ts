@@ -49,3 +49,5 @@ export const notificationsService = {
     }
   },
 };
+
+// Updated documentation for clarity
