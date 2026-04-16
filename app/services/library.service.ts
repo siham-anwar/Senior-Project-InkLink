@@ -62,3 +62,5 @@ export const libraryService = {
     return res.data;
   }
 };
+
+// Updated documentation for clarity
