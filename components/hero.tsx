@@ -132,3 +132,5 @@ export function Hero() {
     </section>
   );
 }
+
+// Updated documentation for clarity
