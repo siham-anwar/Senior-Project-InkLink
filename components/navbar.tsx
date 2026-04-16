@@ -243,3 +243,5 @@ export function Navbar() {
     </header>
   );
 }
+
+// Updated documentation for clarity
