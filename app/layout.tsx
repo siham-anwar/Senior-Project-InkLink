@@ -45,3 +45,5 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   )
 }
 
+
+// Updated documentation for clarity
