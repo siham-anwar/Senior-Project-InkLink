@@ -37,8 +37,10 @@ export default function HomePage() {
       }
 
       if (works) {
-        setTopPicks(works.slice(0, 6))
-        setTopRated(works.slice().reverse().slice(0, 6))
+        // Shuffle works to make the "Top Picks" dynamic for the session
+        const shuffled = [...works].sort(() => Math.random() - 0.5)
+        setTopPicks(shuffled.slice(0, 8)) // Show 2 rows of 4
+        setTopRated(works.slice().reverse().slice(0, 8))
       }
     } catch (error) {
       console.error('Failed to fetch home data:', error)
@@ -62,17 +64,17 @@ export default function HomePage() {
   const BookCard = ({ book }: { book: WorkDto }) => {
     const bookId = book.id || book._id;
     return (
-      <Link href={`/book/${bookId}`} className="flex-shrink-0 w-40 group cursor-pointer">
-        <div className="relative overflow-hidden rounded-lg mb-3 bg-muted">
+      <Link href={`/book/${bookId}`} className="group cursor-pointer">
+        <div className="relative overflow-hidden rounded-xl mb-3 bg-muted aspect-[3/4] shadow-sm transition-all group-hover:shadow-md">
           <img
             src={book.coverImage || 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=300&h=400&fit=crop'}
             alt={book.title}
-            className="w-full h-56 object-cover transition-transform duration-300 group-hover:scale-110"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
-        <h3 className="font-bold text-sm line-clamp-2 leading-tight">{book.title}</h3>
-        <p className="text-muted-foreground text-xs">{book.authorUsername || 'InkLink Author'}</p>
+        <h3 className="font-bold text-sm line-clamp-2 leading-tight group-hover:text-primary transition-colors">{book.title}</h3>
+        <p className="text-muted-foreground text-xs mt-1">{book.authorUsername || 'InkLink Author'}</p>
       </Link>
     )
   }
@@ -192,7 +194,7 @@ export default function HomePage() {
             <Link href="/library" className="text-primary text-sm font-bold hover:underline mb-1">Browse All</Link>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-6 gap-y-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-12">
             {continueReading.length > 0 ? (
               continueReading.map((book) => (
                 <ContinueReadingCard key={book.id} book={book} />
@@ -211,7 +213,7 @@ export default function HomePage() {
           <div className="flex items-end justify-between mb-8 px-1">
             <h2 className="text-3xl font-black tracking-tight">Top Picks for You</h2>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-6 gap-y-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-12">
             {topPicks.map((book) => (
               <BookCard key={book.id || (book as any)._id} book={book} />
             ))}
@@ -226,7 +228,7 @@ export default function HomePage() {
               <h3 className="text-3xl font-black">Top Rated</h3>
             </div>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-6 gap-y-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-12">
             {topRated.map((book) => (
               <RatedBookCard key={book.id || (book as any)._id} book={book} />
             ))}

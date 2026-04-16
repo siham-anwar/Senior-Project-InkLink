@@ -2,29 +2,39 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Search, BookOpen, Star, ChevronRight, Gift, Heart, Sparkles } from 'lucide-react'
+import { Search, BookOpen, Star, ChevronRight, Gift, Heart, Sparkles, ArrowLeft, ArrowRight } from 'lucide-react'
 import { EditorWorksService, WorkDto } from '@/app/services/editor-works.service'
 import { Loader2 } from 'lucide-react'
+import { cn } from '@/lib/cn'
 
 export default function ExplorePage() {
   const [mounted, setMounted] = useState(false)
   const [loading, setLoading] = useState(true)
   const [categories, setCategories] = useState<{ name: string; books: WorkDto[] }[]>([])
+  const [allBooks, setAllBooks] = useState<WorkDto[]>([])
+  const [currentPage, setCurrentPage] = useState(1)
+  const booksPerPage = 12
 
   const commonCategories = ['Fiction', 'Fantasy', 'Mystery', 'Adventure', 'Romance']
 
-  const fetchCategories = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true)
+      
+      // Fetch everything for the "All Books" section
+      const all = await EditorWorksService.browse()
+      setAllBooks(all)
+
+      // Fetch categories
       const results = await Promise.all(
         commonCategories.map(async (cat) => {
           const books = await EditorWorksService.browse(cat)
-          return { name: cat, books: books.slice(0, 12) } // Show up to 3 rows (4 per row = 12)
+          return { name: cat, books: books.slice(0, 8) }
         })
       )
       setCategories(results.filter(c => c.books.length > 0))
     } catch (error) {
-      console.error('Failed to fetch categories:', error)
+      console.error('Failed to fetch explore data:', error)
     } finally {
       setLoading(false)
     }
@@ -32,8 +42,21 @@ export default function ExplorePage() {
 
   useEffect(() => {
     setMounted(true)
-    fetchCategories()
+    fetchData()
   }, [])
+
+  const indexOfLastBook = currentPage * booksPerPage
+  const indexOfFirstBook = indexOfLastBook - booksPerPage
+  const currentBooks = allBooks.slice(indexOfFirstBook, indexOfLastBook)
+  const totalPages = Math.ceil(allBooks.length / booksPerPage)
+
+  const paginate = (pageNumber: number) => {
+    setCurrentPage(pageNumber)
+    const element = document.getElementById('all-books-header')
+    if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
 
   if (!mounted) return null
 
@@ -108,34 +131,98 @@ export default function ExplorePage() {
              <p className="font-bold text-muted-foreground animate-pulse">Loading categories...</p>
           </div>
         ) : (
-          <div className="space-y-24">
+          <div className="space-y-32">
+            {/* ALL BOOKS SECTION */}
+            <section id="all-books" className="animate-in fade-in slide-in-from-bottom-6 duration-700">
+                <div id="all-books-header" className="flex items-center justify-between mb-12 pb-6 border-b border-border">
+                  <div className="space-y-1">
+                    <h2 className="text-4xl font-black tracking-tight tracking-tighter">Browse All Stories</h2>
+                    <p className="text-muted-foreground font-medium">Discover gems from every corner of InkLink.</p>
+                  </div>
+                  <div className="hidden sm:flex items-center gap-2 bg-secondary/50 px-4 py-2 rounded-full border border-border/50 text-sm font-bold">
+                    <BookOpen size={16} className="text-primary" />
+                    <span>{allBooks.length} Published Works</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                  {currentBooks.map((book) => (
+                    <BookCard key={book.id || (book as any)._id} book={book} />
+                  ))}
+                </div>
+
+                {/* PREMIUM PAGINATION */}
+                {totalPages > 1 && (
+                  <div className="mt-20 flex flex-col items-center gap-6">
+                    <div className="flex items-center gap-2">
+                       <button
+                         onClick={() => currentPage > 1 && paginate(currentPage - 1)}
+                         disabled={currentPage === 1}
+                         className="flex items-center gap-2 px-4 py-2 rounded-xl bg-secondary hover:bg-border disabled:opacity-30 disabled:hover:bg-secondary transition-all font-bold"
+                       >
+                         <ArrowLeft size={18} /> Prev
+                       </button>
+
+                       <div className="flex items-center gap-1">
+                          {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                              // Simple pagination showing up to 5 pages
+                              let pageNum = i + 1;
+                              if (totalPages > 5 && currentPage > 3) {
+                                  pageNum = currentPage - 2 + i;
+                                  if (pageNum > totalPages) pageNum = totalPages - (4 - i);
+                              }
+                              return (
+                                <button
+                                  key={pageNum}
+                                  onClick={() => paginate(pageNum)}
+                                  className={cn(
+                                    "w-12 h-12 rounded-xl font-black transition-all duration-300",
+                                    currentPage === pageNum 
+                                      ? "bg-primary text-primary-foreground shadow-xl shadow-primary/30 scale-110" 
+                                      : "bg-secondary hover:bg-border text-foreground/60"
+                                  )}
+                                >
+                                  {pageNum}
+                                </button>
+                              )
+                          })}
+                       </div>
+
+                       <button
+                         onClick={() => currentPage < totalPages && paginate(currentPage + 1)}
+                         disabled={currentPage === totalPages}
+                         className="flex items-center gap-2 px-4 py-2 rounded-xl bg-secondary hover:bg-border disabled:opacity-30 disabled:hover:bg-secondary transition-all font-bold"
+                       >
+                         Next <ArrowRight size={18} />
+                       </button>
+                    </div>
+                    <p className="text-sm font-bold text-muted-foreground">
+                       Showing {indexOfFirstBook + 1} to {Math.min(indexOfLastBook, allBooks.length)} of {allBooks.length} stories
+                    </p>
+                  </div>
+                )}
+            </section>
+
+            {/* GENRE SECTIONS */}
             {categories.map((cat) => (
-              <section key={cat.name}>
+              <section key={cat.name} className="animate-in fade-in duration-700">
                 <div className="flex items-center justify-between mb-10 pb-4 border-b border-border/50">
-                  <h2 className="text-3xl font-black tracking-tight flex items-center gap-3">
+                  <h2 className="text-3xl font-black tracking-tight flex items-center gap-3 italic">
                     {cat.name}
                   </h2>
                   <Link 
                     href={`/library?tag=${cat.name}`} 
-                    className="flex items-center gap-2 text-primary font-bold hover:gap-3 transition-all underline underline-offset-8"
+                    className="flex items-center gap-2 text-primary font-bold hover:gap-3 transition-all underline underline-offset-8 decoration-2"
                   >
                     View All {cat.name} <ChevronRight size={18} />
                   </Link>
                 </div>
                 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                  {cat.books.slice(0, 12).map((book) => (
+                  {cat.books.map((book) => (
                     <BookCard key={book.id || (book as any)._id} book={book} />
                   ))}
                 </div>
-
-                {cat.books.length >= 12 && (
-                  <div className="mt-12 text-center">
-                    <button className="px-8 py-3 bg-secondary hover:bg-secondary/80 rounded-2xl font-bold transition-all hover:scale-105 border border-border/50 shadow-sm">
-                      Read more {cat.name} stories
-                    </button>
-                  </div>
-                )}
               </section>
             ))}
 
