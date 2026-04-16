@@ -79,3 +79,5 @@ export const AuthService = {
     return res.data;
   },
 };
+
+export { api };

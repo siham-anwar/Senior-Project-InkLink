@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Search, Bell, Plus, User, BookOpen, Crown, LogOut, Shield, Star } from 'lucide-react'
+import { Search, Bell, Plus, User, BookOpen, Crown, LogOut, Shield } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/app/store/authstore'
 import { EditorWorksService, WorkDto } from '@/app/services/editor-works.service'
@@ -37,9 +37,8 @@ export default function HomePage() {
       }
 
       if (works) {
-        // Updated to show 4 books per section
-        setTopPicks(works.slice(0, 4))
-        setTopRated(works.slice().reverse().slice(0, 4))
+        setTopPicks(works.slice(0, 6))
+        setTopRated(works.slice().reverse().slice(0, 6))
       }
     } catch (error) {
       console.error('Failed to fetch home data:', error)
@@ -63,17 +62,17 @@ export default function HomePage() {
   const BookCard = ({ book }: { book: WorkDto }) => {
     const bookId = book.id || book._id;
     return (
-      <Link href={`/book/${bookId}`} className="group cursor-pointer">
-        <div className="relative overflow-hidden rounded-2xl mb-4 bg-muted aspect-[3/4] shadow-md transition-shadow hover:shadow-xl">
+      <Link href={`/book/${bookId}`} className="flex-shrink-0 w-40 group cursor-pointer">
+        <div className="relative overflow-hidden rounded-lg mb-3 bg-muted">
           <img
-            src={book.coverImage || 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&h=533&fit=crop'}
+            src={book.coverImage || 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=300&h=400&fit=crop'}
             alt={book.title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            className="w-full h-56 object-cover transition-transform duration-300 group-hover:scale-110"
           />
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
         </div>
-        <h3 className="font-bold text-base line-clamp-1 leading-tight group-hover:text-primary transition-colors">{book.title}</h3>
-        <p className="text-muted-foreground text-sm mt-1">{book.authorUsername || 'InkLink Author'}</p>
+        <h3 className="font-bold text-sm line-clamp-2 leading-tight">{book.title}</h3>
+        <p className="text-muted-foreground text-xs">{book.authorUsername || 'InkLink Author'}</p>
       </Link>
     )
   }
@@ -81,48 +80,45 @@ export default function HomePage() {
   const RatedBookCard = ({ book }: { book: WorkDto }) => {
     const bookId = book.id || book._id;
     return (
-      <Link href={`/book/${bookId}`} className="group cursor-pointer">
-        <div className="relative overflow-hidden rounded-2xl mb-4 bg-muted aspect-[3/4] shadow-md transition-shadow hover:shadow-xl">
+      <Link href={`/book/${bookId}`} className="flex-shrink-0 w-40 group cursor-pointer">
+        <div className="relative overflow-hidden rounded-lg mb-3 bg-muted">
           <img
-            src={book.coverImage || 'https://images.unsplash.com/photo-1507842217343-583f20270319?w=400&h=533&fit=crop'}
+            src={book.coverImage || 'https://images.unsplash.com/photo-1507842217343-583f20270319?w=300&h=400&fit=crop'}
             alt={book.title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            className="w-full h-56 object-cover transition-transform duration-300 group-hover:scale-110"
           />
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
-          
-          {/* Enhanced Premium Rating Badge */}
-          <div className="absolute top-3 right-3 bg-background/80 backdrop-blur-md border border-border/50 px-2.5 py-1 rounded-full flex items-center gap-1 shadow-lg transform group-hover:scale-110 transition-transform">
-            <Star size={14} className="fill-amber-400 text-amber-400" />
-            <span className="text-xs font-black text-foreground">4.9</span>
+          <div className="absolute top-2 right-2 bg-primary/90 backdrop-blur text-primary-foreground px-2 py-1 rounded-full text-xs font-bold">
+            ⭐ 4.9
           </div>
         </div>
-        <h3 className="font-bold text-base line-clamp-1 leading-tight group-hover:text-primary transition-colors">{book.title}</h3>
-        <p className="text-muted-foreground text-sm mt-1">{book.authorUsername || 'InkLink Author'}</p>
+        <h3 className="font-bold text-sm line-clamp-2 leading-tight">{book.title}</h3>
+        <p className="text-muted-foreground text-xs">{book.authorUsername || 'InkLink Author'}</p>
       </Link>
     )
   }
 
   const ContinueReadingCard = ({ book }: { book: any }) => (
-    <Link href={`/book/${book.id}`} className="group cursor-pointer">
-      <div className="relative overflow-hidden rounded-2xl mb-4 bg-muted aspect-[3/4] shadow-md transition-shadow hover:shadow-xl">
+    <Link href={`/book/${book.id}`} className="flex-shrink-0 w-40 group cursor-pointer">
+      <div className="relative overflow-hidden rounded-lg mb-3 bg-muted">
         <img
           src={book.image}
           alt={book.title}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          className="w-full h-56 object-cover transition-transform duration-300 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
-          <div className="w-full bg-white/20 backdrop-blur-sm rounded-full h-1.5 mb-2 overflow-hidden">
-            <div 
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
+          <div className="w-full bg-muted/30 rounded-full h-1.5 mb-1">
+            <div
               className="bg-primary h-full rounded-full transition-all"
               style={{ width: `${book.progress}%` }}
             />
           </div>
-          <p className="text-white text-xs font-bold">{book.progress}% mastered</p>
+          <p className="text-white text-xs font-medium">{book.progress}% done</p>
         </div>
       </div>
-      <h3 className="font-bold text-base line-clamp-1 leading-tight group-hover:text-primary transition-colors">{book.title}</h3>
-      <p className="text-muted-foreground text-sm mt-1">{book.author}</p>
+      <h3 className="font-bold text-sm line-clamp-2 leading-tight">{book.title}</h3>
+      <p className="text-muted-foreground text-xs">{book.author}</p>
     </Link>
   )
 
@@ -131,24 +127,24 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-background text-foreground pb-24">
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Greeting */}
-        <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-            <h1 className="text-4xl md:text-5xl font-black text-balance">
+            <h1 className="text-3xl md:text-4xl font-bold text-balance">
               Hi, @{usernameDisplay}
             </h1>
-            <p className="text-muted-foreground text-lg mt-2 font-medium">Ready for your next adventure?</p>
+            <p className="text-muted-foreground mt-2">Welcome back! Keep exploring amazing stories.</p>
           </div>
 
           {user?.role === 'child' && (
             <Link href="/children" className="group">
-              <div className="bg-gradient-to-r from-rose-400 to-orange-400 p-[2px] rounded-2xl transition-transform group-hover:scale-105 shadow-lg">
+              <div className="bg-gradient-to-r from-rose-400 to-orange-400 p-[2px] rounded-2xl transition-transform group-hover:scale-105">
                 <div className="bg-white dark:bg-slate-900 rounded-2xl px-6 py-3 flex items-center gap-3">
                   <span className="text-2xl">🎨</span>
                   <div>
-                    <p className="font-black text-rose-500 text-sm leading-tight uppercase tracking-tight">Kids Mode</p>
-                    <p className="text-slate-500 text-xs font-semibold">The magic library</p>
+                    <p className="font-black text-rose-500 text-sm leading-tight">KIDS MODE</p>
+                    <p className="text-slate-500 text-xs font-medium">Enter your magic library</p>
                   </div>
                 </div>
               </div>
@@ -157,82 +153,75 @@ export default function HomePage() {
 
           {user?.role === 'parent' && (
             <Link href="/dashboard/parent" className="group">
-              <div className="bg-primary rounded-2xl px-6 py-4 flex items-center gap-4 shadow-xl shadow-primary/20 transition-all group-hover:-translate-y-1">
-                <div className="bg-white/20 p-2 rounded-xl">
-                  <Shield className="text-primary-foreground" size={24} />
-                </div>
+              <div className="bg-primary rounded-2xl px-6 py-4 flex items-center gap-4 shadow-xl shadow-primary/10 transition-all group-hover:-translate-y-1">
+                <Shield className="text-primary-foreground/80" size={28} />
                 <div>
-                  <p className="font-black text-primary-foreground text-sm leading-tight uppercase">Parent Control</p>
-                  <p className="text-primary-foreground/80 text-xs font-medium">Keep it safe</p>
+                  <p className="font-bold text-primary-foreground text-sm leading-tight">Parent Dashboard</p>
+                  <p className="text-primary-foreground/80 text-xs font-medium">Manage your children's safety</p>
                 </div>
-                <Plus className="text-primary bg-white rounded-full p-1 ml-2" size={20} />
+                <Plus className="text-primary bg-white rounded-full p-1" size={24} />
               </div>
             </Link>
           )}
         </div>
 
         {/* Quick Navigation Bar */}
-        <div className="flex items-center gap-4 mb-12 pb-6 border-b border-border/50 overflow-x-auto scrollbar-hide">
-          <button className="flex items-center gap-2 px-6 py-2.5 bg-secondary rounded-full hover:bg-secondary/80 transition-all flex-shrink-0 font-bold border border-border/50 shadow-sm">
-            <Search size={20} />
-            <span className="text-sm">Explore</span>
+        <div className="flex items-center gap-3 mb-8 pb-4 border-b border-border overflow-x-auto scrollbar-hide">
+          <button className="flex items-center gap-2 px-4 py-2 bg-secondary rounded-full hover:bg-secondary/80 transition-colors flex-shrink-0">
+            <Search size={18} />
+            <span className="text-sm font-medium">Search</span>
           </button>
-          <Link href="/library" className="flex items-center gap-2 px-6 py-2.5 hover:bg-secondary rounded-full transition-all flex-shrink-0 font-bold text-muted-foreground hover:text-foreground">
-            <BookOpen size={20} />
-            <span className="text-sm">Library</span>
+          <Link href="/library" className="flex items-center gap-2 px-4 py-2 hover:bg-secondary rounded-full transition-colors flex-shrink-0">
+            <BookOpen size={18} />
+            <span className="text-sm font-medium">Library</span>
           </Link>
-          <Link href="/notifications" className="flex items-center gap-2 px-6 py-2.5 hover:bg-secondary rounded-full transition-all flex-shrink-0 font-bold text-muted-foreground hover:text-foreground">
-            <Bell size={20} />
-            <span className="text-sm">Updates</span>
+          <Link href="/notifications" className="flex items-center gap-2 px-4 py-2 hover:bg-secondary rounded-full transition-colors flex-shrink-0">
+            <Bell size={18} />
+            <span className="text-sm font-medium">Notifications</span>
           </Link>
-          <Link href="/editor" className="flex items-center gap-2 px-6 py-2.5 hover:bg-secondary rounded-full transition-all flex-shrink-0 font-bold text-muted-foreground hover:text-foreground">
-            <Plus size={20} />
-            <span className="text-sm">Write</span>
+          <Link href="#" className="flex items-center gap-2 px-4 py-2 hover:bg-secondary rounded-full transition-colors flex-shrink-0">
+            <Plus size={18} />
+            <span className="text-sm font-medium">Create</span>
           </Link>
         </div>
 
         {/* Continue Reading Section */}
-        <section className="mb-16">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-3xl font-black tracking-tight">Keep Reading</h2>
-            <Link href="/library" className="text-primary text-sm font-bold hover:underline underline-offset-4">View All</Link>
+        <section className="mb-12">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold">Continue Reading</h2>
+            <Link href="/library" className="text-primary text-sm font-medium hover:underline">See all</Link>
           </div>
-          {/* Changed to 4-column grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
             {continueReading.length > 0 ? (
               continueReading.map((book) => (
                 <ContinueReadingCard key={book.id} book={book} />
               ))
             ) : (
-              <div className="col-span-full py-12 bg-secondary/20 rounded-3xl border-2 border-dashed border-border flex items-center justify-center">
-                <p className="text-muted-foreground font-medium italic">No books in progress just yet.</p>
-              </div>
+              <p className="text-muted-foreground text-sm italic">No books in progress.</p>
             )}
           </div>
         </section>
- 
+
         {/* Top Picks for You Section */}
-        <section className="mb-16">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-3xl font-black tracking-tight">Editor's Picks</h2>
-            <Link href="/library" className="text-primary text-sm font-bold hover:underline underline-offset-4">Discover</Link>
+        <section className="mb-12">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold">Top Picks for You</h2>
+            <Link href="/library" className="text-primary text-sm font-medium hover:underline">See all</Link>
           </div>
-          {/* Changed to 4-column grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
             {topPicks.map((book) => (
               <BookCard key={book.id || (book as any)._id} book={book} />
             ))}
           </div>
         </section>
- 
+
         {/* Top Rated Section */}
-        <section className="mb-16">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-3xl font-black tracking-tight">Trending Now</h2>
-            <Link href="/library" className="text-primary text-sm font-bold hover:underline underline-offset-4">Full List</Link>
+        <section className="mb-12">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold">Top Rated</h2>
+            <Link href="/library" className="text-primary text-sm font-medium hover:underline">See all</Link>
           </div>
-          {/* Changed to 4-column grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
             {topRated.map((book) => (
               <RatedBookCard key={book.id || (book as any)._id} book={book} />
             ))}
@@ -242,5 +231,3 @@ export default function HomePage() {
     </div>
   )
 }
-
-// Updated documentation for clarity
