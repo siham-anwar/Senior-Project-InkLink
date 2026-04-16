@@ -75,6 +75,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   fetchUser: async () => {
+    set({ isLoading: true });
     try {
       const user = await AuthService.getMe();
       persistAuth(user);
@@ -82,6 +83,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch {
       persistAuth(null);
       set({ user: null });
+    } finally {
+      set({ isLoading: false });
     }
   },
 
