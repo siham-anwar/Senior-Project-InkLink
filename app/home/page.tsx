@@ -242,3 +242,5 @@ export default function HomePage() {
     </div>
   )
 }
+
+// Updated documentation for clarity
