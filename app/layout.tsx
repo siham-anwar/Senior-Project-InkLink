@@ -1,53 +1,49 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
-import { Analytics } from '@vercel/analytics/next'
-import { ThemeProvider } from '@/components/theme-provider'
+import { Inter } from 'next/font/google'
 import './globals.css'
+import { ThemeProvider } from '../components/providers/theme-provider'
+import { SonnerRoot } from '../components/sonner-root'
+import { THEME_STORAGE_SCRIPT } from "../lib/theme-script";
+import { AuthSessionBootstrap } from '../components/auth-session-bootstrap'
+import { RoleGuard } from '../components/role-guard'
+import { Navbar } from '@/components/navbar'
+import { Footer } from '@/components/footer'
+import Script from 'next/script'
 
-const _geist = Geist({ subsets: ["latin"] });
-const _geistMono = Geist_Mono({ subsets: ["latin"] });
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+})
 
 export const metadata: Metadata = {
-  title: 'InkLink - Author Dashboard',
-  description: 'Collaborative writing platform for authors',
-  generator: 'v0.app',
-  icons: {
-    icon: [
-      {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
-    ],
-    apple: '/apple-icon.png',
-  },
+  title: 'InkLink – Writing Platform',
+  description: 'InkLink is a modern writing platform for readers and creators.',
 }
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className="font-sans antialiased">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
+    <html lang="en" suppressHydrationWarning className={inter.variable}>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{ __html: THEME_STORAGE_SCRIPT }}
+        />
+      </head>
+      <body className="font-sans flex flex-col min-h-screen">
+        <ThemeProvider>
+          <AuthSessionBootstrap />
+          <RoleGuard />
+          <Navbar />
+          <main className="flex-1">
+            {children}
+          </main>
+          <Footer />
+          <SonnerRoot />
         </ThemeProvider>
-        {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
   )
 }
+
+
+// Updated documentation for clarity

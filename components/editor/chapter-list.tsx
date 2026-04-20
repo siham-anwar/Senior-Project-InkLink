@@ -20,6 +20,8 @@ export function ChapterList({
   onAddChapter,
   onDeleteChapter,
 }: ChapterListProps) {
+  const getChapterId = (chapter: Chapter) => chapter.id || chapter._id || ''
+
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
@@ -38,16 +40,16 @@ export function ChapterList({
         ) : (
           chapters.map((chapter, index) => (
             <div
-              key={chapter.id}
+              key={getChapterId(chapter)}
               className={cn(
                 'flex items-center gap-3 rounded-md px-3 py-2 transition-colors',
-                selectedChapterId === chapter.id
+                selectedChapterId === getChapterId(chapter)
                   ? 'bg-primary/10 text-primary'
                   : 'text-foreground hover:bg-muted'
               )}
             >
               <button
-                onClick={() => onSelectChapter(chapter.id)}
+                onClick={() => onSelectChapter(getChapterId(chapter))}
                 className="flex flex-1 items-center gap-3 text-left"
               >
                 <FileText className="h-4 w-4 shrink-0" />
@@ -67,7 +69,7 @@ export function ChapterList({
                 className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive"
                 onClick={(e) => {
                   e.stopPropagation()
-                  onDeleteChapter(chapter.id)
+                  onDeleteChapter(getChapterId(chapter))
                 }}
               >
                 <Trash2 className="h-4 w-4" />
