@@ -1,22 +1,36 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { PenLine } from "lucide-react";
-
-const floatingCards = [
-  { title: "Morning Pages", author: "A. Rowe", delay: 0, x: "8%", y: "12%" },
-  { title: "City Essays", author: "L. Park", delay: 0.15, x: "72%", y: "18%" },
-  {
-    title: "Paid · Featured",
-    author: "InkLink",
-    delay: 0.3,
-    x: "52%",
-    y: "58%",
-  },
-] as const;
+import { EditorWorksService, WorkDto } from "@/app/services/editor-works.service";
 
 export function Hero() {
+  const [featured, setFeatured] = useState<WorkDto[]>([]);
+
+  useEffect(() => {
+    EditorWorksService.browse().then(data => {
+      if (data && data.length > 0) {
+        setFeatured(data.slice(0, 3));
+      }
+    }).catch(() => {});
+  }, []);
+
+  const floatingCards = featured.length > 0 
+    ? featured.map((story, i) => ({
+        title: story.title,
+        author: story.authorUsername || "Author",
+        delay: i * 0.15,
+        x: i === 0 ? "8%" : i === 1 ? "72%" : "52%",
+        y: i === 0 ? "12%" : i === 1 ? "18%" : "58%",
+      }))
+    : [
+        { title: "Morning Pages", author: "A. Rowe", delay: 0, x: "8%", y: "12%" },
+        { title: "City Essays", author: "L. Park", delay: 0.15, x: "72%", y: "18%" },
+        { title: "Paid · Featured", author: "InkLink", delay: 0.3, x: "52%", y: "58%" },
+      ];
+
   return (
     <section className="relative overflow-hidden border-b border-border bg-background px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,color-mix(in_srgb,var(--primary)_12%,transparent),transparent)] dark:bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,color-mix(in_srgb,var(--primary)_18%,transparent),transparent)]" />
@@ -43,7 +57,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.12 }}
-            className="mt-5 max-w-xl text-lg leading-relaxed text-base md:text-lg text-foreground/50"
+            className="mt-5 max-w-xl text-lg leading-relaxed text-foreground/50"
           >
             A platform where writers publish, readers engage, and quality
             content earns rewards.
@@ -56,7 +70,7 @@ export function Hero() {
           >
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <Link
-                href="#write"
+                href="/editor"
                 className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white shadow-md transition-colors hover:bg-primary-hover"
               >
                 Start Writing
@@ -91,21 +105,21 @@ export function Hero() {
               key={card.title}
               initial={{ opacity: 0, y: 24, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.55, delay: 0.25 + card.delay }}
+              transition={{ duration: 0.55, delay: 0.25 + (card.delay || 0) }}
               className="absolute w-[min(44%,200px)] rounded-xl border border-border bg-card p-3 shadow-lg dark:shadow-black/50"
               style={{ left: card.x, top: card.y }}
             >
               <motion.div
                 animate={{ y: [0, -8, 0] }}
                 transition={{
-                  duration: 4 + card.delay * 3,
+                  duration: 4 + (card.delay || 0) * 3,
                   repeat: Infinity,
                   ease: "easeInOut",
-                  delay: card.delay,
+                  delay: card.delay || 0,
                 }}
               >
-                <p className="text-xs font-medium text-primary">{card.title}</p>
-                <p className="mt-1 text-[11px]  text-foreground/50">by {card.author}</p>
+                <p className="text-xs font-medium text-primary line-clamp-1">{card.title}</p>
+                <p className="mt-1 text-[11px] text-foreground/50">by {card.author}</p>
                 <div className="mt-2 flex gap-2">
                   <span className="h-1.5 flex-1 rounded-full bg-primary/20" />
                   <span className="h-1.5 w-6 rounded-full bg-primary/35" />
@@ -118,3 +132,5 @@ export function Hero() {
     </section>
   );
 }
+
+// Updated documentation for clarity
