@@ -21,13 +21,13 @@ const logAuthCall = (
 };
 
 export const AuthService = {
-  login: async (username: string, password: string) => {
+  login: async (email: string, password: string) => {
     logAuthCall("LOGIN", {
-      username,
+      email,
       hasPassword: Boolean(password),
     });
 
-    const res = await api.post("/auth/login", { username, password });
+    const res = await api.post("/auth/login", { email, password });
     return {
       ...res.data,
       user: extractUser(res.data),
@@ -79,3 +79,5 @@ export const AuthService = {
     return res.data;
   },
 };
+
+export { api };

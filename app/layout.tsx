@@ -5,6 +5,7 @@ import { ThemeProvider } from '../components/providers/theme-provider'
 import { SonnerRoot } from '../components/sonner-root'
 import { THEME_STORAGE_SCRIPT } from "../lib/theme-script";
 import { AuthSessionBootstrap } from '../components/auth-session-bootstrap'
+import { RoleGuard } from '../components/role-guard'
 import { Navbar } from '@/components/navbar'
 import { Footer } from '@/components/footer'
 import Script from 'next/script'
@@ -31,6 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="font-sans flex flex-col min-h-screen">
         <ThemeProvider>
           <AuthSessionBootstrap />
+          <RoleGuard />
           <Navbar />
           <main className="flex-1">
             {children}
@@ -43,3 +45,5 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   )
 }
 
+
+// Updated documentation for clarity
