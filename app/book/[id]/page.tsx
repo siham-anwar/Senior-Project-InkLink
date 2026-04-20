@@ -42,6 +42,12 @@ export default function BookDetailPage({ params }: { params: Promise<{ id: strin
       ])
       setWork(workData)
       setLibrary(lib)
+
+      try {
+        await libraryService.updateProgress(id, 0);
+      } catch (e) {
+        // silently ignore
+      }
     } catch (e: any) {
       setError(e?.message ?? 'Failed to load book')
     } finally {

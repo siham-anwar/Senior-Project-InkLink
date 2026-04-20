@@ -39,8 +39,8 @@ export default function HomePage() {
       if (works) {
         // Shuffle works to make the "Top Picks" dynamic for the session
         const shuffled = [...works].sort(() => Math.random() - 0.5)
-        setTopPicks(shuffled.slice(0, 8)) // Show 2 rows of 4
-        setTopRated(works.slice().reverse().slice(0, 8))
+        setTopPicks(shuffled.slice(0, 4)) // Show 1 row of 4
+        setTopRated(works.slice().reverse().slice(0, 4))
       }
     } catch (error) {
       console.error('Failed to fetch home data:', error)

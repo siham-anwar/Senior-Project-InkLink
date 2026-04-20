@@ -6,7 +6,7 @@ interface AuthState {
   token: string | null;
   isLoading: boolean;
 
-  login: (username: string, password: string) => Promise<any>;
+  login: (email: string, password: string) => Promise<any>;
   signup: (data: any) => Promise<any>;
   fetchUser: () => Promise<void>;
   bootstrapSession: () => Promise<void>;
@@ -26,13 +26,13 @@ const persistAuth = (user: any) => {
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   token: null,
-  isLoading: false,
+  isLoading: true,
 
-  login: async (username, password) => {
+  login: async (email, password) => {
     set({ isLoading: true });
 
     try {
-      const data = await AuthService.login(username, password);
+      const data = await AuthService.login(email, password);
       const user = data.user ?? (await AuthService.getMe());
 
       persistAuth(user);
