@@ -3,41 +3,115 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ChevronLeft, Search, MessageCircle, BookOpen, User } from 'lucide-react'
-import { notificationsService, NotificationUpdate, NotificationMessage } from '../services/notifications.service'
+
+interface Update {
+  id: string
+  type: 'chapter' | 'announcement'
+  authorName: string
+  authorImage: string
+  title: string
+  description: string
+  timestamp: string
+  bookTitle?: string
+  bookImage?: string
+  isRead: boolean
+}
+
+interface Message {
+  id: string
+  senderName: string
+  senderImage: string
+  lastMessage: string
+  timestamp: string
+  unread: boolean
+  isAuthor: boolean
+}
+
+const mockUpdates: Update[] = [
+  {
+    id: '1',
+    type: 'chapter',
+    authorName: 'Sarah Chen',
+    authorImage: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop',
+    title: 'New Chapter: The Journey Begins',
+    description: 'Chapter 5 of "Echoes of Tomorrow" has been released!',
+    bookTitle: 'Echoes of Tomorrow',
+    bookImage: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=100&h=150&fit=crop',
+    timestamp: '2 hours ago',
+    isRead: false,
+  },
+  {
+    id: '2',
+    type: 'announcement',
+    authorName: 'Marcus Reid',
+    authorImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop',
+    title: 'Author Announcement',
+    description: 'Exciting news about the upcoming book release and special live reading event!',
+    timestamp: '5 hours ago',
+    isRead: false,
+  },
+  {
+    id: '3',
+    type: 'chapter',
+    authorName: 'Elena Rodriguez',
+    authorImage: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop',
+    title: 'New Chapter: Unexpected Twist',
+    description: 'Chapter 12 of "Midnight Chronicles" is now available!',
+    bookTitle: 'Midnight Chronicles',
+    bookImage: 'https://images.unsplash.com/photo-1507842217343-583f20270319?w=100&h=150&fit=crop',
+    timestamp: '1 day ago',
+    isRead: true,
+  },
+]
+
+const mockMessages: Message[] = [
+  {
+    id: '1',
+    senderName: 'Alex Thompson',
+    senderImage: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop',
+    lastMessage: 'Your latest chapter was amazing! When will the next one come out?',
+    timestamp: '15 min ago',
+    unread: true,
+    isAuthor: true,
+  },
+  {
+    id: '2',
+    senderName: 'Jordan Lee',
+    senderImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop',
+    lastMessage: 'I have a question about the plot twist in chapter 8...',
+    timestamp: '2 hours ago',
+    unread: true,
+    isAuthor: true,
+  },
+  {
+    id: '3',
+    senderName: 'Casey Morgan',
+    senderImage: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop',
+    lastMessage: 'Thanks for the shout-out in your latest post!',
+    timestamp: '1 day ago',
+    unread: false,
+    isAuthor: true,
+  },
+]
 
 export default function NotificationsPage() {
   const [mounted, setMounted] = useState(false)
   const [activeTab, setActiveTab] = useState<'updates' | 'messages'>('updates')
-  const [updates, setUpdates] = useState<NotificationUpdate[]>([])
-  const [messages, setMessages] = useState<NotificationMessage[]>([])
-
-  const fetchNotifications = async () => {
-    try {
-      const data = await notificationsService.getNotifications()
-      setUpdates(data.updates || [])
-      setMessages(data.messages || [])
-    } catch (e) {
-      console.error(e)
-    }
-  }
+  const [updates, setUpdates] = useState<Update[]>([])
+  const [messages, setMessages] = useState<Message[]>([])
 
   useEffect(() => {
     setMounted(true)
-    fetchNotifications()
+    setUpdates(mockUpdates)
+    setMessages(mockMessages)
   }, [])
 
-  const markUpdateAsRead = async (id: string) => {
+  const markUpdateAsRead = (id: string) => {
     setUpdates(updates.map(u => u.id === id ? { ...u, isRead: true } : u))
-    try {
-      await notificationsService.markAsRead(id)
-    } catch(e) {}
   }
 
-  const markMessageAsRead = async (id: string) => {
+  const markMessageAsRead = (id: string) => {
     setMessages(messages.map(m => m.id === id ? { ...m, unread: false } : m))
-    try {
-      await notificationsService.markAsRead(id)
-    } catch(e) {}
   }
 
   const unreadUpdates = updates.filter(u => !u.isRead).length

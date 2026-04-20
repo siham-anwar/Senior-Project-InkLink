@@ -4,7 +4,7 @@ import { use, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowLeft, CheckCircle, Lock } from 'lucide-react'
-import { PRICING_PLANS } from '../../config/pricing'
+import { PRICING_PLANS } from '@/config/pricing'
 
 export default function CheckoutPage() {
   const router = useRouter()

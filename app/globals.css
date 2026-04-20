@@ -7,14 +7,14 @@
 :root {
   --background: #ffffff;
   --foreground: #0a0a0a;
-   --primary-hover: #6d0000;
+  --primary-hover: #6d0000;
   --muted: #525252;
   --border: #e5e5e5;
   --card: #fafafa;
   --card-foreground: #0a0a0a;
   --popover: #ffffff;
   --popover-foreground: #0a0a0a;
-  --primary:  #8b0000;
+  --primary: #8b0000;
   --primary-foreground: oklch(0.99 0 0);
   --secondary: oklch(0.96 0 0);
   --secondary-foreground: oklch(0.15 0 0);
@@ -36,7 +36,7 @@
 
 /* InkLink - Dark mode: black & red */
 .dark {
-   --background: #0a0a0a;
+  --background: #0a0a0a;
   --foreground: #fafafa;
   --primary: #b91c1c;
   --primary-hover: #991b1b;
@@ -116,7 +116,3 @@ body {
 ::selection {
   background-color: color-mix(in srgb, var(--primary) 35%, transparent);
 }
-@import "tailwindcss";
-
-@custom-variant dark (&:where(.dark, .dark *));
-

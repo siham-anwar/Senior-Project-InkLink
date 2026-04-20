@@ -3,22 +3,19 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
-import { useAuthStore } from '@/app/store/authstore'
-import { extractApiErrorMessage } from '@/lib/api'
 
 export default function SignupPage() {
   const router = useRouter()
-  const [username, setUsername] = useState('')
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [role, setRole] = useState<'user' | 'parent'>('user')
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const signup = useAuthStore((state) => state.signup)
-  const loading = useAuthStore((state) => state.isLoading)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -29,25 +26,39 @@ export default function SignupPage() {
       return
     }
     
-    if (!username || !password) {
+    if (!name || !email || !password) {
       setError('Please fill in all fields')
       return
     }
 
-    try {
-      await signup({ username, email, password, role })
+    setLoading(true)
+    // Simulate account creation - replace with actual backend call
+    setTimeout(() => {
+      // Store user session (you'll replace this with actual auth)
+      sessionStorage.setItem('user', JSON.stringify({ email, name }))
+      setLoading(false)
+      // Redirect to homepage
       router.push('/home')
-    } catch (err) {
-      setError(extractApiErrorMessage(err, 'Unable to create account'))
-    }
+    }, 1000)
   }
 
   return (
-    <Card className="w-full max-w-md p-8 shadow-lg border border-border">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-primary mb-2">Join InkLink</h1>
-        <p className="text-muted-foreground">Start your reading and writing journey</p>
-      </div>
+    <div className="min-h-screen bg-background text-foreground flex items-center justify-center px-4">
+      {/* Back Button */}
+      <button 
+        onClick={() => router.back()}
+        className="absolute top-4 left-4 p-2 hover:bg-secondary rounded-lg transition-colors flex items-center gap-2"
+        title="Go back"
+      >
+        <ArrowLeft size={20} />
+        <span className="hidden sm:inline text-sm font-medium">Back</span>
+      </button>
+
+      <Card className="w-full max-w-md p-8 shadow-lg border border-border">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-primary mb-2">Join InkLink</h1>
+          <p className="text-muted-foreground">Start your reading and writing journey</p>
+        </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {error && (
@@ -56,15 +67,15 @@ export default function SignupPage() {
           </div>
         )}
         <div>
-          <label htmlFor="username" className="block text-sm font-medium mb-2">
-            Username
+          <label htmlFor="name" className="block text-sm font-medium mb-2">
+            Full Name
           </label>
           <Input
-            id="username"
+            id="name"
             type="text"
-            placeholder="your_username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            placeholder="John Doe"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             required
             className="bg-input border-border"
           />
@@ -80,6 +91,7 @@ export default function SignupPage() {
             placeholder="you@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
             className="bg-input border-border"
           />
         </div>
@@ -113,20 +125,6 @@ export default function SignupPage() {
             className="bg-input border-border"
           />
         </div>
-        <div>
-          <label htmlFor="role" className="block text-sm font-medium mb-2">
-            Register as
-          </label>
-          <select
-            id="role"
-            className="w-full bg-input border-border rounded-md px-3 py-2 text-sm"
-            value={role}
-            onChange={(e) => setRole(e.target.value as any)}
-          >
-            <option value="user">Reader/Writer</option>
-            <option value="parent">Parent (Manage children accounts)</option>
-          </select>
-        </div>
 
         <Button
           type="submit"
@@ -152,5 +150,6 @@ export default function SignupPage() {
         </Link>
       </div>
     </Card>
+    </div>
   )
 }

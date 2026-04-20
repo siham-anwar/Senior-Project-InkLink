@@ -1,53 +1,50 @@
-"use client";
-
-import { motion } from "framer-motion";
-import { Quote } from "lucide-react";
-import { FadeInView } from "@/components/fade-in-view";
-import { testimonials } from "@/lib/mock-data";
+import { Star } from 'lucide-react'
 
 export function Testimonials() {
-  return (
-    <section
-      id="about"
-      className="border-b border-border bg-card/50 px-4 py-20 dark:bg-card/30 sm:px-6 lg:px-8"
-    >
-      <div className="mx-auto max-w-6xl">
-        <FadeInView className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-            Trusted by readers and writers
-          </h2>
-          <p className="mt-4  text-foreground/50">
-            Voices from the beta on payouts, safety, and craft.
-          </p>
-        </FadeInView>
+  const testimonials = [
+    {
+      name: 'Sarah Chen',
+      role: 'Author',
+      content: 'InkLink helped me reach thousands of readers. The community is supportive and the platform is easy to use.',
+      rating: 5,
+    },
+    {
+      name: 'Marcus Johnson',
+      role: 'Reader',
+      content: 'I discovered amazing stories on InkLink. The recommendation system is incredibly accurate.',
+      rating: 5,
+    },
+    {
+      name: 'Elena Rodriguez',
+      role: 'Author',
+      content: 'Publishing my work here was the best decision. I found my audience and made real connections.',
+      rating: 5,
+    },
+  ]
 
-        <ul className="mt-14 grid gap-6 md:grid-cols-3">
-          {testimonials.map((t, i) => (
-            <FadeInView key={t.name} delay={i * 0.07}>
-              <motion.li
-                whileHover={{ y: -4 }}
-                transition={{ type: "spring", stiffness: 400, damping: 28 }}
-                className="flex h-full flex-col rounded-2xl border border-border bg-background p-6 shadow-sm"
-              >
-                <Quote
-                  className="h-8 w-8 text-primary/40"
-                  strokeWidth={1.5}
-                  aria-hidden
-                />
-                <blockquote className="mt-4 flex-1 text-sm leading-relaxed text-foreground/90">
-                  {t.quote}
-                </blockquote>
-                <footer className="mt-6 border-t border-border pt-4">
-                  <p className="text-sm font-semibold text-foreground">
-                    {t.name}
-                  </p>
-                  <p className="text-xs  text-foreground/50">{t.role}</p>
-                </footer>
-              </motion.li>
-            </FadeInView>
+  return (
+    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-secondary/50">
+      <div className="max-w-6xl mx-auto">
+        <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-balance">
+          Loved by Creators & Readers
+        </h2>
+        <div className="grid md:grid-cols-3 gap-8">
+          {testimonials.map((testimonial, idx) => (
+            <div key={idx} className="p-8 rounded-lg bg-background border border-border hover:shadow-lg transition">
+              <div className="flex gap-1 mb-4">
+                {Array.from({ length: testimonial.rating }).map((_, i) => (
+                  <Star key={i} size={16} className="fill-primary text-primary" />
+                ))}
+              </div>
+              <p className="text-muted-foreground mb-4 italic">{testimonial.content}</p>
+              <div>
+                <p className="font-semibold">{testimonial.name}</p>
+                <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+              </div>
+            </div>
           ))}
-        </ul>
+        </div>
       </div>
     </section>
-  );
+  )
 }

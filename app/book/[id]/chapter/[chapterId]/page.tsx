@@ -4,90 +4,97 @@ import { use, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Heart, MessageCircle, ChevronLeft, ChevronRight, Gift, Moon, Sun } from 'lucide-react'
-import { useTheme } from 'next-themes'
-import { ReactionsService } from '@/app/services/reactions.service'
+import { useTheme } from '@/components/providers/theme-provider'
 
 export default function ChapterReadingPage({ params }: { params: Promise<{ id: string; chapterId: string }> }) {
   const { id, chapterId } = use(params)
   const router = useRouter()
-  const { theme, setTheme } = useTheme()
+  const { theme, toggleTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const [isLiked, setIsLiked] = useState(false)
-  const [likes, setLikes] = useState(0)
+  const [likes, setLikes] = useState(1250)
   const [showComments, setShowComments] = useState(false)
-  const [commentsCount, setCommentsCount] = useState(0)
-  const [comments, setComments] = useState<any[]>([])
+  const [comments, setComments] = useState([
+    { id: 1, author: 'Alex Reader', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop', text: 'Amazing chapter! The plot twist was incredible!' },
+    { id: 2, author: 'Jordan Books', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=40&h=40&fit=crop', text: 'Can\'t wait for the next chapter. This story is addictive!' },
+  ])
   const [newComment, setNewComment] = useState('')
-
-  const [chapter, setChapter] = useState<any>(null);
-  const [work, setWork] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setMounted(true)
-    const fetchData = async () => {
-      try {
-        const { EditorWorksService } = await import('@/app/services/editor-works.service');
-        const workData = await EditorWorksService.getById(id);
-        setWork(workData);
-        const chapterData = workData.chapters?.find((c: any) => (c.id || c._id) === chapterId);
-        setChapter(chapterData);
+  }, [])
 
-        setLikes(Number(chapterData?.likesCount ?? 0));
-        setIsLiked(Boolean(chapterData?.viewerHasLiked ?? false));
-        setCommentsCount(Number(chapterData?.commentsCount ?? 0));
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
-        const commentsPage = await ReactionsService.listComments(chapterId, { limit: 50 });
-        setComments(commentsPage.items || []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [id, chapterId]);
+  // Mock chapter data - Replace with backend API call
+  const mockChapter = {
+    id: chapterId,
+    bookId: id,
+    title: 'Chapter 2: Shadows Rise',
+    bookTitle: 'The Midnight Kingdom',
+    author: 'Sarah Chen',
+    publishedDate: 'Mar 18, 2024',
+    content: `The night had settled over the kingdom like a thick veil. Aria stood at the edge of the cliff, watching the stars dance across the dark sky. She could feel something stirring in the air—a presence she couldn't quite name.
 
-  const handleLike = async () => {
-    try {
-      const res = await ReactionsService.toggleLike(chapterId);
-      setIsLiked(Boolean(res.viewerHasLiked));
-      setLikes(Number(res.likesCount ?? 0));
-    } catch (err) {
-      console.error(err);
+Behind her, the sound of footsteps echoed through the stone corridors. She didn't need to turn around to know who it was. The scent of jasmine and ancient magic was unmistakable.
+
+"You shouldn't be here," came a familiar voice, smooth as silk and twice as dangerous.
+
+Aria turned slowly, her hand instinctively moving to the hilt of her sword. Standing before her was the figure she'd been dreading and anticipating in equal measure. The Shadow Knight, draped in robes of midnight and starlight.
+
+"Neither should you," she replied, her voice steady despite the storm of emotions raging within her.
+
+The knight took a step forward, and the very shadows seemed to bend to his will. "I've been watching you, Aria. You have potential. Power that could reshape the very fabric of reality itself."
+
+Aria's breath caught. How did he know her name? She'd been so careful, so hidden away in the tower. Only a handful of people knew her true identity.
+
+"What do you want?" she demanded, drawing her blade. The weapon gleamed with an ethereal light, reacting to the proximity of dark magic.
+
+"I want to offer you something," the Shadow Knight said, his form becoming clearer as he stepped closer. "A choice. You can remain here, trapped in this existence, or you can come with me and discover what you're truly meant to be."
+
+The proposition hung between them like a blade suspended over water. Aria knew this was a test. Everything in the Kingdom was a test. She'd learned that lesson years ago, when she'd lost everything and everyone she'd ever loved.
+
+"And if I refuse?" she asked, her eyes narrowing.
+
+A smile played at the corners of the knight's hidden face. "Then the shadows will come for you anyway. You cannot escape your destiny, young one. The only question is whether you'll meet it with power or weakness."
+
+The night seemed to hold its breath. Above them, a meteor streaked across the sky, leaving a trail of silver fire. It was a sign—Aria had learned to read the omens long ago. The old magic was stirring. Change was coming, whether she welcomed it or not.
+
+She lowered her sword slightly, her mind racing. "I need time to think."
+
+"You have until the moon reaches its zenith," the Shadow Knight replied. Then, like a wisp of smoke, he was gone, leaving only the faint scent of magic and the lingering echo of his words.
+
+Aria stood alone once more, the weight of destiny pressing down upon her shoulders. The sky above seemed darker than before, and somewhere in the distance, she could hear the sound of thunder—a warning, or perhaps a promise.`,
+    chapterNumber: 2,
+    totalChapters: 7,
+  }
+
+  const handleLike = () => {
+    setIsLiked(!isLiked)
+    setLikes(isLiked ? likes - 1 : likes + 1)
+  }
+
+  const handleAddComment = () => {
+    if (newComment.trim()) {
+      setComments([
+        ...comments,
+        {
+          id: comments.length + 1,
+          author: 'You',
+          avatar: 'https://images.unsplash.com/photo-1517849845537-1d51a20414de?w=40&h=40&fit=crop',
+          text: newComment,
+        },
+      ])
+      setNewComment('')
     }
   }
 
-  const handleAddComment = async () => {
-    const text = newComment.trim();
-    if (!text) return;
+  const previousChapterExists = mockChapter.chapterNumber > 1
+  const nextChapterExists = mockChapter.chapterNumber < mockChapter.totalChapters
 
-    try {
-      const created = await ReactionsService.addComment(chapterId, { text });
-      setComments((prev) => [created, ...prev]);
-      setCommentsCount((prev) => prev + 1);
-      setNewComment('');
-      setShowComments(true);
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  const chapters = work?.chapters || [];
-  const currentIndex = chapters.findIndex((c: any) => (c.id || c._id) === chapterId);
-  const previousChapter = currentIndex > 0 ? chapters[currentIndex - 1] : null;
-  const nextChapter = currentIndex >= 0 && currentIndex < chapters.length - 1 ? chapters[currentIndex + 1] : null;
-
-  if (!mounted || loading) return null
-
-  if (!chapter) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p>Chapter not found.</p>
-        <Link href={`/book/${id}`} className="text-primary ml-2 underline">Go back</Link>
-      </div>
-    );
-  }
+  if (!mounted) return null
 
   return (
     <div className="min-h-screen bg-background text-foreground pb-20">
@@ -97,7 +104,7 @@ export default function ChapterReadingPage({ params }: { params: Promise<{ id: s
           <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              onClick={toggleTheme}
               className="p-2 hover:bg-secondary rounded-lg transition-colors"
               aria-label="Toggle theme"
               title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
@@ -113,7 +120,7 @@ export default function ChapterReadingPage({ params }: { params: Promise<{ id: s
               <span className="hidden sm:inline text-sm font-medium">Back</span>
             </Link>
           </div>
-            <h1 className="text-lg font-bold text-center flex-1 line-clamp-1 px-4">{work?.title || 'Loading...'}</h1>
+            <h1 className="text-lg font-bold text-center flex-1 line-clamp-1 px-4">{mockChapter.bookTitle}</h1>
             <div className="w-12" />
           </div>
         </div>
@@ -123,22 +130,22 @@ export default function ChapterReadingPage({ params }: { params: Promise<{ id: s
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Chapter Header */}
         <div className="mb-8">
-          <p className="text-sm text-muted-foreground mb-2">Chapter {currentIndex + 1}</p>
-          <h1 className="text-3xl sm:text-4xl font-bold mb-4">{chapter.title}</h1>
+          <p className="text-sm text-muted-foreground mb-2">Chapter {mockChapter.chapterNumber}</p>
+          <h1 className="text-3xl sm:text-4xl font-bold mb-4">{mockChapter.title}</h1>
           <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <span>{work?.authorUsername || 'Author'}</span>
-            <span>{new Date(chapter.createdAt).toLocaleDateString()}</span>
+            <span>{mockChapter.author}</span>
+            <span>{mockChapter.publishedDate}</span>
           </div>
         </div>
 
         {/* Chapter Content */}
         <article className="prose prose-invert max-w-none mb-12">
           <div className="space-y-6 text-foreground leading-relaxed">
-            {chapter.contentText ? chapter.contentText.split('\n\n').map((paragraph: string, index: number) => (
+            {mockChapter.content.split('\n\n').map((paragraph, index) => (
               <p key={index} className="text-base sm:text-lg">
                 {paragraph}
               </p>
-            )) : <p className="italic opacity-50">No content available.</p>}
+            ))}
           </div>
         </article>
 
@@ -161,7 +168,7 @@ export default function ChapterReadingPage({ params }: { params: Promise<{ id: s
             className="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-secondary/80 rounded-lg transition-colors"
           >
             <MessageCircle size={18} />
-            <span className="font-medium">{commentsCount} Comments</span>
+            <span className="font-medium">{comments.length} Comments</span>
           </button>
 
           <Link
@@ -176,7 +183,7 @@ export default function ChapterReadingPage({ params }: { params: Promise<{ id: s
         {/* Comments Section */}
         {showComments && (
           <div className="mb-12 space-y-6">
-            <h2 className="text-2xl font-bold">Comments ({commentsCount})</h2>
+            <h2 className="text-2xl font-bold">Comments ({comments.length})</h2>
 
             {/* Add Comment */}
             <div className="space-y-3 p-4 bg-secondary/30 rounded-lg border border-border">
@@ -216,9 +223,9 @@ export default function ChapterReadingPage({ params }: { params: Promise<{ id: s
 
         {/* Navigation Buttons */}
         <div className="flex gap-4 justify-between mb-12">
-          {previousChapter ? (
+          {previousChapterExists ? (
             <Link
-              href={`/book/${id}/chapter/${previousChapter.id || previousChapter._id}`}
+              href={`/book/${params.id}/chapter/${mockChapter.chapterNumber - 1}`}
               className="flex items-center gap-2 px-6 py-3 bg-secondary hover:bg-secondary/80 rounded-lg transition-colors font-medium"
             >
               <ChevronLeft size={20} />
@@ -228,9 +235,9 @@ export default function ChapterReadingPage({ params }: { params: Promise<{ id: s
             <div />
           )}
 
-          {nextChapter ? (
+          {nextChapterExists ? (
             <Link
-              href={`/book/${id}/chapter/${nextChapter.id || nextChapter._id}`}
+              href={`/book/${params.id}/chapter/${mockChapter.chapterNumber + 1}`}
               className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg transition-colors font-medium"
             >
               Next Chapter
@@ -246,7 +253,7 @@ export default function ChapterReadingPage({ params }: { params: Promise<{ id: s
           <h2 className="text-2xl font-bold mb-3">Support the Author</h2>
           <p className="text-muted-foreground mb-6">Love this story? Show your support by donating to help the author continue writing amazing chapters.</p>
           <Link
-            href={`/donate?author=${id}`}
+            href={`/donate?author=${mockChapter.bookId}`}
             className="inline-block px-8 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium"
           >
             <Gift size={18} className="inline mr-2" />
