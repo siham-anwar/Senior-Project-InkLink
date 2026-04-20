@@ -11,7 +11,7 @@ import { extractApiErrorMessage } from '@/lib/api'
 
 export default function LoginPage() {
   const router = useRouter()
-  const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const login = useAuthStore((state) => state.login)
@@ -21,13 +21,13 @@ export default function LoginPage() {
     e.preventDefault()
     setError('')
 
-    if (!username || !password) {
+    if (!email || !password) {
       setError('Please fill in all fields')
       return
     }
 
     try {
-      const data = await login(username, password)
+      const data = await login(email, password)
       const userRole = data.user?.role
       
       if (userRole === 'child') {
@@ -54,15 +54,15 @@ export default function LoginPage() {
           </div>
         )}
         <div>
-          <label htmlFor="username" className="block text-sm font-medium mb-2">
-            Username
+          <label htmlFor="email" className="block text-sm font-medium mb-2">
+            Email
           </label>
           <Input
-            id="username"
-            type="text"
-            placeholder="your_username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            id="email"
+            type="email"
+            placeholder="your_email@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
             className="bg-input border-border"
           />

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Search, BookOpen, Star, ChevronRight, Gift, Heart, Sparkles, ArrowLeft, ArrowRight } from 'lucide-react'
+import { BookOpen, Star, ChevronRight, Gift, Heart, Sparkles, ArrowLeft, ArrowRight } from 'lucide-react'
 import { EditorWorksService, WorkDto } from '@/app/services/editor-works.service'
 import { Loader2 } from 'lucide-react'
 import { cn } from '@/lib/cn'
@@ -12,8 +12,9 @@ export default function ExplorePage() {
   const [loading, setLoading] = useState(true)
   const [categories, setCategories] = useState<{ name: string; books: WorkDto[] }[]>([])
   const [allBooks, setAllBooks] = useState<WorkDto[]>([])
+  const [activeGenre, setActiveGenre] = useState('All')
   const [currentPage, setCurrentPage] = useState(1)
-  const booksPerPage = 12
+  const booksPerPage = 4
 
   const commonCategories = ['Fiction', 'Fantasy', 'Mystery', 'Adventure', 'Romance']
 
@@ -21,15 +22,13 @@ export default function ExplorePage() {
     try {
       setLoading(true)
       
-      // Fetch everything for the "All Books" section
       const all = await EditorWorksService.browse()
       setAllBooks(all)
 
-      // Fetch categories
       const results = await Promise.all(
         commonCategories.map(async (cat) => {
           const books = await EditorWorksService.browse(cat)
-          return { name: cat, books: books.slice(0, 8) }
+          return { name: cat, books: books.slice(0, 4) } // Limit genre rows to 4 too for consistency
         })
       )
       setCategories(results.filter(c => c.books.length > 0))
@@ -64,13 +63,13 @@ export default function ExplorePage() {
     const bookId = book.id || book._id;
     return (
       <Link href={`/book/${bookId}`} className="group cursor-pointer">
-        <div className="relative overflow-hidden rounded-2xl mb-3 bg-muted aspect-[3/4] shadow-md transition-all hover:shadow-xl hover:-translate-y-1">
+        <div className="relative overflow-hidden rounded-2xl mb-3 bg-muted aspect-3/4 shadow-md transition-all hover:shadow-xl hover:-translate-y-1">
           <img
             src={book.coverImage || 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&h=533&fit=crop'}
             alt={book.title}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
           
           <div className="absolute top-2 right-2 bg-background/80 backdrop-blur-md px-2 py-1 rounded-full flex items-center gap-1 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity">
             <Star size={12} className="fill-amber-400 text-amber-400" />
@@ -132,19 +131,65 @@ export default function ExplorePage() {
           </div>
         ) : (
           <div className="space-y-32">
-            {/* ALL BOOKS SECTION */}
-            <section id="all-books" className="animate-in fade-in slide-in-from-bottom-6 duration-700">
+            {/* GENRE FILTER BAR (New Mechanism) */}
+            <div className="sticky top-20 z-20 bg-background/95 backdrop-blur-md py-4 -mx-4 px-4 border-b border-border mb-8">
+               <div className="flex items-center gap-4 overflow-x-auto pb-2 no-scrollbar">
+                  {['All', ...commonCategories].map((genre) => (
+                    <button
+                      key={genre}
+                      onClick={() => setActiveGenre(genre)}
+                      className={cn(
+                        "px-6 py-2 rounded-full text-sm font-black transition-all border shrink-0",
+                        activeGenre === genre 
+                          ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20" 
+                          : "bg-secondary/50 text-muted-foreground border-transparent hover:border-border"
+                      )}
+                    >
+                      {genre}
+                    </button>
+                  ))}
+               </div>
+            </div>
+
+            {/* GENRE SECTIONS (Conditional based on filter) */}
+            {categories
+              .filter(cat => activeGenre === 'All' || cat.name === activeGenre)
+              .map((cat) => (
+                <section key={cat.name} className="animate-in fade-in duration-700">
+                  <div className="flex items-center justify-between mb-10 pb-4 border-b border-border/50">
+                    <h2 className="text-3xl font-black tracking-tight flex items-center gap-3 italic">
+                      {cat.name}
+                    </h2>
+                    <Link 
+                      href={`/library?tag=${cat.name}`} 
+                      className="flex items-center gap-2 text-primary font-bold hover:gap-3 transition-all underline underline-offset-8 decoration-2"
+                    >
+                      View All {cat.name} <ChevronRight size={18} />
+                    </Link>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                    {cat.books.map((book) => (
+                      <BookCard key={book.id || (book as any)._id} book={book} />
+                    ))}
+                  </div>
+                </section>
+              ))}
+
+            {/* ALL BOOKS SECTION (Moved to final) */}
+            <section id="all-books" className="animate-in fade-in slide-in-from-bottom-6 duration-700 pt-16">
                 <div id="all-books-header" className="flex items-center justify-between mb-12 pb-6 border-b border-border">
                   <div className="space-y-1">
-                    <h2 className="text-4xl font-black tracking-tight tracking-tighter">Browse All Stories</h2>
+                    <h2 className="text-4xl font-black tracking-tight ">Browse All Stories</h2>
                     <p className="text-muted-foreground font-medium">Discover gems from every corner of InkLink.</p>
                   </div>
                   <div className="hidden sm:flex items-center gap-2 bg-secondary/50 px-4 py-2 rounded-full border border-border/50 text-sm font-bold">
                     <BookOpen size={16} className="text-primary" />
-                    <span>{allBooks.length} Published Works</span>
+                    <span>{allBooks.length} Total Published</span>
                   </div>
                 </div>
 
+                {/* Only one row (4 books) as requested */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                   {currentBooks.map((book) => (
                     <BookCard key={book.id || (book as any)._id} book={book} />
@@ -165,7 +210,6 @@ export default function ExplorePage() {
 
                        <div className="flex items-center gap-1">
                           {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                              // Simple pagination showing up to 5 pages
                               let pageNum = i + 1;
                               if (totalPages > 5 && currentPage > 3) {
                                   pageNum = currentPage - 2 + i;
@@ -196,40 +240,14 @@ export default function ExplorePage() {
                          Next <ArrowRight size={18} />
                        </button>
                     </div>
-                    <p className="text-sm font-bold text-muted-foreground">
-                       Showing {indexOfFirstBook + 1} to {Math.min(indexOfLastBook, allBooks.length)} of {allBooks.length} stories
-                    </p>
                   </div>
                 )}
             </section>
 
-            {/* GENRE SECTIONS */}
-            {categories.map((cat) => (
-              <section key={cat.name} className="animate-in fade-in duration-700">
-                <div className="flex items-center justify-between mb-10 pb-4 border-b border-border/50">
-                  <h2 className="text-3xl font-black tracking-tight flex items-center gap-3 italic">
-                    {cat.name}
-                  </h2>
-                  <Link 
-                    href={`/library?tag=${cat.name}`} 
-                    className="flex items-center gap-2 text-primary font-bold hover:gap-3 transition-all underline underline-offset-8 decoration-2"
-                  >
-                    View All {cat.name} <ChevronRight size={18} />
-                  </Link>
-                </div>
-                
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                  {cat.books.map((book) => (
-                    <BookCard key={book.id || (book as any)._id} book={book} />
-                  ))}
-                </div>
-              </section>
-            ))}
-
             <DonateSection />
           </div>
         )}
-      </main>
-    </div>
+        </main>
+      </div>
   )
 }
