@@ -107,6 +107,10 @@ def _score(paths, msg):
 
     for p in paths:
         pl = p.lower()
+        # Infra/Core backend-ish areas we want to bias toward Nezif (near to services work).
+        # This makes sure Nezif gets commits when changes are mostly in shared libraries/specs/config.
+        if pl.startswith(('lib/','prisma/','server/','backend/')) or 'openapi' in pl:
+            pass
         if pl.endswith(('.css', '.scss', '.sass', '.less')):
             ui_score += 2
         if pl.endswith(('.tsx', '.jsx')):
@@ -129,9 +133,20 @@ def _score(paths, msg):
         doc_score += 2
     return ui_score, svc_score, doc_score
 
+def _infra_hit(paths):
+    for p in paths:
+        pl = p.lower()
+        if pl.startswith(('lib/','prisma/','server/','backend/')) or 'openapi' in pl:
+            return True
+        if pl in ('package.json','package-lock.json','tsconfig.json','next.config.mjs','next.config.js','postcss.config.mjs'):
+            return True
+    return False
+
 def _pick_identity(ui_score, svc_score, doc_score):
     if ui_score > svc_score and ui_score > 0:
         return b{SIHAM.name!r}, b{SIHAM.email!r}
+    # If it's infra/core/spec work (often close to services changes), give it to Nezif.
+    # Otherwise, service/API-ish goes to Ezedin.
     if svc_score > 0:
         return b{EZEDIN.name!r}, b{EZEDIN.email!r}
     return b{NEZIF.name!r}, b{NEZIF.email!r}
@@ -152,7 +167,10 @@ if _is_from_me(commit.author_name, commit.author_email):
     except Exception:
         msg = ''
     ui_score, svc_score, doc_score = _score(paths, msg)
-    new_name, new_email = _pick_identity(ui_score, svc_score, doc_score)
+    if _infra_hit(paths) and not (ui_score > svc_score and ui_score > 0):
+        new_name, new_email = b{NEZIF.name!r}, b{NEZIF.email!r}
+    else:
+        new_name, new_email = _pick_identity(ui_score, svc_score, doc_score)
     commit.author_name = new_name
     commit.author_email = new_email
 
@@ -163,7 +181,10 @@ if {str(bool(rewrite_committer))} and _is_from_me(commit.committer_name, commit.
     except Exception:
         msg = ''
     ui_score, svc_score, doc_score = _score(paths, msg)
-    new_name, new_email = _pick_identity(ui_score, svc_score, doc_score)
+    if _infra_hit(paths) and not (ui_score > svc_score and ui_score > 0):
+        new_name, new_email = b{NEZIF.name!r}, b{NEZIF.email!r}
+    else:
+        new_name, new_email = _pick_identity(ui_score, svc_score, doc_score)
     commit.committer_name = new_name
     commit.committer_email = new_email
 """.strip()
@@ -212,8 +233,25 @@ def preview_assignment(from_emails: list[str], from_names: list[str]) -> None:
         if any(k in sl for k in ("api", "service", "auth", "moderation", "notification", "reaction", "endpoint", "schema")):
             svc_score += 2
 
+        infra_hit = any(
+            pl.startswith(("lib/", "prisma/", "server/", "backend/"))
+            or "openapi" in pl
+            or pl
+            in (
+                "package.json",
+                "package-lock.json",
+                "tsconfig.json",
+                "next.config.mjs",
+                "next.config.js",
+                "postcss.config.mjs",
+            )
+            for pl in (p.lower() for p in paths)
+        )
+
         if ui_score > svc_score and ui_score > 0:
             counts["siham"] += 1
+        elif infra_hit:
+            counts["nezif"] += 1
         elif svc_score > 0:
             counts["ezedin"] += 1
         else:
@@ -286,4 +324,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

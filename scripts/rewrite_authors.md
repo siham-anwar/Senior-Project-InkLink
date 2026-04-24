@@ -2,6 +2,11 @@
 
 This repo includes `scripts/rewrite_authors.py` to rewrite commits authored/committed by **Nebil** to other identities (**Siham**, **Ezedin**, **Nezif**) using `git-filter-repo`.
 
+Current heuristic:
+- UI-ish changes → Siham
+- `app/services/` / API-ish changes → Ezedin
+- shared libs/specs/config (`lib/`, `openapi*`, `prisma/`, configs) → Nezif
+
 ## WARNING
 
 - This **rewrites history**. Commit SHAs will change.
@@ -41,4 +46,3 @@ Each teammate should:
 - `git reset --hard origin/main`
 - `git checkout dev`
 - `git reset --hard origin/dev`
-
