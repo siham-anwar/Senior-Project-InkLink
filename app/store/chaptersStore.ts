@@ -8,8 +8,8 @@ interface ChaptersState {
 
   fetchChapters: (workId: string) => Promise<ChapterDto[]>
 
-  createChapter: (workId: string, dto: { title: string; contentText?: string; orderIndex?: number }) => Promise<ChapterDto>
-  updateChapter: (id: string, dto: { title?: string; contentText?: string }) => Promise<ChapterDto>
+  createChapter: (workId: string, dto: { title: string; contentText?: string; orderIndex?: number; price?: number }) => Promise<ChapterDto>
+  updateChapter: (id: string, dto: { title?: string; contentText?: string; price?: number }) => Promise<ChapterDto>
   deleteChapter: (id: string) => Promise<void>
   reorderChapters: (workId: string, chapterIds: string[]) => Promise<void>
 }
