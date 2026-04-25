@@ -16,9 +16,8 @@ export function RoleGuard() {
 
   useEffect(() => {
     // 1. Authentication Check: Redirect to login if unauthenticated on protected paths
-    const isProtectedPath = ['/home', '/explore', '/editor', '/library', '/dashboard', '/premium', '/profile'].some(
-      path => pathname.startsWith(path)
-    )
+    const protectedPaths = ['/home', '/explore', '/editor', '/library', '/dashboard', '/premium', '/profile'];
+    const isProtectedPath = protectedPaths.some(path => pathname.startsWith(path));
 
     if (!isLoading && !user && isProtectedPath) {
       console.warn('[RoleGuard] Unauthenticated access to protected path. Redirecting to login.')
@@ -29,12 +28,16 @@ export function RoleGuard() {
     if (!user) return
 
     const isChild = user.role === 'child'
-    const isAdultPath = isProtectedPath // Reuse the mapping
     const isChildrenPath = pathname.startsWith('/children')
+    
+    // Paths that are safe for children to visit (even if they are protected/adult paths for others)
+    const isChildAllowedOnAdultPath = pathname.startsWith('/profile')
+    
+    const isAdultPathOnly = isProtectedPath && !isChildAllowedOnAdultPath
 
-    // 2. Safety: Redirect children away from adult pages
-    if (isChild && isAdultPath) {
-      console.warn('[RoleGuard] Child attempted to access adult content. Redirecting to Kids Mode.')
+    // 2. Safety: Redirect children away from adult-only pages
+    if (isChild && isAdultPathOnly) {
+      console.warn('[RoleGuard] Child attempted to access restricted content. Redirecting to Kids Mode.')
       router.replace('/children')
     }
 
