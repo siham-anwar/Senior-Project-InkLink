@@ -9,6 +9,7 @@ interface AuthState {
   login: (email: string, password: string) => Promise<any>;
   signup: (data: any) => Promise<any>;
   fetchUser: () => Promise<void>;
+  updateUser: (updates: any) => void;
   bootstrapSession: () => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -85,6 +86,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ user: null });
     } finally {
       set({ isLoading: false });
+    }
+  },
+
+  updateUser: (updates: any) => {
+    const currentUser = get().user;
+    if (currentUser) {
+      const newUser = { ...currentUser, ...updates };
+      persistAuth(newUser);
+      set({ user: newUser });
     }
   },
 
