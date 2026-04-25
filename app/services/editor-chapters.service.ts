@@ -7,6 +7,7 @@ export interface ChapterDto {
   title: string
   contentText?: string
   orderIndex?: number
+  price?: number
   moderationStatus?: 'draft' | 'pending_moderation' | 'needs_admin_review' | 'approved' | 'rejected'
   moderationConfidence?: number
   moderationReason?: string
@@ -52,13 +53,13 @@ export const EditorChaptersService = {
 
   create: async (
     workId: string,
-    dto: { title: string; contentText?: string; orderIndex?: number }
+    dto: { title: string; contentText?: string; orderIndex?: number; price?: number }
   ) => {
     const res = await api.post(`/works/${workId}/chapters`, dto)
     return toChapter(res.data)
   },
 
-  update: async (id: string, dto: { title?: string; contentText?: string }) => {
+  update: async (id: string, dto: { title?: string; contentText?: string; price?: number }) => {
     const res = await api.patch(`/chapters/${id}`, dto)
     return toChapter(res.data)
   },
