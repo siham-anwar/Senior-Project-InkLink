@@ -68,6 +68,11 @@ export const EditorWorksService = {
     return toWorks(res.data)
   },
 
+  search: async (query: string) => {
+    const res = await api.get('/works/search', { params: { q: query } })
+    return toWorks(res.data)
+  },
+
   create: async (dto: {
     title: string
     summary?: string
