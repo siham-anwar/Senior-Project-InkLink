@@ -18,6 +18,7 @@ export interface Chapter {
   childSafe?: boolean
   adultSafe?: boolean
   moderationUpdatedAt?: Date | string
+  price?: number
   createdAt: Date | string
   updatedAt: Date | string
 }
