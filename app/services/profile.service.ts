@@ -12,6 +12,7 @@ export interface ProfileData {
   readingList: any[];
   favoriteBook?: any;
   isCreator: boolean;
+  interests: string[];
   creatorDashboard?: string;
 }
 
