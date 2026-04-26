@@ -73,7 +73,7 @@ export default function ExplorePage() {
           
           <div className="absolute top-2 right-2 bg-background/80 backdrop-blur-md px-2 py-1 rounded-full flex items-center gap-1 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity">
             <Star size={12} className="fill-amber-400 text-amber-400" />
-            <span className="text-[10px] font-black">4.9</span>
+            <span className="text-[10px] font-black">{book.averageRating?.toFixed(1) || '0.0'}</span>
           </div>
         </div>
         <h3 className="font-bold text-sm line-clamp-1 group-hover:text-primary transition-colors">{book.title}</h3>
@@ -83,7 +83,7 @@ export default function ExplorePage() {
   }
 
   const DonateSection = () => (
-    <section className="my-20 relative overflow-hidden">
+    <section className="mt-20 mb-8 relative overflow-hidden">
       <div className="absolute inset-0 bg-primary/5 rounded-[3rem] -z-10" />
       <div className="max-w-4xl mx-auto px-8 py-16 text-center">
         <div className="inline-flex p-4 bg-primary/10 rounded-3xl mb-6 text-primary animate-bounce">
@@ -107,8 +107,8 @@ export default function ExplorePage() {
   )
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-24">
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div className="min-h-screen bg-background text-foreground pb-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 pb-4">
         
         {/* Page Header */}
         <div className="mb-20">
@@ -131,8 +131,8 @@ export default function ExplorePage() {
           </div>
         ) : (
           <div className="space-y-32">
-            {/* GENRE FILTER BAR (New Mechanism) */}
-            <div className="sticky top-20 z-20 bg-background/95 backdrop-blur-md py-4 -mx-4 px-4 border-b border-border mb-8">
+            {/* GENRE FILTER BAR */}
+            <div className="py-4 -mx-4 px-4 border-b border-border mb-8">
                <div className="flex items-center gap-4 overflow-x-auto pb-2 no-scrollbar">
                   {['All', ...commonCategories].map((genre) => (
                     <button
