@@ -26,6 +26,8 @@ export interface WorkDto {
   createdAt?: string
   updatedAt?: string
   chapters?: any[]
+  averageRating?: number
+  ratingsCount?: number
 }
 
 const toWork = (payload: any): WorkDto => {

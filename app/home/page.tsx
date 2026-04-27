@@ -92,7 +92,7 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
           <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-background/95 backdrop-blur-sm px-2.5 py-1 rounded-full text-xs font-bold shadow-sm border border-border/50">
             <span className="text-amber-500 text-sm">★</span>
-            <span className="text-foreground">4.9</span>
+            <span className="text-foreground">{book.averageRating || 0}</span>
           </div>
         </div>
         <h3 className="font-bold text-sm line-clamp-2 leading-tight group-hover:text-primary transition-colors">{book.title}</h3>

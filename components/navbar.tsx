@@ -4,19 +4,37 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, Moon, Sun, X, User, Bell, Crown, Search, Plus, BookOpen, LogOut, Shield } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/cn";
 import { useThemeStore } from "@/app/store/theme-store";
 import { useAuthStore } from "@/app/store/authstore";
 import { notificationsService } from "@/app/services/notifications.service";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const theme = useThemeStore((s) => s.theme);
   const toggleTheme = useThemeStore((s) => s.toggleTheme);
-  const user = useAuthStore((s) => s.user);
+  const { user, logout } = useAuthStore();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      router.push("/auth/login");
+    } catch (err) {
+      console.error("Logout failed", err);
+    }
+  };
 
   useEffect(() => {
     if (!user) { setUnreadCount(0); return; }
@@ -102,13 +120,47 @@ export function Navbar() {
           )}
 
           {user ? (
-            <Link
-              href="/profile"
-              className="flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-sm font-medium transition-colors hover:bg-accent"
-            >
-              <User className="h-4 w-4" />
-              <span>{user.username}</span>
-            </Link>
+            <div className="flex items-center gap-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-sm font-medium transition-colors hover:bg-accent outline-none">
+                    <User className="h-4 w-4" />
+                    <span>{user.username}</span>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild className="cursor-pointer">
+                    <Link href="/profile" className="flex items-center w-full">
+                      <User className="mr-2 h-4 w-4" />
+                      <span>Profile</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild className="cursor-pointer">
+                    <Link href="/dashboard" className="flex items-center w-full">
+                      <BookOpen className="mr-2 h-4 w-4" />
+                      <span>Dashboard</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-500 focus:text-red-500">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Logout</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <motion.button
+                type="button"
+                onClick={handleLogout}
+                whileTap={{ scale: 0.94 }}
+                className="hidden lg:flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-red-500 transition-colors hover:border-red-500/40 hover:bg-red-500/5"
+                title="Logout"
+              >
+                <LogOut className="h-4 w-4" />
+              </motion.button>
+            </div>
           ) : (
             <div className="hidden items-center gap-4 sm:flex">
               <Link href="/auth/login" className="text-sm font-medium text-foreground/90 hover:text-primary">Login</Link>
@@ -147,6 +199,16 @@ export function Navbar() {
                   {link.label}
                 </Link>
               ))}
+              {user && (
+                <div className="mt-2 flex flex-col gap-2 border-t border-border pt-4">
+                  <Link href="/profile" onClick={() => setOpen(false)} className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-foreground/90 hover:bg-secondary">
+                    <User size={16} /> Profile
+                  </Link>
+                  <button onClick={() => { handleLogout(); setOpen(false); }} className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-500 hover:bg-red-500/10 text-left w-full">
+                    <LogOut size={16} /> Logout
+                  </button>
+                </div>
+              )}
               {!user && (
                 <div className="mt-2 flex flex-col gap-2 border-t border-border pt-4">
                    <Link href="/auth/login" onClick={() => setOpen(false)} className="rounded-lg px-3 py-2 text-center text-sm font-medium bg-secondary">Login</Link>

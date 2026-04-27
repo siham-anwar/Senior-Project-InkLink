@@ -9,6 +9,9 @@ import {
 } from 'lucide-react'
 import { EditorWorksService, WorkDto } from '@/app/services/editor-works.service'
 import { libraryService, Library } from '@/app/services/library.service'
+import { RatingsService, RatingResponse } from '@/app/services/ratings.service'
+import { StarRating } from '@/components/star-rating'
+import { useAuthStore } from '@/app/store/authstore'
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -29,6 +32,8 @@ export default function BookDetailPage({ params }: { params: Promise<{ id: strin
   const [activeTab, setActiveTab] = useState<'summary' | 'parts'>('summary')
   const [showMenu, setShowMenu] = useState(false)
   const [bookmarkLoading, setBookmarkLoading] = useState(false)
+  const [ratingData, setRatingData] = useState<RatingResponse | null>(null)
+  const { user } = useAuthStore()
 
   // ── fetch work + library in parallel ──────────────────────────────────────
 
@@ -36,12 +41,14 @@ export default function BookDetailPage({ params }: { params: Promise<{ id: strin
     try {
       setLoading(true)
       setError(null)
-      const [workData, lib] = await Promise.all([
+      const [workData, lib, rating] = await Promise.all([
         EditorWorksService.getById(id),
         libraryService.getLibrary().catch(() => null),       // non-critical
+        RatingsService.getWorkRating(id, user?.id).catch(() => null),
       ])
       setWork(workData)
       setLibrary(lib)
+      setRatingData(rating)
 
       try {
         await libraryService.updateProgress(id, 0);
@@ -79,6 +86,15 @@ export default function BookDetailPage({ params }: { params: Promise<{ id: strin
       // silently ignore
     } finally {
       setBookmarkLoading(false)
+    }
+  }
+
+  const handleRate = async (value: number) => {
+    try {
+      const updatedRating = await RatingsService.rateWork(id, value)
+      setRatingData(updatedRating)
+    } catch (error) {
+      console.error('Failed to rate work:', error)
     }
   }
 
@@ -197,6 +213,15 @@ export default function BookDetailPage({ params }: { params: Promise<{ id: strin
                 <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                   <Eye size={16} />
                   <span>{work.tags.join(', ')}</span>
+                </div>
+              )}
+              {ratingData && (
+                <div className="flex items-center gap-2 text-sm">
+                  <div className="flex items-center gap-1 text-amber-500 font-bold">
+                    <StarRating initialRating={Math.round(ratingData.averageRating)} readonly size={16} />
+                    <span className="ml-1">{ratingData.averageRating.toFixed(1)}</span>
+                  </div>
+                  <span className="text-muted-foreground">({ratingData.ratingsCount} {pluralise(ratingData.ratingsCount, 'rating')})</span>
                 </div>
               )}
             </div>
