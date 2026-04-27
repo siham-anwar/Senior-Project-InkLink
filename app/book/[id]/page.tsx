@@ -5,13 +5,17 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
   Share2, Flag, MoreVertical, Eye, BookOpen, ArrowLeft,
-  Bookmark, Loader2, AlertCircle,
+  Bookmark, Loader2, AlertCircle, Lock, Crown,
 } from 'lucide-react'
 import { EditorWorksService, WorkDto } from '@/app/services/editor-works.service'
 import { libraryService, Library } from '@/app/services/library.service'
 import { RatingsService, RatingResponse } from '@/app/services/ratings.service'
+import { ChatService } from '@/app/services/chat.service'
+import { ProfileService } from '@/app/services/profile.service'
 import { StarRating } from '@/components/star-rating'
 import { useAuthStore } from '@/app/store/authstore'
+import { toast } from 'sonner'
+import { MessageSquare, UserPlus } from 'lucide-react'
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -89,12 +93,54 @@ export default function BookDetailPage({ params }: { params: Promise<{ id: strin
     }
   }
 
-  const handleRate = async (value: number) => {
+  const handleMessageAuthor = async () => {
+    if (!user) {
+      toast.error('Please log in to message the author')
+      router.push('/auth/login')
+      return
+    }
+
+    const authorId = (work as any).authorId
+    if (!authorId) {
+      toast.error('Author information not available')
+      return
+    }
+
+    if (authorId === user.id) {
+      toast.error("You can't message yourself")
+      return
+    }
+
     try {
-      const updatedRating = await RatingsService.rateWork(id, value)
-      setRatingData(updatedRating)
+      const room = await ChatService.getOrCreateDirectRoom(authorId)
+      router.push(`/dashboard?tab=dm&roomId=${room._id || room.id}`)
     } catch (error) {
-      console.error('Failed to rate work:', error)
+      console.error('Failed to initiate chat:', error)
+      toast.error('Failed to start conversation')
+    }
+  }
+
+  const handleFollow = async () => {
+    if (!user) {
+      toast.error('Please log in to follow authors')
+      router.push('/auth/login')
+      return
+    }
+
+    const authorId = (work as any).authorId
+    if (!authorId) return
+
+    if (authorId === user.id) {
+      toast.error("You can't follow yourself")
+      return
+    }
+
+    try {
+      await ProfileService.followUser(authorId)
+      toast.success('Following author')
+    } catch (error) {
+      console.error('Follow failed:', error)
+      toast.error('Failed to follow author')
     }
   }
 
@@ -262,6 +308,22 @@ export default function BookDetailPage({ params }: { params: Promise<{ id: strin
               )}
 
               <button
+                onClick={handleMessageAuthor}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-border bg-secondary text-foreground font-semibold text-sm hover:bg-secondary/80 transition-colors"
+              >
+                <MessageSquare size={16} />
+                Message Author
+              </button>
+
+              <button
+                onClick={handleFollow}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-primary/20 bg-primary/5 text-primary font-semibold text-sm hover:bg-primary/10 transition-colors"
+              >
+                <UserPlus size={16} />
+                Follow
+              </button>
+
+              <button
                 onClick={handleToggleBookmark}
                 disabled={bookmarkLoading}
                 className={`p-2.5 rounded-lg border transition-all ${
@@ -332,6 +394,7 @@ export default function BookDetailPage({ params }: { params: Promise<{ id: strin
                 {chapters.length > 0 ? (
                   chapters.map((chapter, index) => {
                     const chapterId = chapter.id ?? chapter._id
+                    const chapterPrice = chapter.price || 0
                     return (
                       <Link
                         key={chapterId}
@@ -339,9 +402,17 @@ export default function BookDetailPage({ params }: { params: Promise<{ id: strin
                         className="flex items-center justify-between p-4 hover:bg-secondary transition-colors rounded-lg border border-border group"
                       >
                         <div className="flex-1">
-                          <h4 className="font-semibold text-foreground group-hover:text-primary transition-colors">
-                            {chapter.title ?? `Chapter ${index + 1}`}
-                          </h4>
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                              {chapter.title ?? `Chapter ${index + 1}`}
+                            </h4>
+                            {chapterPrice > 0 && (
+                              <span className="flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-100 dark:bg-amber-900/30 dark:text-amber-400 px-1.5 py-0.5 rounded-full">
+                                <Lock size={9} />
+                                {chapterPrice} ETB
+                              </span>
+                            )}
+                          </div>
                           <p className="text-xs text-muted-foreground mt-0.5">
                             {chapter.createdAt
                               ? new Date(chapter.createdAt).toLocaleDateString('en-US', {
