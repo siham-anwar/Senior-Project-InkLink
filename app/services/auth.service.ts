@@ -64,6 +64,11 @@ export const AuthService = {
     return api.post("/auth/logout");
   },
 
+  updateProfile: async (id: string, data: any) => {
+    const res = await api.patch(`/users/${id}`, data);
+    return res.data;
+  },
+
   createChild: async (data: any) => {
     const res = await api.post("/users/children", data);
     return res.data;

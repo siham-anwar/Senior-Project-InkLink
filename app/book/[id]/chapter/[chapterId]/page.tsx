@@ -6,6 +6,9 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft, Heart, MessageCircle, ChevronLeft, ChevronRight, Gift, Moon, Sun } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { ReactionsService } from '@/app/services/reactions.service'
+import { RatingsService, RatingResponse } from '@/app/services/ratings.service'
+import { StarRating } from '@/components/star-rating'
+import { useAuthStore } from '@/app/store/authstore'
 
 export default function ChapterReadingPage({ params }: { params: Promise<{ id: string; chapterId: string }> }) {
   const { id, chapterId } = use(params)
@@ -18,6 +21,8 @@ export default function ChapterReadingPage({ params }: { params: Promise<{ id: s
   const [commentsCount, setCommentsCount] = useState(0)
   const [comments, setComments] = useState<any[]>([])
   const [newComment, setNewComment] = useState('')
+  const [ratingData, setRatingData] = useState<RatingResponse | null>(null)
+  const { user } = useAuthStore()
 
   const [chapter, setChapter] = useState<any>(null);
   const [work, setWork] = useState<any>(null);
@@ -39,6 +44,9 @@ export default function ChapterReadingPage({ params }: { params: Promise<{ id: s
 
         const commentsPage = await ReactionsService.listComments(chapterId, { limit: 50 });
         setComments(commentsPage.items || []);
+
+        const rating = await RatingsService.getWorkRating(id, user?.id).catch(() => null);
+        setRatingData(rating);
       } catch (err) {
         console.error(err);
       } finally {
@@ -70,6 +78,15 @@ export default function ChapterReadingPage({ params }: { params: Promise<{ id: s
       setShowComments(true);
     } catch (err) {
       console.error(err);
+    }
+  }
+
+  const handleRate = async (value: number) => {
+    try {
+      const updatedRating = await RatingsService.rateWork(id, value)
+      setRatingData(updatedRating)
+    } catch (error) {
+      console.error('Failed to rate work:', error)
     }
   }
 
@@ -158,11 +175,25 @@ export default function ChapterReadingPage({ params }: { params: Promise<{ id: s
 
           <button
             onClick={() => setShowComments(!showComments)}
-            className="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-secondary/80 rounded-lg transition-colors"
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+              showComments ? 'bg-primary/10 text-primary border border-primary/20' : 'bg-secondary hover:bg-secondary/80 text-foreground'
+            }`}
           >
             <MessageCircle size={18} />
             <span className="font-medium">{commentsCount} Comments</span>
           </button>
+
+          <div className="flex flex-col items-center gap-1 bg-secondary px-4 py-1.5 rounded-lg border border-border/50">
+            <StarRating 
+              initialRating={ratingData?.userRating || Math.round(ratingData?.averageRating || 0)} 
+              onRate={handleRate} 
+              size={18} 
+              readonly={!user}
+            />
+            <span className="text-[10px] font-bold uppercase tracking-tighter opacity-70">
+              {ratingData?.averageRating?.toFixed(1) || '0.0'} ({ratingData?.ratingsCount || 0})
+            </span>
+          </div>
 
           <Link
             href="#donate"
@@ -172,6 +203,7 @@ export default function ChapterReadingPage({ params }: { params: Promise<{ id: s
             <span className="font-medium">Donate</span>
           </Link>
         </div>
+
 
         {/* Comments Section */}
         {showComments && (
