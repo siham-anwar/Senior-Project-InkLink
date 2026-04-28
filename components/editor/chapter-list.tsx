@@ -53,14 +53,25 @@ export function ChapterList({
                 className="flex flex-1 items-center gap-3 text-left"
               >
                 <FileText className="h-4 w-4 shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="truncate text-sm font-medium">
-                    Chapter {index + 1}: {chapter.title || 'Untitled'}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {new Date(chapter.updatedAt).toLocaleDateString()}
-                  </p>
-                </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="truncate text-sm font-medium">
+                        Chapter {index + 1}: {chapter.title || 'Untitled'}
+                      </p>
+                      {chapter.price && chapter.price > 0 ? (
+                        <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold">
+                          {chapter.price} ETB
+                        </span>
+                      ) : (
+                        <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-bold">
+                          FREE
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(chapter.updatedAt).toLocaleDateString()}
+                    </p>
+                  </div>
                 <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
               </button>
               <Button
