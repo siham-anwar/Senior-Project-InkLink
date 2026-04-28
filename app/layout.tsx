@@ -6,9 +6,7 @@ import { SonnerRoot } from '../components/sonner-root'
 import { THEME_STORAGE_SCRIPT } from "../lib/theme-script";
 import { AuthSessionBootstrap } from '../components/auth-session-bootstrap'
 import { RoleGuard } from '../components/role-guard'
-import { Navbar } from '@/components/navbar'
-import { Footer } from '@/components/footer'
-import Script from 'next/script'
+import { AppShell } from '@/components/app-shell'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -19,11 +17,21 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: 'InkLink – Writing Platform',
   description: 'InkLink is a modern writing platform for readers and creators.',
+  icons: {
+    icon: '/icon.svg',
+    shortcut: '/icon.svg',
+    apple: '/apple-icon.png',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning className={inter.variable}>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={inter.variable}
+      data-scroll-behavior="smooth"
+    >
       <head>
         <script
           dangerouslySetInnerHTML={{ __html: THEME_STORAGE_SCRIPT }}
@@ -33,11 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider>
           <AuthSessionBootstrap />
           <RoleGuard />
-          <Navbar />
-          <main className="flex-1">
-            {children}
-          </main>
-          <Footer />
+          <AppShell>{children}</AppShell>
           <SonnerRoot />
         </ThemeProvider>
       </body>
