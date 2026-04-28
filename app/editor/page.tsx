@@ -19,7 +19,8 @@ import { useChaptersStore } from '@/app/store/chaptersStore'
 import { EditorWorksService } from '@/app/services/editor-works.service'
 import { EditorChaptersService } from '@/app/services/editor-chapters.service'
 import { useChapterSync } from '@/hooks/use-chapter-sync'
-import { ArrowLeft, Send, Loader2, BookOpen, Plus, Save } from 'lucide-react'
+import { ArrowLeft, Send, Loader2, BookOpen, Plus, Save, UserPlus } from 'lucide-react'
+import { CollaboratorsModal } from '@/components/editor/collaborators-modal'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { toast } from 'sonner'
 import { extractApiErrorMessage } from '@/lib/api'
@@ -67,9 +68,11 @@ function EditorPageContent() {
   const [step, setStep] = useState<EditorStep>(editId ? 'chapter-editor' : 'book-details')
   const [selectedChapterId, setSelectedChapterId] = useState<string | null>(null)
   const [chapterTitle, setChapterTitle] = useState('')
+  const [chapterPrice, setChapterPrice] = useState<number>(0)
   const [chapterContent, setChapterContent] = useState('')
   const [showChapterEditor, setShowChapterEditor] = useState(false)
   const [isSavingDraft, setIsSavingDraft] = useState(false)
+  const [isCollabModalOpen, setIsCollabModalOpen] = useState(false)
   const draftSaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Document for the current chapter
@@ -209,6 +212,7 @@ function EditorPageContent() {
     const chapter = chapters.find(c => (c.id === chapterId || c._id === chapterId))
     if (chapter) {
       setChapterTitle(chapter.title)
+      setChapterPrice(chapter.price || 0)
       setChapterContent(chapter.contentText || '')
     }
     setShowChapterEditor(true)
@@ -254,7 +258,7 @@ function EditorPageContent() {
     try {
       setIsSavingDraft(true)
       await updateWork(workId, { title, summary, coverImage, tags, status: 'draft' })
-      await updateChapter(selectedChapterId, { title: chapterTitle, contentText: chapterContent })
+      await updateChapter(selectedChapterId, { title: chapterTitle, contentText: chapterContent, price: chapterPrice })
       toast.success('Draft saved')
     } catch (err) {
       handleEditorApiError(err, 'save draft')
@@ -304,8 +308,8 @@ function EditorPageContent() {
   const handleUpdateChapterTitle = async () => {
     if (!selectedChapterId) return
     try {
-      await updateChapter(selectedChapterId, { title: chapterTitle })
-      toast.success('Chapter title updated')
+      await updateChapter(selectedChapterId, { title: chapterTitle, price: chapterPrice })
+      toast.success('Chapter settings updated')
     } catch (err) {
       handleEditorApiError(err, 'update chapter title')
     }
@@ -376,13 +380,27 @@ function EditorPageContent() {
         </div>
         <div className="flex items-center gap-4">
           {editId && (
-             <Button variant="outline" size="sm" onClick={handleSaveBookDetails}>
-               Save Details
-             </Button>
+             <>
+               <Button variant="ghost" size="sm" onClick={() => setIsCollabModalOpen(true)} className="flex items-center gap-2">
+                 <UserPlus size={18} />
+                 <span className="hidden sm:inline">Collaborators</span>
+               </Button>
+               <Button variant="outline" size="sm" onClick={handleSaveBookDetails}>
+                 Save Details
+               </Button>
+             </>
           )}
           <ThemeToggle />
         </div>
       </header>
+
+      {editId && (
+        <CollaboratorsModal
+          workId={editId}
+          isOpen={isCollabModalOpen}
+          onClose={() => setIsCollabModalOpen(false)}
+        />
+      )}
 
       {/* Main Content */}
       <main className="mx-auto max-w-4xl px-6 py-8">
@@ -492,18 +510,45 @@ function EditorPageContent() {
                       Back to Chapters
                     </Button>
                   </div>
-                  <div className="flex gap-2">
-                    <Input
-                      id="chapterTitle"
-                      type="text"
-                      value={chapterTitle}
-                      onChange={(e) => setChapterTitle(e.target.value)}
-                      placeholder="E.g. Prologue: The Awakening"
-                      className="h-12 font-medium"
-                    />
-                    <Button variant="secondary" onClick={handleUpdateChapterTitle} className="h-12">
-                      <Save className="h-4 w-4" />
-                    </Button>
+                  <div className="flex flex-col md:flex-row gap-4">
+                    <div className="flex-1 flex flex-col gap-2">
+                      <Label htmlFor="chapterTitle" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                        Chapter Title
+                      </Label>
+                      <Input
+                        id="chapterTitle"
+                        type="text"
+                        value={chapterTitle}
+                        onChange={(e) => setChapterTitle(e.target.value)}
+                        placeholder="E.g. Prologue: The Awakening"
+                        className="h-12 font-medium"
+                      />
+                    </div>
+                    <div className="w-full md:w-40 flex flex-col gap-2">
+                      <Label htmlFor="chapterPrice" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                        Price (ETB)
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="chapterPrice"
+                          type="number"
+                          value={chapterPrice}
+                          onChange={(e) => setChapterPrice(Number(e.target.value))}
+                          placeholder="0"
+                          className="h-12 pl-12 font-medium"
+                          min="0"
+                        />
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-primary font-bold text-xs">
+                          ETB
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-end">
+                      <Button variant="secondary" onClick={handleUpdateChapterTitle} className="h-12 px-6" title="Save Title & Price">
+                        <Save className="h-4 w-4 mr-2" />
+                        Save
+                      </Button>
+                    </div>
                   </div>
                   {isSavingDraft && (
                     <p className="text-xs text-muted-foreground">Saving draft...</p>
