@@ -1,3 +1,4 @@
+
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -66,7 +67,6 @@ function statusBadgeVariant(
 export default function AdminModerationPage() {
   const router = useRouter()
   const user = useAuthStore((s) => s.user)
-  const bootstrapSession = useAuthStore((s) => s.bootstrapSession)
 
   const [filter, setFilter] = useState<AdminModerationQueueStatus>('needs_admin_review')
   const [queue, setQueue] = useState<AdminWorkQueueItemDto[]>([])
@@ -77,10 +77,6 @@ export default function AdminModerationPage() {
   const [detailLoading, setDetailLoading] = useState(false)
   const [detail, setDetail] = useState<AdminWorkDetailsDto | null>(null)
   const [actionId, setActionId] = useState<string | null>(null)
-
-  useEffect(() => {
-    void bootstrapSession()
-  }, [bootstrapSession])
 
   useEffect(() => {
     if (user && user.role !== 'admin') {
@@ -193,27 +189,31 @@ export default function AdminModerationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-b from-white via-amber-50/30 to-white">
       <main className="mx-auto max-w-6xl px-6 py-12">
         <div className="mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div>
-            <h1 className="text-4xl font-extrabold tracking-tight text-foreground lg:text-5xl">
+            <h1 className="text-4xl font-extrabold tracking-tight text-[#2d2d2d] lg:text-5xl">
               Moderation
             </h1>
-            <p className="mt-3 text-lg text-muted-foreground">
+            <p className="mt-3 text-lg text-gray-600">
               Review AI-flagged works, approve, reject, or flag for manual follow-up.
             </p>
           </div>
-          <Button variant="outline" asChild className="rounded-full px-6">
+          <Button
+            variant="outline"
+            asChild
+            className="rounded-full border-amber-100 text-[#8B1A1A] hover:border-[#8B1A1A]/30 hover:bg-white"
+          >
             <Link href="/dashboard">Back to dashboard</Link>
           </Button>
         </div>
 
-        <Card className="border-border bg-card">
-          <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <Card className="border-amber-100 bg-white">
+          <CardHeader className="flex flex-col gap-4 border-b border-amber-100 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <CardTitle className="text-lg">Review queue</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-lg text-[#2d2d2d]">Review queue</CardTitle>
+              <CardDescription className="text-gray-600">
                 Filter by status. Scores reflect the last automated moderation run on this work.
               </CardDescription>
             </div>
@@ -230,7 +230,7 @@ export default function AdminModerationPage() {
           </CardHeader>
           <CardContent>
             {error && (
-              <Alert variant="destructive" className="mb-4">
+              <Alert variant="destructive" className="mb-4 border-red-200 bg-red-50 text-red-900">
                 <AlertTitle>Could not load queue</AlertTitle>
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
@@ -238,16 +238,16 @@ export default function AdminModerationPage() {
 
             {loading ? (
               <div className="flex justify-center py-16">
-                <Spinner className="size-8 text-primary" />
+                <Spinner className="size-8 text-[#8B1A1A]" />
               </div>
             ) : queue.length === 0 ? (
-              <Empty className="border border-dashed border-border bg-muted/20 py-12">
+              <Empty className="border border-dashed border-amber-200 bg-amber-50/50 py-12">
                 <EmptyHeader>
                   <EmptyMedia variant="icon">
-                    <ShieldAlert className="text-amber-600 dark:text-amber-400" />
+                    <ShieldAlert className="text-amber-700" />
                   </EmptyMedia>
-                  <EmptyTitle>Nothing in this queue</EmptyTitle>
-                  <EmptyDescription>
+                  <EmptyTitle className="text-[#2d2d2d]">Nothing in this queue</EmptyTitle>
+                  <EmptyDescription className="text-gray-600">
                     When content needs human review or is rejected by automation, it will appear here.
                   </EmptyDescription>
                 </EmptyHeader>
@@ -255,44 +255,44 @@ export default function AdminModerationPage() {
             ) : (
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Work</TableHead>
-                    <TableHead>Author</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Confidence</TableHead>
-                    <TableHead>Updated</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                  <TableRow className="border-b border-amber-100 hover:bg-transparent">
+                    <TableHead className="text-gray-600">Work</TableHead>
+                    <TableHead className="text-gray-600">Author</TableHead>
+                    <TableHead className="text-gray-600">Status</TableHead>
+                    <TableHead className="text-gray-600">Confidence</TableHead>
+                    <TableHead className="text-gray-600">Updated</TableHead>
+                    <TableHead className="text-right text-gray-600">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {queue.map((row) => (
-                    <TableRow key={row.id}>
+                    <TableRow key={row.id} className="border-b border-amber-100 hover:bg-amber-50/50">
                       <TableCell className="max-w-[220px]">
                         <button
                           type="button"
                           onClick={() => void openDetail(row.id)}
-                          className="text-left font-medium text-primary hover:underline"
+                          className="text-left font-medium text-[#8B1A1A] hover:underline"
                         >
                           {row.title}
                         </button>
                         {row.moderationReason && (
-                          <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                          <p className="mt-1 line-clamp-2 text-xs text-gray-600">
                             {row.moderationReason}
                           </p>
                         )}
                       </TableCell>
-                      <TableCell className="whitespace-nowrap text-sm">
+                      <TableCell className="whitespace-nowrap text-sm text-gray-700">
                         {row.authorUsername || row.authorId || '—'}
                       </TableCell>
                       <TableCell>
                         <Badge variant={statusBadgeVariant(row.status)}>{row.status}</Badge>
                       </TableCell>
-                      <TableCell className="text-sm tabular-nums">
+                      <TableCell className="text-sm tabular-nums text-gray-700">
                         {typeof row.moderationConfidence === 'number'
                           ? row.moderationConfidence.toFixed(2)
                           : '—'}
                       </TableCell>
-                      <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
+                      <TableCell className="whitespace-nowrap text-sm text-gray-600">
                         {(() => {
                           const raw = row.moderationUpdatedAt || row.updatedAt
                           if (!raw) return '—'
@@ -306,7 +306,7 @@ export default function AdminModerationPage() {
                         <div className="flex flex-wrap justify-end gap-1">
                           <Button
                             size="sm"
-                            variant="default"
+                            className="bg-green-600 hover:bg-green-700"
                             disabled={actionId === row.id}
                             onClick={() => void handleApprove(row.id)}
                           >
@@ -323,6 +323,7 @@ export default function AdminModerationPage() {
                           <Button
                             size="sm"
                             variant="outline"
+                            className="border-amber-100 text-[#8B1A1A] hover:bg-amber-50"
                             disabled={actionId === row.id}
                             onClick={() => void handleFlag(row.id)}
                           >
@@ -342,11 +343,11 @@ export default function AdminModerationPage() {
       <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
         <DialogContent
           showCloseButton
-          className="flex max-h-[90vh] max-w-[calc(100%-2rem)] flex-col sm:max-w-3xl"
+          className="flex max-h-[90vh] max-w-[calc(100%-2rem)] flex-col border-amber-100 bg-white sm:max-w-3xl"
         >
           <DialogHeader>
-            <DialogTitle>{detail?.title ?? 'Work details'}</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-[#2d2d2d]">{detail?.title ?? 'Work details'}</DialogTitle>
+            <DialogDescription className="text-gray-600">
               {detail?.authorUsername || detail?.authorId
                 ? `Author: ${detail.authorUsername || detail.authorId}`
                 : 'Author unknown'}
@@ -355,28 +356,28 @@ export default function AdminModerationPage() {
 
           {detailLoading ? (
             <div className="flex justify-center py-12">
-              <Spinner className="size-8 text-primary" />
+              <Spinner className="size-8 text-[#8B1A1A]" />
             </div>
           ) : detail ? (
             <>
               <div className="grid gap-3 text-sm sm:grid-cols-2">
-                <div className="rounded-lg border border-border bg-muted/30 p-3">
-                  <p className="text-xs font-medium text-muted-foreground">Work status</p>
+                <div className="rounded-lg border border-amber-100 bg-amber-50 p-3">
+                  <p className="text-xs font-medium text-gray-600">Work status</p>
                   <Badge className="mt-1" variant={statusBadgeVariant(detail.status)}>
                     {detail.status}
                   </Badge>
                 </div>
-                <div className="rounded-lg border border-border bg-muted/30 p-3">
-                  <p className="text-xs font-medium text-muted-foreground">Model confidence</p>
-                  <p className="mt-1 tabular-nums font-medium">
+                <div className="rounded-lg border border-amber-100 bg-amber-50 p-3">
+                  <p className="text-xs font-medium text-gray-600">Model confidence</p>
+                  <p className="mt-1 tabular-nums font-medium text-[#2d2d2d]">
                     {typeof detail.moderationConfidence === 'number'
                       ? detail.moderationConfidence.toFixed(3)
                       : '—'}
                   </p>
                 </div>
-                <div className="rounded-lg border border-border bg-muted/30 p-3 sm:col-span-2">
-                  <p className="text-xs font-medium text-muted-foreground">Safety</p>
-                  <p className="mt-1">
+                <div className="rounded-lg border border-amber-100 bg-amber-50 p-3 sm:col-span-2">
+                  <p className="text-xs font-medium text-gray-600">Safety</p>
+                  <p className="mt-1 text-[#2d2d2d]">
                     childSafe:{' '}
                     <span className="font-medium">{String(detail.childSafe ?? '—')}</span>
                     {' · '}
@@ -384,26 +385,26 @@ export default function AdminModerationPage() {
                     <span className="font-medium">{String(detail.adultSafe ?? '—')}</span>
                   </p>
                   {detail.moderationReason && (
-                    <p className="mt-2 text-muted-foreground">{detail.moderationReason}</p>
+                    <p className="mt-2 text-gray-700">{detail.moderationReason}</p>
                   )}
                 </div>
-                <div className="rounded-lg border border-border bg-muted/30 p-3 sm:col-span-2">
-                  <p className="text-xs font-medium text-muted-foreground">Summary</p>
-                  <p className="mt-2 text-foreground/90">{summaryPreview}</p>
+                <div className="rounded-lg border border-amber-100 bg-amber-50 p-3 sm:col-span-2">
+                  <p className="text-xs font-medium text-gray-600">Summary</p>
+                  <p className="mt-2 text-[#2d2d2d]">{summaryPreview}</p>
                 </div>
               </div>
 
               <div>
-                <p className="mb-2 text-sm font-medium text-foreground">Chapters</p>
-                <ScrollArea className="h-[min(40vh,320px)] rounded-md border border-border">
+                <p className="mb-2 text-sm font-medium text-[#2d2d2d]">Chapters</p>
+                <ScrollArea className="h-[min(40vh,320px)] rounded-md border border-amber-100">
                   <div className="space-y-3 p-3">
                     {(detail.chapters || []).map((ch) => (
                       <div
                         key={ch.id}
-                        className="rounded-lg border border-border/80 bg-card p-3 text-sm"
+                        className="rounded-lg border border-amber-100 bg-white p-3 text-sm"
                       >
                         <div className="flex flex-wrap items-center justify-between gap-2">
-                          <span className="font-medium">{ch.title}</span>
+                          <span className="font-medium text-[#2d2d2d]">{ch.title}</span>
                           {ch.moderationStatus && (
                             <Badge variant="outline" className="text-xs">
                               {ch.moderationStatus}
@@ -411,25 +412,26 @@ export default function AdminModerationPage() {
                           )}
                         </div>
                         {typeof ch.moderationConfidence === 'number' && (
-                          <p className="mt-1 text-xs text-muted-foreground">
+                          <p className="mt-1 text-xs text-gray-600">
                             Confidence {ch.moderationConfidence.toFixed(2)}
                           </p>
                         )}
-                        <p className="mt-2 whitespace-pre-wrap text-xs text-muted-foreground">
+                        <p className="mt-2 whitespace-pre-wrap text-xs text-gray-700">
                           {stripHtmlToPreview(ch.contentText || '', 500) || '—'}
                         </p>
                       </div>
                     ))}
                     {(!detail.chapters || detail.chapters.length === 0) && (
-                      <p className="text-sm text-muted-foreground">No chapters.</p>
+                      <p className="text-sm text-gray-600">No chapters.</p>
                     )}
                   </div>
                 </ScrollArea>
               </div>
 
-              <DialogFooter className="gap-2 sm:justify-end">
+              <DialogFooter className="gap-2 border-t border-amber-100 pt-4 sm:justify-end">
                 <Button
                   variant="outline"
+                  className="border-amber-100 text-[#8B1A1A] hover:bg-amber-50"
                   disabled={actionId === detail.id}
                   onClick={() => void handleFlag(detail.id)}
                 >
@@ -443,6 +445,7 @@ export default function AdminModerationPage() {
                   Reject
                 </Button>
                 <Button
+                  className="bg-green-600 hover:bg-green-700"
                   disabled={actionId === detail.id}
                   onClick={() => void handleApprove(detail.id)}
                 >
