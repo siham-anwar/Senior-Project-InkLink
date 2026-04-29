@@ -2,14 +2,19 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { ChevronLeft, Search, MessageCircle, BookOpen, User } from 'lucide-react'
+import { ChevronLeft, Search, MessageCircle, BookOpen, User, Users, Check, X, Loader2 } from 'lucide-react'
 import { notificationsService, NotificationUpdate, NotificationMessage } from '../services/notifications.service'
+import { collaborationService, CollaborationInvite } from '../services/collaboration.service'
+import { toast } from 'sonner'
+import { Button } from '@/components/ui/button'
 
 export default function NotificationsPage() {
   const [mounted, setMounted] = useState(false)
-  const [activeTab, setActiveTab] = useState<'updates' | 'messages'>('updates')
+  const [activeTab, setActiveTab] = useState<'updates' | 'messages' | 'collaborations'>('updates')
   const [updates, setUpdates] = useState<NotificationUpdate[]>([])
   const [messages, setMessages] = useState<NotificationMessage[]>([])
+  const [invites, setInvites] = useState<CollaborationInvite[]>([])
+  const [isLoadingInvites, setIsLoadingInvites] = useState(false)
 
   const fetchNotifications = async () => {
     try {
@@ -21,9 +26,22 @@ export default function NotificationsPage() {
     }
   }
 
+  const fetchInvites = async () => {
+    try {
+      setIsLoadingInvites(true)
+      const data = await collaborationService.getInvites()
+      setInvites(data)
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setIsLoadingInvites(false)
+    }
+  }
+
   useEffect(() => {
     setMounted(true)
     fetchNotifications()
+    fetchInvites()
   }, [])
 
   const markUpdateAsRead = async (id: string) => {
@@ -40,8 +58,19 @@ export default function NotificationsPage() {
     } catch(e) {}
   }
 
+  const handleInviteResponse = async (id: string, accept: boolean) => {
+    try {
+      await collaborationService.respondToInvite(id, accept)
+      toast.success(accept ? 'Invitation accepted!' : 'Invitation declined')
+      fetchInvites()
+    } catch (e) {
+      toast.error('Failed to respond to invitation')
+    }
+  }
+
   const unreadUpdates = updates.filter(u => !u.isRead).length
   const unreadMessages = messages.filter(m => m.unread).length
+  const inviteCount = invites.length
 
   if (!mounted) return null
 
@@ -101,6 +130,25 @@ export default function NotificationsPage() {
                 </span>
               )}
               {activeTab === 'messages' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"></div>
+              )}
+            </button>
+            <button
+              onClick={() => setActiveTab('collaborations')}
+              className={`pb-4 font-medium transition-colors relative flex items-center gap-2 ${
+                activeTab === 'collaborations'
+                  ? 'text-primary'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Users size={18} />
+              Collabs
+              {inviteCount > 0 && (
+                <span className="ml-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold rounded-full bg-primary text-primary-foreground">
+                  {inviteCount}
+                </span>
+              )}
+              {activeTab === 'collaborations' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"></div>
               )}
             </button>
@@ -212,6 +260,78 @@ export default function NotificationsPage() {
                 <div className="text-center py-12">
                   <MessageCircle size={48} className="mx-auto text-muted-foreground mb-4 opacity-50" />
                   <p className="text-muted-foreground">No messages yet</p>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* Collaborations Section */}
+        {activeTab === 'collaborations' && (
+          <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="space-y-4">
+              {isLoadingInvites ? (
+                 <div className="flex justify-center py-20">
+                    <Loader2 className="animate-spin text-primary h-8 w-8" />
+                 </div>
+              ) : invites.length > 0 ? (
+                invites.map((invite) => (
+                  <div
+                    key={invite._id}
+                    className="p-6 rounded-3xl border-2 border-border/50 bg-card hover:border-primary/30 transition-all shadow-sm"
+                  >
+                    <div className="flex flex-col sm:flex-row gap-6">
+                      <div className="relative group">
+                         <img
+                           src={invite.workId.coverImage || 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=300&h=450&fit=crop'}
+                           alt={invite.workId.title}
+                           className="w-24 h-36 rounded-xl object-cover shadow-md group-hover:scale-105 transition-transform"
+                         />
+                         <div className="absolute -top-2 -right-2 bg-primary text-white p-1.5 rounded-full shadow-lg">
+                            <Users size={14} />
+                         </div>
+                      </div>
+                      
+                      <div className="flex-1 flex flex-col justify-between">
+                        <div>
+                          <h3 className="text-xl font-black mb-1 line-clamp-1">{invite.workId.title}</h3>
+                          <p className="text-muted-foreground text-sm flex items-center gap-2">
+                             Invited by <span className="text-primary font-bold">@{invite.invitedBy.username}</span>
+                          </p>
+                          <div className="mt-4 p-3 bg-secondary/30 rounded-2xl border border-border/50 flex items-center gap-3">
+                             <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                                <User size={16} />
+                             </div>
+                             <span className="text-xs font-bold uppercase tracking-widest opacity-70">Role: {invite.role}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-3 mt-6">
+                          <Button 
+                            onClick={() => handleInviteResponse(invite._id, true)}
+                            className="flex-1 h-12 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground font-bold"
+                          >
+                            <Check size={18} className="mr-2" />
+                            Accept
+                          </Button>
+                          <Button 
+                            variant="ghost"
+                            onClick={() => handleInviteResponse(invite._id, false)}
+                            className="flex-1 h-12 rounded-2xl text-red-500 hover:text-red-600 hover:bg-red-500/10 font-bold"
+                          >
+                            <X size={18} className="mr-2" />
+                            Decline
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-20 bg-secondary/20 rounded-[2.5rem] border-2 border-dashed border-border/50">
+                  <Users size={48} className="mx-auto text-muted-foreground mb-4 opacity-30" />
+                  <p className="text-lg font-bold text-muted-foreground">No pending invites</p>
+                  <p className="text-sm text-muted-foreground/60 mt-1">When authors invite you to collaborate, they'll appear here.</p>
                 </div>
               )}
             </div>
