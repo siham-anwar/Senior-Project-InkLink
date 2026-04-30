@@ -3,21 +3,40 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Check } from 'lucide-react'
+import { ArrowLeft, Check, Loader2 } from 'lucide-react'
 import { PRICING_PLANS } from '../config/pricing'
+import { SubscriptionService } from '../services/subscription.service'
+import { toast } from 'sonner'
+import { useAuthStore } from '../store/authstore'
 
 export default function PremiumPage() {
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState<'weekly' | 'monthly' | 'yearly' | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const { user } = useAuthStore()
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  const handleContinue = () => {
-    if (mounted && selectedPlan) {
-      router.push(`/premium/checkout?plan=${selectedPlan}`)
+  const handleSubscribe = async () => {
+    if (!selectedPlan) return
+    if (!user) {
+      toast.error('Please login to subscribe')
+      router.push('/auth/login')
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      const returnUrl = window.location.origin + '/dashboard?tab=earnings'
+      await SubscriptionService.subscribe(selectedPlan, returnUrl)
+      // Redirect happens in the service
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to initialize payment')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -106,12 +125,14 @@ export default function PremiumPage() {
         {/* Continue Button */}
         {selectedPlan && (
           <div className="flex justify-center mb-12">
-            <Link
-              href={`/premium/checkout?plan=${selectedPlan}`}
-              className="px-8 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors"
+            <button
+              onClick={handleSubscribe}
+              disabled={isLoading}
+              className="px-8 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center gap-2"
             >
-              Continue to Checkout
-            </Link>
+              {isLoading && <Loader2 className="w-5 h-5 animate-spin" />}
+              {isLoading ? 'Initializing...' : 'Continue to Checkout'}
+            </button>
           </div>
         )}
 
