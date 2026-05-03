@@ -36,6 +36,11 @@ export const libraryService = {
     const res = await api.get('/library');
     return res.data;
   },
+  
+  async getChildLibrary(childId: string): Promise<Library> {
+    const res = await api.get(`/library/child/${childId}`);
+    return res.data;
+  },
 
   async updateProgress(workId: string, progress: number): Promise<Library> {
     const res = await api.post('/library/currently-reading', { workId, progress });

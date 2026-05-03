@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, User, Trash2, Shield, Baby, Key, Mail } from 'lucide-react'
+import { Plus, User, Trash2, Shield, Baby, Key, Mail, BookOpen, Clock, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { libraryService, Library } from '@/app/services/library.service'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { AuthService } from '@/app/services/auth.service'
@@ -23,6 +24,10 @@ export default function ParentDashboard() {
   const [loading, setLoading] = useState(true)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [newChild, setNewChild] = useState({ username: '', password: '', email: '' })
+  const [selectedChild, setSelectedChild] = useState<any>(null)
+  const [childActivity, setChildActivity] = useState<Library | null>(null)
+  const [isActivityOpen, setIsActivityOpen] = useState(false)
+  const [isActivityLoading, setIsActivityLoading] = useState(false)
 
   useEffect(() => {
     fetchChildren()
@@ -65,6 +70,21 @@ export default function ParentDashboard() {
       fetchChildren()
     } catch (error) {
       toast.error('Failed to remove child account')
+    }
+  }
+
+  const handleViewActivity = async (child: any) => {
+    setSelectedChild(child)
+    setIsActivityOpen(true)
+    setIsActivityLoading(true)
+    try {
+      const activity = await libraryService.getChildLibrary(child._id)
+      setChildActivity(activity)
+    } catch (error) {
+      toast.error('Failed to load activity')
+      setIsActivityOpen(false)
+    } finally {
+      setIsActivityLoading(false)
     }
   }
 
@@ -179,7 +199,11 @@ export default function ParentDashboard() {
                   </div>
                   
                   <div className="pt-4 flex gap-2">
-                    <Button variant="outline" className="flex-1 rounded-xl text-xs h-9 border-border">
+                    <Button 
+                      variant="outline" 
+                      className="flex-1 rounded-xl text-xs h-9 border-border"
+                      onClick={() => handleViewActivity(child)}
+                    >
                       View Activity
                     </Button>
                     <Button variant="outline" className="flex-1 rounded-xl text-xs h-9 border-border">
@@ -191,6 +215,100 @@ export default function ParentDashboard() {
             ))
           )}
         </div>
+
+        {/* Activity Dialog */}
+        <Dialog open={isActivityOpen} onOpenChange={setIsActivityOpen}>
+          <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto rounded-3xl">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+                <BookOpen className="text-primary" />
+                Activity for @{selectedChild?.username}
+              </DialogTitle>
+              <DialogDescription>
+                Review the books and progress of your child.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="py-6">
+              {isActivityLoading ? (
+                <div className="flex flex-col items-center justify-center py-12 gap-3">
+                  <Loader2 className="animate-spin text-primary" size={32} />
+                  <p className="text-muted-foreground font-medium">Loading activity...</p>
+                </div>
+              ) : childActivity && (childActivity.currentlyReading.length > 0 || childActivity.bookmarked.length > 0) ? (
+                <div className="space-y-8">
+                  {childActivity.currentlyReading.length > 0 && (
+                    <div className="space-y-4">
+                      <h4 className="font-bold text-lg flex items-center gap-2">
+                        <Clock size={18} className="text-primary" />
+                        Currently Reading
+                      </h4>
+                      <div className="grid gap-4">
+                        {childActivity.currentlyReading.map((item) => (
+                          <div key={item.workId._id} className="flex gap-4 p-4 rounded-2xl bg-muted/30 border border-border/50">
+                            <div className="w-16 h-20 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                              <img 
+                                src={item.workId.coverImage || 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=100&h=130&fit=crop'} 
+                                alt={item.workId.title}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h5 className="font-bold truncate">{item.workId.title}</h5>
+                              <p className="text-xs text-muted-foreground mb-3">by {item.workId.authorId.username}</p>
+                              <div className="flex items-center gap-2">
+                                <div className="flex-1 h-1.5 bg-background rounded-full overflow-hidden">
+                                  <div 
+                                    className="h-full bg-primary transition-all duration-500" 
+                                    style={{ width: `${item.progress}%` }}
+                                  />
+                                </div>
+                                <span className="text-[10px] font-black text-primary">{item.progress}%</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {childActivity.bookmarked.length > 0 && (
+                    <div className="space-y-4">
+                      <h4 className="font-bold text-lg flex items-center gap-2">
+                        <BookOpen size={18} className="text-primary" />
+                        Bookmarked
+                      </h4>
+                      <div className="grid grid-cols-2 gap-4">
+                        {childActivity.bookmarked.map((work) => (
+                          <div key={work._id} className="p-3 rounded-2xl bg-muted/30 border border-border/50 flex flex-col items-center text-center">
+                             <div className="w-full aspect-[3/4] rounded-xl overflow-hidden mb-3 bg-muted">
+                                <img 
+                                  src={work.coverImage || 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=150&h=200&fit=crop'} 
+                                  alt={work.title}
+                                  className="w-full h-full object-cover"
+                                />
+                             </div>
+                             <h5 className="font-bold text-sm line-clamp-1">{work.title}</h5>
+                             <p className="text-[10px] text-muted-foreground">by {work.authorId.username}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-12 px-6 bg-muted/20 rounded-3xl border-2 border-dashed border-border">
+                  <BookOpen className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
+                  <p className="font-bold text-foreground">No recent activity</p>
+                  <p className="text-sm text-muted-foreground">This child hasn't started reading any stories yet.</p>
+                </div>
+              )}
+            </div>
+            <DialogFooter>
+              <Button onClick={() => setIsActivityOpen(false)} className="rounded-xl">Close</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Info Section */}
         <div className="mt-16 bg-primary/10 rounded-[2.5rem] p-10 relative overflow-hidden border border-primary/20">

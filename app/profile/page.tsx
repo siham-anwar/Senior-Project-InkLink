@@ -90,7 +90,7 @@ export default function ProfilePage() {
       setProfileData(updated)
       
       // Update global auth state if username changed
-      if (editForm.username && editForm.username !== profileData.username) {
+      if (editForm.username && profileData && editForm.username !== profileData.username) {
         updateUser({ username: editForm.username })
       }
       
@@ -151,7 +151,7 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-background text-foreground pb-20">
       {/* Premium Header/Cover */}
       <div className="relative h-48 sm:h-64 bg-gradient-to-r from-primary/20 via-primary/5 to-secondary/30 border-b border-border">
-        <div className="absolute inset-0 bg-grid-white/[0.05] [mask-image:linear-gradient(t-transparent,white)]" />
+        <div className="absolute inset-0 bg-grid-white/[0.05] [mask-image:linear-gradient(to_bottom,transparent,white)]" />
         
         <div className="absolute top-4 left-4 sm:left-8 z-10">
           <Link 

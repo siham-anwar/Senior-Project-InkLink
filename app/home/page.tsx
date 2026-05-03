@@ -76,8 +76,12 @@ export default function HomePage() {
 
   useEffect(() => {
     setMounted(true)
+    if (user?.role === 'admin' || user?.email === 'admin@gmail.com') {
+      router.push('/admin')
+      return
+    }
     fetchData()
-  }, [])
+  }, [user, router])
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(async () => {
@@ -306,7 +310,7 @@ export default function HomePage() {
                <div className="flex items-center justify-between font-bold">
                   <div>
                      <p className="text-xs opacity-80 uppercase tracking-widest mb-1">Administrative Access</p>
-                     <p className="text-3xl">Safety Dashboard</p>
+                     <p className="text-3xl">Parent Dashboard</p>
                   </div>
                   <Shield size={48} className="opacity-80" />
                </div>

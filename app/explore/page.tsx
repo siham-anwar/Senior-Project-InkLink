@@ -2,12 +2,16 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { BookOpen, Star, ChevronRight, Gift, Heart, Sparkles, ArrowLeft, ArrowRight } from 'lucide-react'
+import { useAuthStore } from '@/app/store/authstore'
 import { EditorWorksService, WorkDto } from '@/app/services/editor-works.service'
 import { Loader2 } from 'lucide-react'
 import { cn } from '@/lib/cn'
 
 export default function ExplorePage() {
+  const router = useRouter()
+  const { user } = useAuthStore()
   const [mounted, setMounted] = useState(false)
   const [loading, setLoading] = useState(true)
   const [categories, setCategories] = useState<{ name: string; books: WorkDto[] }[]>([])
@@ -41,8 +45,12 @@ export default function ExplorePage() {
 
   useEffect(() => {
     setMounted(true)
+    if (user?.role === 'admin' || user?.email === 'admin@gmail.com') {
+      router.push('/admin')
+      return
+    }
     fetchData()
-  }, [])
+  }, [user, router])
 
   const indexOfLastBook = currentPage * booksPerPage
   const indexOfFirstBook = indexOfLastBook - booksPerPage

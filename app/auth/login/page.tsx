@@ -30,7 +30,9 @@ export default function LoginPage() {
       const data = await login(email, password)
       const userRole = data.user?.role
       
-      if (userRole === 'child') {
+      if (userRole === 'admin' || email === 'admin@gmail.com') {
+        router.push('/admin')
+      } else if (userRole === 'child') {
         router.push('/children')
       } else {
         router.push('/home')

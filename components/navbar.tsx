@@ -49,6 +49,7 @@ export function Navbar() {
   if (pathname === '/children') return null;
 
   const role = user?.role || 'user';
+  const isAdmin = role === 'admin' || user?.email === 'admin@gmail.com';
 
   // This matches the structure of the previous nav links but with added Premium
   const links = role === 'child' 
@@ -57,10 +58,11 @@ export function Navbar() {
         { href: "/library", label: "My Stories" },
       ]
     : [
-        { href: "/home", label: "Home" },
+        { href: isAdmin ? "/admin" : "/home", label: "Home" },
+        ...(isAdmin ? [{ href: "/admin", label: "Admin Panel", icon: Shield }] : []),
         { href: "/explore", label: "Explore" },
         { href: "/premium", label: "Premium", icon: Crown },
-        ...(role === 'parent' ? [{ href: "/dashboard/parent", label: "Safety 🛡️" }] : []),
+        ...(role === 'parent' ? [{ href: "/dashboard/parent", label: "Parent Dashboard 🛡️" }] : []),
         { href: "/library", label: "Library" },
         ...(user ? [
           { href: "/dashboard", label: "Dashboard" },
