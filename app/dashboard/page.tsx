@@ -58,7 +58,7 @@ function getStatusBadge(status: string) {
 
 export default function DashboardPage() {
   const router = useRouter()
-  const { works, fetchWorks, isLoading } = useWorksStore()
+  const { works, fetchWorks, isLoading, deleteWork } = useWorksStore()
   const { user } = useAuthStore()
   const [sharedWorks, setSharedWorks] = useState<any[]>([])
   const [isSharedLoading, setIsSharedLoading] = useState(false)
@@ -97,7 +97,8 @@ export default function DashboardPage() {
     if (!user) return
     setIsPostsLoading(true)
     try {
-      const userId = user.sub || user.id
+      const userId = user.sub || user.id || user._id
+      if (!userId) return
       const data = await PostsService.listByAuthor(userId)
       setPosts(data)
     } catch (error) {
@@ -145,6 +146,17 @@ export default function DashboardPage() {
       toast.error('Failed to load chapters')
     } finally {
       setIsReadingLoading(false)
+    }
+  }
+
+  const handleDeleteWork = async (work: any) => {
+    const workId = work.id || work._id
+    if (!confirm(`Are you sure you want to delete "${work.title}"? This action cannot be undone.`)) return
+    try {
+      await deleteWork(workId)
+      toast.success(`"${work.title}" has been deleted`)
+    } catch (error) {
+      toast.error('Failed to delete work')
     }
   }
   
@@ -304,6 +316,14 @@ export default function DashboardPage() {
                           <div className="absolute top-4 left-4">
                             {getStatusBadge(work.status)}
                           </div>
+                          {/* Delete button on hover */}
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleDeleteWork(work) }}
+                            className="absolute top-4 right-4 p-2 bg-background/80 backdrop-blur-sm border border-border rounded-xl text-muted-foreground hover:text-red-500 hover:bg-red-500/10 hover:border-red-500/30 opacity-0 group-hover:opacity-100 transition-all shadow-sm"
+                            title="Delete work"
+                          >
+                            <Trash2 size={16} />
+                          </button>
                         </div>
 
                         {/* Card Body */}
@@ -335,19 +355,25 @@ export default function DashboardPage() {
                           </div>
 
                           {/* Card Actions */}
-                          <div className="grid grid-cols-2 gap-3 mt-auto">
+                          <div className="grid grid-cols-3 gap-2 mt-auto">
                             <button 
                               onClick={() => handleReadWork(work)}
-                              className="w-full py-2.5 bg-muted text-foreground/80 hover:bg-muted/80 rounded-xl font-bold transition-all flex items-center justify-center gap-2"
+                              className="w-full py-2.5 bg-muted text-foreground/80 hover:bg-muted/80 rounded-xl font-bold transition-all flex items-center justify-center gap-1.5 text-sm"
                             >
-                              <BookOpen size={16} /> Read
+                              <BookOpen size={14} /> Read
                             </button>
                             <Link 
                               href={`/editor?id=${work.id || work._id}`}
-                              className="w-full py-2.5 bg-primary/10 text-primary hover:bg-primary/20 rounded-xl font-bold transition-all flex items-center justify-center gap-2"
+                              className="w-full py-2.5 bg-primary/10 text-primary hover:bg-primary/20 rounded-xl font-bold transition-all flex items-center justify-center gap-1.5 text-sm"
                             >
-                              <Pencil size={16} /> Edit
+                              <Pencil size={14} /> Edit
                             </Link>
+                            <button
+                              onClick={() => handleDeleteWork(work)}
+                              className="w-full py-2.5 bg-red-500/10 text-red-500 hover:bg-red-500/20 rounded-xl font-bold transition-all flex items-center justify-center gap-1.5 text-sm"
+                            >
+                              <Trash2 size={14} /> Delete
+                            </button>
                           </div>
                         </div>
                       </div>

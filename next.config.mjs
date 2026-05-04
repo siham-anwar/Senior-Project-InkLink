@@ -13,7 +13,7 @@ const nextConfig = {
   },
   turbopack: {
     root: workspaceRoot,
-  },
+  }
 }
 
 export default nextConfig

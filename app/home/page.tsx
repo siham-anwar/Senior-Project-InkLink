@@ -53,7 +53,7 @@ export default function HomePage() {
         // Shuffle works to make the "Top Picks" dynamic for the session
         const shuffled = [...works].sort(() => Math.random() - 0.5)
         setTopPicks(shuffled.slice(0, 4)) // Show 1 row of 4
-        
+
         // Sort by averageRating descending for Top Rated
         const rated = [...works].sort((a, b) => (b.averageRating || 0) - (a.averageRating || 0))
         setTopRated(rated.slice(0, 4))
@@ -117,7 +117,7 @@ export default function HomePage() {
       // But let's just update likes and likesCount manually for UI smoothness if populate isn't returned identically
       setFeed(feed.map(p => {
         if (p._id === postId) {
-           return { ...p, likesCount: updatedPost.likesCount, likes: updatedPost.likes }
+          return { ...p, likesCount: updatedPost.likesCount, likes: updatedPost.likes }
         }
         return p
       }))
@@ -188,16 +188,16 @@ export default function HomePage() {
         />
         <div className="absolute inset-0 bg-black/5" />
         <div className="absolute bottom-3 left-3 right-3 space-y-2">
-            <div className="flex items-center justify-between text-[10px] font-black text-white drop-shadow-md">
-               <span className="bg-primary/90 px-2 py-0.5 rounded-sm uppercase tracking-tighter">In Progress</span>
-               <span>{book.progress}%</span>
-            </div>
-            <div className="w-full bg-white/20 backdrop-blur-md rounded-full h-1.5 p-[1px] border border-white/10">
-              <div
-                className="bg-primary h-full rounded-full transition-all duration-1000"
-                style={{ width: `${book.progress}%` }}
-              />
-            </div>
+          <div className="flex items-center justify-between text-[10px] font-black text-white drop-shadow-md">
+            <span className="bg-primary/90 px-2 py-0.5 rounded-sm uppercase tracking-tighter">In Progress</span>
+            <span>{book.progress}%</span>
+          </div>
+          <div className="w-full bg-white/20 backdrop-blur-md rounded-full h-1.5 p-[1px] border border-white/10">
+            <div
+              className="bg-primary h-full rounded-full transition-all duration-1000"
+              style={{ width: `${book.progress}%` }}
+            />
+          </div>
         </div>
       </div>
       <h3 className="font-bold text-sm line-clamp-2 leading-tight group-hover:text-primary transition-colors">{book.title}</h3>
@@ -209,54 +209,41 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground pb-24">
-      {/* Dynamic Sub-header */}
-      <div className="bg-secondary/30 border-b border-border/50 py-4 mb-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-            <p className="text-sm font-medium opacity-70">Dashboard for <span className="text-primary font-bold">@{usernameDisplay}</span></p>
-            <div className="hidden sm:flex items-center gap-4 text-xs font-bold uppercase tracking-wider opacity-60">
-               <span>Reading List</span>
-               <span className="h-1 w-1 rounded-full bg-border" />
-               <span>Writing Drafts</span>
-               <span className="h-1 w-1 rounded-full bg-border" />
-               <span>Settings</span>
-            </div>
-        </div>
-      </div>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Personalized Welcome */}
-        <div className="mb-12">
-          <h2 className="text-4xl md:text-6xl font-black tracking-tight leading-tight">
+        <div className="mb-12 mt-6">
+          <h2 className="text-3xl md:text-5xl font-black tracking-tight leading-tight">
             Feed your <span className="text-primary italic">imagination</span>.
           </h2>
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mt-8">
-             <p className="text-muted-foreground text-lg max-w-xl">
-                You currently have <span className="text-foreground font-bold">{continueReading.length} stories</span> in your queue.
-             </p>
-             <div className="relative w-full max-w-md group">
-                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-muted-foreground group-focus-within:text-primary transition-colors">
-                   <Search size={20} />
+            <p className="text-muted-foreground text-lg max-w-xl">
+              You currently have <span className="text-foreground font-bold">{continueReading.length} stories</span> in your queue.
+            </p>
+            <div className="relative w-full max-w-md group">
+              <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-muted-foreground group-focus-within:text-primary transition-colors">
+                <Search size={20} />
+              </div>
+              <input
+                type="text"
+                placeholder="Search by book name or author..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-secondary/50 border-2 border-border/50 rounded-2xl py-4 pl-12 pr-4 text-sm font-medium focus:outline-none focus:border-primary/50 focus:bg-background transition-all shadow-sm"
+              />
+              {isSearchLoading && (
+                <div className="absolute inset-y-0 right-4 flex items-center">
+                  <Loader2 size={20} className="animate-spin text-primary" />
                 </div>
-                <input
-                   type="text"
-                   placeholder="Search by book name or author..."
-                   value={searchQuery}
-                   onChange={(e) => setSearchQuery(e.target.value)}
-                   className="w-full bg-secondary/50 border-2 border-border/50 rounded-2xl py-4 pl-12 pr-4 text-sm font-medium focus:outline-none focus:border-primary/50 focus:bg-background transition-all shadow-sm"
-                />
-                {isSearchLoading && (
-                   <div className="absolute inset-y-0 right-4 flex items-center">
-                      <Loader2 size={20} className="animate-spin text-primary" />
-                   </div>
-                )}
-             </div>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Search Results Section */}
         <AnimatePresence>
           {isSearching && (
-            <motion.section 
+            <motion.section
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
@@ -264,17 +251,17 @@ export default function HomePage() {
             >
               <div className="flex items-center justify-between mb-8">
                 <div>
-                   <h2 className="text-3xl font-black">Search Results</h2>
-                   <p className="text-sm text-muted-foreground">Found {searchResults.length} matches for "{searchQuery}"</p>
+                  <h2 className="text-3xl font-black">Search Results</h2>
+                  <p className="text-sm text-muted-foreground">Found {searchResults.length} matches for "{searchQuery}"</p>
                 </div>
-                <button 
+                <button
                   onClick={() => setSearchQuery('')}
                   className="text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors"
                 >
                   Clear Search
                 </button>
               </div>
-              
+
               {searchResults.length > 0 ? (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-12">
                   {searchResults.map((book) => (
@@ -283,8 +270,8 @@ export default function HomePage() {
                 </div>
               ) : !isSearchLoading ? (
                 <div className="text-center py-20 bg-background/50 rounded-3xl border-2 border-dashed border-border/50">
-                   <p className="text-lg font-bold text-muted-foreground">No books or authors found.</p>
-                   <p className="text-sm text-muted-foreground/60 mt-1">Try a different keyword or check your spelling.</p>
+                  <p className="text-lg font-bold text-muted-foreground">No books or authors found.</p>
+                  <p className="text-sm text-muted-foreground/60 mt-1">Try a different keyword or check your spelling.</p>
                 </div>
               ) : null}
             </motion.section>
@@ -295,25 +282,25 @@ export default function HomePage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
           {user?.role === 'child' && (
             <Link href="/children" className="group p-8 rounded-3xl bg-gradient-to-br from-rose-400 to-orange-400 text-white shadow-xl shadow-rose-500/10 transition-transform active:scale-95">
-               <div className="flex items-center justify-between font-black">
-                  <div>
-                     <p className="text-xs opacity-80 uppercase tracking-widest mb-1">Authenticated Magic</p>
-                     <p className="text-3xl">Go to Kids Mode</p>
-                  </div>
-                  <span className="text-5xl">🎨</span>
-               </div>
+              <div className="flex items-center justify-between font-black">
+                <div>
+                  <p className="text-xs opacity-80 uppercase tracking-widest mb-1">Authenticated Magic</p>
+                  <p className="text-3xl">Go to Kids Mode</p>
+                </div>
+                <span className="text-5xl">🎨</span>
+              </div>
             </Link>
           )}
 
           {user?.role === 'parent' && (
             <Link href="/dashboard/parent" className="group p-8 rounded-3xl bg-primary text-primary-foreground shadow-xl shadow-primary/10 transition-transform active:scale-95">
-               <div className="flex items-center justify-between font-bold">
-                  <div>
-                     <p className="text-xs opacity-80 uppercase tracking-widest mb-1">Administrative Access</p>
-                     <p className="text-3xl">Parent Dashboard</p>
-                  </div>
-                  <Shield size={48} className="opacity-80" />
-               </div>
+              <div className="flex items-center justify-between font-bold">
+                <div>
+                  <p className="text-xs opacity-80 uppercase tracking-widest mb-1">Administrative Access</p>
+                  <p className="text-3xl">Parent Dashboard</p>
+                </div>
+                <Shield size={48} className="opacity-80" />
+              </div>
             </Link>
           )}
         </div>
@@ -327,18 +314,18 @@ export default function HomePage() {
                 <p className="text-sm text-muted-foreground">Latest news from authors you follow.</p>
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {feed.slice(0, 4).map((post) => (
                 <div key={post._id} className="bg-secondary/20 border border-border/50 rounded-[2rem] p-6 hover:shadow-lg transition-all group relative overflow-hidden">
-                  <button 
+                  <button
                     onClick={() => handleDismissPost(post._id)}
                     className="absolute top-4 right-4 p-2 text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-all z-10"
                     title="Dismiss"
                   >
                     <X size={16} />
                   </button>
-                  
+
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary overflow-hidden border-2 border-primary/20">
                       {post.authorId?.profilePicture ? (
@@ -360,15 +347,15 @@ export default function HomePage() {
                       {new Date(post.createdAt).toLocaleDateString()}
                     </div>
                     <div className="flex items-center gap-3">
-                      <button 
+                      <button
                         onClick={() => handleLikePost(post._id)}
                         className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-red-500 transition-colors"
                       >
-                        <HeartIcon 
-                          size={14} 
+                        <HeartIcon
+                          size={14}
                           className={cn(
-                            post.likes?.includes(user?.sub || user?.id) ? "text-red-500 fill-red-500" : ""
-                          )} 
+                            post.likes?.includes(user?.sub || user?.id || user?._id) ? "text-red-500 fill-red-500" : ""
+                          )}
                         />
                         {post.likesCount}
                       </button>
@@ -384,12 +371,12 @@ export default function HomePage() {
         <section className="mb-20">
           <div className="flex items-end justify-between mb-8">
             <div className="space-y-1">
-               <h2 className="text-3xl font-black">My Reading</h2>
-               <p className="text-sm text-muted-foreground">Stories you are still exploring.</p>
+              <h2 className="text-3xl font-black">My Reading</h2>
+              <p className="text-sm text-muted-foreground">Stories you are still exploring.</p>
             </div>
             <Link href="/library" className="text-primary text-sm font-bold hover:underline mb-1">Browse All</Link>
           </div>
-          
+
           <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-12">
             {continueReading.length > 0 ? (
               continueReading.map((book) => (
@@ -397,8 +384,8 @@ export default function HomePage() {
               ))
             ) : (
               <div className="col-span-full h-40 flex flex-col items-center justify-center border-2 border-dashed border-border rounded-3xl bg-secondary/20">
-                 <p className="text-muted-foreground font-medium">Your reading list is empty.</p>
-                 <Link href="/explore" className="text-primary text-sm font-bold mt-2">Find a story</Link>
+                <p className="text-muted-foreground font-medium">Your reading list is empty.</p>
+                <Link href="/explore" className="text-primary text-sm font-bold mt-2">Find a story</Link>
               </div>
             )}
           </div>

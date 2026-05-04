@@ -58,7 +58,12 @@ export default function ProfilePage() {
   const fetchProfile = async () => {
     try {
       setLoading(true)
-      const data = await ProfileService.getProfile(user.sub || user.id)
+      const userId = user?.sub || user?.id || user?._id
+      if (!userId) {
+        console.warn('[Profile] No user ID available yet (sub/id/_id all undefined)')
+        return
+      }
+      const data = await ProfileService.getProfile(userId)
       setProfileData(data)
       setEditForm({
         name: data.name,

@@ -90,16 +90,16 @@ export default function ParentDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      <main className="mx-auto max-w-6xl px-6 py-12">
+      <main className="mx-auto max-w-5xl px-5 py-12">
         <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between mb-10">
           <div>
             <div className="flex items-center gap-3 mb-2">
-                <div className="bg-primary p-2 rounded-lg">
-                    <Shield className="text-primary-foreground" size={24} />
-                </div>
-                <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
-                  Parent Control
-                </h1>
+              <div className="bg-primary p-2 rounded-lg">
+                <Shield className="text-primary-foreground" size={24} />
+              </div>
+              <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
+                Parent Control
+              </h1>
             </div>
             <p className="text-muted-foreground text-lg">
               Manage your children's accounts and safety settings.
@@ -123,30 +123,30 @@ export default function ParentDashboard() {
               <div className="grid gap-4 py-4">
                 <div className="grid gap-2">
                   <Label htmlFor="username">Username</Label>
-                  <Input 
-                    id="username" 
+                  <Input
+                    id="username"
                     value={newChild.username}
-                    onChange={(e) => setNewChild({...newChild, username: e.target.value})}
-                    placeholder="child_explorer" 
+                    onChange={(e) => setNewChild({ ...newChild, username: e.target.value })}
+                    placeholder="child_explorer"
                   />
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="password">Password</Label>
-                  <Input 
-                    id="password" 
+                  <Input
+                    id="password"
                     type="password"
                     value={newChild.password}
-                    onChange={(e) => setNewChild({...newChild, password: e.target.value})}
-                    placeholder="••••••••" 
+                    onChange={(e) => setNewChild({ ...newChild, password: e.target.value })}
+                    placeholder="••••••••"
                   />
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="email">Email (Optional)</Label>
-                  <Input 
-                    id="email" 
+                  <Input
+                    id="email"
                     value={newChild.email}
-                    onChange={(e) => setNewChild({...newChild, email: e.target.value})}
-                    placeholder="child@example.com" 
+                    onChange={(e) => setNewChild({ ...newChild, email: e.target.value })}
+                    placeholder="child@example.com"
                   />
                 </div>
               </div>
@@ -163,10 +163,10 @@ export default function ParentDashboard() {
             [1, 2].map(i => <div key={i} className="h-64 rounded-3xl bg-card animate-pulse shadow-sm border border-border" />)
           ) : children.length === 0 ? (
             <Card className="col-span-full py-16 flex flex-col items-center border-dashed border-2 bg-card/50">
-                <Baby className="h-16 w-16 text-muted-foreground/30 mb-4" />
-                <h3 className="text-xl font-bold text-foreground">No child accounts yet</h3>
-                <p className="text-muted-foreground mb-6">Start by adding an account for your child.</p>
-                <Button variant="outline" onClick={() => setIsDialogOpen(true)}>Add your first child</Button>
+              <Baby className="h-16 w-16 text-muted-foreground/30 mb-4" />
+              <h3 className="text-xl font-bold text-foreground">No child accounts yet</h3>
+              <p className="text-muted-foreground mb-6">Start by adding an account for your child.</p>
+              <Button variant="outline" onClick={() => setIsDialogOpen(true)}>Add your first child</Button>
             </Card>
           ) : (
             children.map((child) => (
@@ -176,11 +176,11 @@ export default function ParentDashboard() {
                     <div className="bg-muted p-3 rounded-2xl">
                       <Baby className="text-muted-foreground" size={24} />
                     </div>
-                    <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        onClick={() => handleRemoveChild(child._id)}
-                        className="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl"
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleRemoveChild(child._id)}
+                      className="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl"
                     >
                       <Trash2 size={20} />
                     </Button>
@@ -197,10 +197,10 @@ export default function ParentDashboard() {
                     <Key size={18} className="text-muted-foreground/50" />
                     <span className="text-sm italic">Role: Child (Restricted)</span>
                   </div>
-                  
+
                   <div className="pt-4 flex gap-2">
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       className="flex-1 rounded-xl text-xs h-9 border-border"
                       onClick={() => handleViewActivity(child)}
                     >
@@ -228,7 +228,7 @@ export default function ParentDashboard() {
                 Review the books and progress of your child.
               </DialogDescription>
             </DialogHeader>
-            
+
             <div className="py-6">
               {isActivityLoading ? (
                 <div className="flex flex-col items-center justify-center py-12 gap-3">
@@ -247,8 +247,8 @@ export default function ParentDashboard() {
                         {childActivity.currentlyReading.map((item) => (
                           <div key={item.workId._id} className="flex gap-4 p-4 rounded-2xl bg-muted/30 border border-border/50">
                             <div className="w-16 h-20 rounded-lg overflow-hidden bg-muted flex-shrink-0">
-                              <img 
-                                src={item.workId.coverImage || 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=100&h=130&fit=crop'} 
+                              <img
+                                src={item.workId.coverImage || 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=100&h=130&fit=crop'}
                                 alt={item.workId.title}
                                 className="w-full h-full object-cover"
                               />
@@ -258,8 +258,8 @@ export default function ParentDashboard() {
                               <p className="text-xs text-muted-foreground mb-3">by {item.workId.authorId.username}</p>
                               <div className="flex items-center gap-2">
                                 <div className="flex-1 h-1.5 bg-background rounded-full overflow-hidden">
-                                  <div 
-                                    className="h-full bg-primary transition-all duration-500" 
+                                  <div
+                                    className="h-full bg-primary transition-all duration-500"
                                     style={{ width: `${item.progress}%` }}
                                   />
                                 </div>
@@ -281,15 +281,15 @@ export default function ParentDashboard() {
                       <div className="grid grid-cols-2 gap-4">
                         {childActivity.bookmarked.map((work) => (
                           <div key={work._id} className="p-3 rounded-2xl bg-muted/30 border border-border/50 flex flex-col items-center text-center">
-                             <div className="w-full aspect-[3/4] rounded-xl overflow-hidden mb-3 bg-muted">
-                                <img 
-                                  src={work.coverImage || 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=150&h=200&fit=crop'} 
-                                  alt={work.title}
-                                  className="w-full h-full object-cover"
-                                />
-                             </div>
-                             <h5 className="font-bold text-sm line-clamp-1">{work.title}</h5>
-                             <p className="text-[10px] text-muted-foreground">by {work.authorId.username}</p>
+                            <div className="w-full aspect-[3/4] rounded-xl overflow-hidden mb-3 bg-muted">
+                              <img
+                                src={work.coverImage || 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=150&h=200&fit=crop'}
+                                alt={work.title}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <h5 className="font-bold text-sm line-clamp-1">{work.title}</h5>
+                            <p className="text-[10px] text-muted-foreground">by {work.authorId.username}</p>
                           </div>
                         ))}
                       </div>
@@ -312,28 +312,28 @@ export default function ParentDashboard() {
 
         {/* Info Section */}
         <div className="mt-16 bg-primary/10 rounded-[2.5rem] p-10 relative overflow-hidden border border-primary/20">
-            <div className="relative z-10 max-w-2xl">
-                <h2 className="text-3xl font-bold mb-4 flex items-center gap-3 text-primary">
-                    <Shield className="text-primary" />
-                    Safe Browsing Active
-                </h2>
-                <p className="text-foreground/70 text-lg leading-relaxed">
-                    Child accounts are automatically restricted to content flagged as "Child Safe" by our moderation AI. 
-                    They cannot access adult-only stories, modify their own permissions, or bypass these restrictions. 
-                </p>
-                <div className="mt-8 flex gap-4">
-                    <div className="bg-primary/5 backdrop-blur-sm p-4 rounded-2xl border border-primary/10">
-                        <p className="text-xs font-bold text-primary uppercase tracking-widest mb-1">AI Moderated</p>
-                        <p className="text-sm text-foreground/60">Real-time safety checks</p>
-                    </div>
-                    <div className="bg-primary/5 backdrop-blur-sm p-4 rounded-2xl border border-primary/10">
-                        <p className="text-xs font-bold text-primary uppercase tracking-widest mb-1">Parent Scoped</p>
-                        <p className="text-sm text-foreground/60">Full control over access</p>
-                    </div>
-                </div>
+          <div className="relative z-10 max-w-2xl">
+            <h2 className="text-3xl font-bold mb-4 flex items-center gap-3 text-primary">
+              <Shield className="text-primary" />
+              Safe Browsing Active
+            </h2>
+            <p className="text-foreground/70 text-lg leading-relaxed">
+              Child accounts are automatically restricted to content flagged as "Child Safe" by our moderation AI.
+              They cannot access adult-only stories, modify their own permissions, or bypass these restrictions.
+            </p>
+            <div className="mt-8 flex gap-4">
+              <div className="bg-primary/5 backdrop-blur-sm p-4 rounded-2xl border border-primary/10">
+                <p className="text-xs font-bold text-primary uppercase tracking-widest mb-1">AI Moderated</p>
+                <p className="text-sm text-foreground/60">Real-time safety checks</p>
+              </div>
+              <div className="bg-primary/5 backdrop-blur-sm p-4 rounded-2xl border border-primary/10">
+                <p className="text-xs font-bold text-primary uppercase tracking-widest mb-1">Parent Scoped</p>
+                <p className="text-sm text-foreground/60">Full control over access</p>
+              </div>
             </div>
-            {/* Background elements */}
-            <Baby className="absolute -bottom-10 -right-10 h-64 w-64 text-primary/5 -rotate-12" />
+          </div>
+          {/* Background elements */}
+          <Baby className="absolute -bottom-10 -right-10 h-64 w-64 text-primary/5 -rotate-12" />
         </div>
       </main>
     </div>

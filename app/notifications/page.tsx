@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { ChevronLeft, Search, MessageCircle, BookOpen, User, Users, Check, X, Loader2 } from 'lucide-react'
+import { ChevronLeft, Search, MessageCircle, BookOpen, User, Users, Check, X, Loader2, Trash2 } from 'lucide-react'
 import { notificationsService, NotificationUpdate, NotificationMessage } from '../services/notifications.service'
 import { collaborationService, CollaborationInvite } from '../services/collaboration.service'
 import { toast } from 'sonner'
@@ -56,6 +56,28 @@ export default function NotificationsPage() {
     try {
       await notificationsService.markAsRead(id)
     } catch(e) {}
+  }
+
+  const handleDeleteUpdate = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await notificationsService.deleteNotification(id);
+      setUpdates(updates.filter(u => u.id !== id));
+      toast.success('Notification deleted');
+    } catch (error) {
+      toast.error('Failed to delete notification');
+    }
+  }
+
+  const handleDeleteMessage = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await notificationsService.deleteNotification(id);
+      setMessages(messages.filter(m => m.id !== id));
+      toast.success('Message deleted');
+    } catch (error) {
+      toast.error('Failed to delete message');
+    }
   }
 
   const handleInviteResponse = async (id: string, accept: boolean) => {
@@ -184,8 +206,16 @@ export default function NotificationsPage() {
                             <h3 className="font-semibold text-foreground">{update.authorName}</h3>
                             <p className="text-sm text-muted-foreground">{update.timestamp}</p>
                           </div>
-                          {!update.isRead && (
+                          {!update.isRead ? (
                             <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-2"></div>
+                          ) : (
+                            <button
+                              onClick={(e) => handleDeleteUpdate(update.id, e)}
+                              className="text-muted-foreground hover:text-red-500 transition-colors p-1 rounded-md hover:bg-red-500/10"
+                              title="Delete notification"
+                            >
+                              <Trash2 size={16} />
+                            </button>
                           )}
                         </div>
                         <h4 className="font-bold text-base mb-1">{update.title}</h4>
@@ -250,8 +280,16 @@ export default function NotificationsPage() {
                         </div>
                         <p className="text-sm text-muted-foreground line-clamp-2">{message.lastMessage}</p>
                       </div>
-                      {message.unread && (
+                      {message.unread ? (
                         <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-1"></div>
+                      ) : (
+                        <button
+                          onClick={(e) => handleDeleteMessage(message.id, e)}
+                          className="text-muted-foreground hover:text-red-500 transition-colors p-1 rounded-md hover:bg-red-500/10 flex-shrink-0"
+                          title="Delete message"
+                        >
+                          <Trash2 size={16} />
+                        </button>
                       )}
                     </div>
                   </div>

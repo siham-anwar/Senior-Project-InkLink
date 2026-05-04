@@ -48,7 +48,7 @@ export default function BookDetailPage({ params }: { params: Promise<{ id: strin
       const [workData, lib, rating] = await Promise.all([
         EditorWorksService.getById(id),
         libraryService.getLibrary().catch(() => null),       // non-critical
-        RatingsService.getWorkRating(id, user?.id).catch(() => null),
+        RatingsService.getWorkRating(id, user?.sub || user?.id || user?._id).catch(() => null),
       ])
       setWork(workData)
       setLibrary(lib)
@@ -106,7 +106,7 @@ export default function BookDetailPage({ params }: { params: Promise<{ id: strin
       return
     }
 
-    if (authorId === user.id) {
+    if (authorId === (user.sub || user.id || user._id)) {
       toast.error("You can't message yourself")
       return
     }
@@ -130,7 +130,7 @@ export default function BookDetailPage({ params }: { params: Promise<{ id: strin
     const authorId = (work as any).authorId
     if (!authorId) return
 
-    if (authorId === user.id) {
+    if (authorId === (user.sub || user.id || user._id)) {
       toast.error("You can't follow yourself")
       return
     }

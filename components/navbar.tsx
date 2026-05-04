@@ -52,32 +52,33 @@ export function Navbar() {
   const isAdmin = role === 'admin' || user?.email === 'admin@gmail.com';
 
   // This matches the structure of the previous nav links but with added Premium
-  const links = role === 'child' 
+  const links = role === 'child'
     ? [
-        { href: "/children", label: "Kids Mode 🎨" },
-        { href: "/library", label: "My Stories" },
-      ]
+      { href: "/children", label: "Kids Mode 🎨" },
+      { href: "/library", label: "My Stories" },
+    ]
     : [
-        { href: isAdmin ? "/admin" : "/home", label: "Home" },
-        ...(isAdmin ? [{ href: "/admin", label: "Admin Panel", icon: Shield }] : []),
-        { href: "/explore", label: "Explore" },
-        { href: "/premium", label: "Premium", icon: Crown },
-        ...(role === 'parent' ? [{ href: "/dashboard/parent", label: "Parent Dashboard 🛡️" }] : []),
-        { href: "/library", label: "Library" },
-        ...(user ? [
-          { href: "/dashboard", label: "Dashboard" },
-          { href: "/editor", label: "Write" }
-        ]: []),
-      ];
+      { href: isAdmin ? "/admin" : "/home", label: "Home" },
+      ...(isAdmin ? [{ href: "/admin", label: "Admin Panel", icon: Shield }] : []),
+      { href: "/explore", label: "Explore" },
+      { href: "/premium", label: "Premium", icon: Crown },
+      ...(role === 'parent' ? [{ href: "/dashboard/parent", label: "Parent Dashboard 🛡️" }] : []),
+      { href: "/library", label: "Library" },
+      ...(user ? [
+        { href: "/dashboard", label: "Dashboard" },
+        { href: "/editor", label: "Write" }
+      ] : []),
+    ];
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/80 bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Link
           href="/"
-          className="text-xl font-bold tracking-tight text-primary flex items-center gap-2"
+          className="flex items-center gap-2 group transition-transform hover:scale-[1.02]"
         >
-          InkLink
+          <img src="/logo3.png" alt="InKling Logo" className="h-45 w-auto" />
+
         </Link>
 
         {/* Desktop Navigation */}
@@ -213,8 +214,8 @@ export function Navbar() {
               )}
               {!user && (
                 <div className="mt-2 flex flex-col gap-2 border-t border-border pt-4">
-                   <Link href="/auth/login" onClick={() => setOpen(false)} className="rounded-lg px-3 py-2 text-center text-sm font-medium bg-secondary">Login</Link>
-                   <Link href="/auth/signup" onClick={() => setOpen(false)} className="rounded-full bg-primary py-2.5 text-center text-sm font-semibold text-white">Signup</Link>
+                  <Link href="/auth/login" onClick={() => setOpen(false)} className="rounded-lg px-3 py-2 text-center text-sm font-medium bg-secondary">Login</Link>
+                  <Link href="/auth/signup" onClick={() => setOpen(false)} className="rounded-full bg-primary py-2.5 text-center text-sm font-semibold text-white">Signup</Link>
                 </div>
               )}
             </div>

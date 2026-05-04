@@ -15,12 +15,12 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'InkLink – Writing Platform',
-  description: 'InkLink is a modern writing platform for readers and creators.',
+  title: 'InKling – Writing Platform',
+  description: 'InKling is a modern writing platform for readers and creators.',
   icons: {
-    icon: '/icon.svg',
-    shortcut: '/icon.svg',
-    apple: '/apple-icon.png',
+    icon: '/logo.png',
+    shortcut: '/logo.png',
+    apple: '/logo.png',
   },
 }
 

@@ -38,6 +38,10 @@ export const notificationsService = {
     await api.patch(`/notifications/${id}/read`);
   },
 
+  async deleteNotification(id: string): Promise<void> {
+    await api.delete(`/notifications/${id}`);
+  },
+
   async getUnreadCount(): Promise<number> {
     try {
       const data = await notificationsService.getNotifications();
