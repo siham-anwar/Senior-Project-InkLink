@@ -3,10 +3,11 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { BookOpen, Crown, ShieldAlert, Users } from 'lucide-react'
+import { BookOpen, Crown, ShieldAlert, Users, Sun, Moon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { AdminDashboardService, type AdminOverviewDto } from '@/app/services/admin-dashboard.service'
 import { useAuthStore } from '@/app/store/authstore'
+import { useThemeStore } from '@/app/store/theme-store'
 import { extractApiErrorMessage } from '@/lib/api'
 
 const defaultOverview: AdminOverviewDto = {
@@ -21,6 +22,7 @@ const defaultOverview: AdminOverviewDto = {
 export default function AdminDashboardPage() {
   const router = useRouter()
   const user = useAuthStore((s) => s.user)
+  const { theme, toggleTheme } = useThemeStore()
   const [overview, setOverview] = useState<AdminOverviewDto>(defaultOverview)
   const [error, setError] = useState<string | null>(null)
 
@@ -79,18 +81,32 @@ export default function AdminDashboardPage() {
   ]
 
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-white dark:bg-neutral-950 transition-colors duration-300">
       {/* Header */}
-      <div className="sticky top-0 z-20 border-b" style={{ borderColor: '#e5e5e5', backgroundColor: '#ffffff' }}>
+      <div className="sticky top-0 z-20 border-b dark:border-neutral-800" style={{ borderColor: '#e5e5e5', backgroundColor: 'inherit' }}>
         <div className="mx-auto max-w-7xl px-6 py-6">
-          <div className="flex items-center gap-4">
-            <div className="h-12 w-12 flex items-center justify-center rounded-lg" style={{ backgroundColor: '#8b0000' }}>
-              <span className="text-xl font-bold text-white">i</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 flex items-center justify-center rounded-lg shadow-inner" style={{ backgroundColor: '#8b0000' }}>
+                <span className="text-xl font-bold text-white">i</span>
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold dark:text-white" style={{ color: '#0a0a0a' }}>InkLink Admin</h1>
+                <p className="text-xs mt-0.5 dark:text-neutral-400" style={{ color: '#525252' }}>Dashboard</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold" style={{ color: '#0a0a0a' }}>InkLink Admin</h1>
-              <p className="text-xs mt-0.5" style={{ color: '#525252' }}>Dashboard</p>
-            </div>
+
+            <button
+              onClick={toggleTheme}
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-background hover:bg-muted transition-all shadow-sm"
+              aria-label="Toggle Theme"
+            >
+              {theme === 'dark' ? (
+                <Sun className="h-5 w-5 text-yellow-500" />
+              ) : (
+                <Moon className="h-5 w-5 text-neutral-700" />
+              )}
+            </button>
           </div>
         </div>
       </div>
