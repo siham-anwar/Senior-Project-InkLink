@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   Sparkles,
   Users,
+  Landmark,
 } from 'lucide-react'
 import { cn } from '@/lib/cn'
 
@@ -18,6 +19,7 @@ const adminLinks = [
   { href: '/admin/content', label: 'Content', icon: FileText },
   { href: '/admin/moderation', label: 'Moderation', icon: ShieldCheck },
   { href: '/admin/premium', label: 'Premium', icon: Crown },
+  { href: '/admin/revenue', label: 'Revenue', icon: Landmark },
   { href: '/admin/users', label: 'Users', icon: Users },
 ]
 
