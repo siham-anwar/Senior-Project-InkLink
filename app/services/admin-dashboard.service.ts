@@ -116,4 +116,9 @@ export const AdminDashboardService = {
     const res = await api.put('/admin/pricing', { plans })
     return (res.data?.plans || []) as AdminPricingPlanDto[]
   },
+
+  getRevenue: async () => {
+    const res = await api.get('/admin/revenue')
+    return res.data
+  },
 }
