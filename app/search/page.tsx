@@ -3,10 +3,8 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Search, ArrowLeft, Loader2 } from 'lucide-react'
-import { useTheme } from '@/components/providers/theme-provider'
 
 export default function SearchPage() {
-  const { theme } = useTheme()
   const [searchQuery, setSearchQuery] = useState('')
   const [results, setResults] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(false)
