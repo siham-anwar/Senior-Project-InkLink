@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosRequestConfig } from "axios";
 
-const DEFAULT_API_URL = "http://localhost:4000";
+const DEFAULT_API_URL = "https://inklink-backend-y0p5.onrender.com";
 
 const resolveUrl = (config?: AxiosRequestConfig) => {
   const requestUrl = config?.url ?? "";
