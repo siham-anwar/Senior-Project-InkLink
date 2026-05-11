@@ -1,6 +1,26 @@
 import axios, { AxiosError, AxiosRequestConfig } from "axios";
 
-const DEFAULT_API_URL = "https://inklink-backend-y0p5.onrender.com";
+const PROD_API_URL = "https://inklink-backend-y0p5.onrender.com";
+
+const isLocalUrl = (value?: string) =>
+  typeof value === "string" && /^(https?:\/\/)?(localhost|127\.0\.0\.1)(:\d+)?/i.test(value);
+
+const resolveDefaultApiUrl = () => {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
+
+  if (envUrl && !isLocalUrl(envUrl)) {
+    return envUrl;
+  }
+
+  if (typeof window !== "undefined") {
+    const hostname = window.location.hostname;
+    if (hostname !== "localhost" && hostname !== "127.0.0.1") {
+      return PROD_API_URL;
+    }
+  }
+
+  return envUrl || PROD_API_URL;
+};
 
 const resolveUrl = (config?: AxiosRequestConfig) => {
   const requestUrl = config?.url ?? "";
@@ -86,7 +106,7 @@ export const extractApiErrorMessage = (
 };
 
 export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || DEFAULT_API_URL,
+  baseURL: resolveDefaultApiUrl(),
   withCredentials: true, // needed if backend uses cookies
 });
 

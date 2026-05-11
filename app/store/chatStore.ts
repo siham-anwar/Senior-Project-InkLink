@@ -15,7 +15,29 @@ interface ChatState {
   closeSocket: () => void
 }
 
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:4000/chat-ws'
+const PROD_WS_URL = 'wss://inklink-backend-y0p5.onrender.com/chat-ws'
+
+const isLocalUrl = (value?: string) =>
+  typeof value === 'string' && /^(wss?:\/\/)?(localhost|127\.0\.0\.1)(:\d+)?/i.test(value)
+
+const resolveWsUrl = () => {
+  const envUrl = process.env.NEXT_PUBLIC_WS_URL?.trim()
+
+  if (envUrl && !isLocalUrl(envUrl)) {
+    return envUrl
+  }
+
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname
+    if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
+      return PROD_WS_URL
+    }
+  }
+
+  return envUrl || 'ws://localhost:4000/chat-ws'
+}
+
+const WS_URL = resolveWsUrl()
 
 export const useChatStore = create<ChatState>((set, get) => ({
   conversations: [],
