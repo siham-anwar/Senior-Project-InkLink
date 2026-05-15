@@ -7,8 +7,17 @@ const isLocalUrl = (value?: string) =>
 
 const resolveDefaultApiUrl = () => {
   const envUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
+  const isLocalHost =
+    typeof window !== "undefined" &&
+    (window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1");
 
-  if (envUrl && !isLocalUrl(envUrl)) {
+  if (envUrl) {
+    // Never allow a localhost API URL when the frontend is running on a non-local hostname.
+    if (isLocalUrl(envUrl)) {
+      return isLocalHost ? envUrl : PROD_API_URL;
+    }
+
     return envUrl;
   }
 

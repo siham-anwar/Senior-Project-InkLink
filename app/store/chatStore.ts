@@ -22,8 +22,17 @@ const isLocalUrl = (value?: string) =>
 
 const resolveWsUrl = () => {
   const envUrl = process.env.NEXT_PUBLIC_WS_URL?.trim()
+  const isLocalHost =
+    typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1')
 
-  if (envUrl && !isLocalUrl(envUrl)) {
+  if (envUrl) {
+    // Never allow a localhost WS URL when the frontend is running on a non-local hostname.
+    if (isLocalUrl(envUrl)) {
+      return isLocalHost ? envUrl : PROD_WS_URL
+    }
+
     return envUrl
   }
 
@@ -34,7 +43,7 @@ const resolveWsUrl = () => {
     }
   }
 
-  return envUrl || 'ws://localhost:4000/chat-ws'
+  return PROD_WS_URL
 }
 
 const WS_URL = resolveWsUrl()
