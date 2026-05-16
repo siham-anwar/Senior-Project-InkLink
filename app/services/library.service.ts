@@ -16,19 +16,11 @@ export interface CurrentlyReading {
   progress: number;
 }
 
-export interface ReadingList {
-  _id: string;
-  name: string;
-  description: string;
-  works: LibraryWork[];
-}
-
 export interface Library {
   _id: string;
   userId: string;
   currentlyReading: CurrentlyReading[];
   bookmarked: LibraryWork[];
-  readLists: ReadingList[];
 }
 
 export const libraryService = {
@@ -49,21 +41,6 @@ export const libraryService = {
 
   async toggleBookmark(workId: string): Promise<Library> {
     const res = await api.post('/library/bookmarks/toggle', { workId });
-    return res.data;
-  },
-
-  async createReadList(name: string, description: string): Promise<Library> {
-    const res = await api.post('/library/read-lists', { name, description });
-    return res.data;
-  },
-
-  async deleteReadList(listId: string): Promise<Library> {
-    const res = await api.delete(`/library/read-lists/${listId}`);
-    return res.data;
-  },
-
-  async toggleWorkInReadList(listId: string, workId: string): Promise<Library> {
-    const res = await api.post(`/library/read-lists/${listId}/toggle-work`, { workId });
     return res.data;
   }
 };

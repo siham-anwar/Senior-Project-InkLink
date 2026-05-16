@@ -1,13 +1,21 @@
 import { api } from "@/lib/api";
 
+export interface FollowerDto {
+  _id: string;
+  username: string;
+  profilePicture?: string;
+}
+
 export interface ProfileData {
   _id: string;
   name: string;
   username: string;
   profilePicture?: string;
   bio?: string;
-  followers: any[];
+  followers: FollowerDto[];
   followersCount: number;
+  following: FollowerDto[];
+  followingCount: number;
   likes: number;
   readingList: any[];
   favoriteBook?: any;

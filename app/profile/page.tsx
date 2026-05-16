@@ -39,9 +39,11 @@ export default function ProfilePage() {
     interests: '',
     newPassword: ''
   })
-  const [activeTab, setActiveTab] = useState<'works' | 'about' | 'reading'>(user?.role === 'child' ? 'reading' : 'works')
+  const [activeTab, setActiveTab] = useState<'works' | 'about'>(user?.role === 'child' ? 'about' : 'works')
   const [readingGenre, setReadingGenre] = useState('All')
   const [readingPage, setReadingPage] = useState(1)
+  const [showFollowers, setShowFollowers] = useState(false)
+  const [showFollowing, setShowFollowing] = useState(false)
   const itemsPerPage = 4
   const mainFileInputRef = useRef<HTMLInputElement>(null)
   const modalFileInputRef = useRef<HTMLInputElement>(null)
@@ -245,10 +247,20 @@ export default function ProfilePage() {
             </div>
 
             <div className="hidden lg:flex gap-4 mb-4">
-              <div className="px-6 py-3 bg-card border border-border rounded-2xl text-center shadow-sm">
+              <button 
+                onClick={() => setShowFollowers(true)}
+                className="px-6 py-3 bg-card border border-border rounded-2xl text-center shadow-sm hover:bg-secondary/50 transition-colors"
+              >
                 <p className="text-2xl font-bold">{profileData.followersCount}</p>
                 <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Followers</p>
-              </div>
+              </button>
+              <button 
+                onClick={() => setShowFollowing(true)}
+                className="px-6 py-3 bg-card border border-border rounded-2xl text-center shadow-sm hover:bg-secondary/50 transition-colors"
+              >
+                <p className="text-2xl font-bold">{profileData.followingCount || 0}</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Following</p>
+              </button>
               <div className="px-6 py-3 bg-card border border-border rounded-2xl text-center shadow-sm">
                 <p className="text-2xl font-bold">{profileData.likes}</p>
                 <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Likes</p>
@@ -258,17 +270,17 @@ export default function ProfilePage() {
 
           {/* Stats Bar (Mobile/Tablet) */}
           <div className="flex lg:hidden items-center justify-around py-4 border-b border-border">
-            <div className="text-center">
+            <button onClick={() => setShowFollowers(true)} className="text-center">
               <p className="font-bold">{profileData.followersCount}</p>
               <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Followers</p>
-            </div>
+            </button>
+            <button onClick={() => setShowFollowing(true)} className="text-center">
+              <p className="font-bold">{profileData.followingCount || 0}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Following</p>
+            </button>
             <div className="text-center">
               <p className="font-bold">{profileData.likes}</p>
               <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Likes</p>
-            </div>
-            <div className="text-center">
-              <p className="font-bold">{profileData.readingList?.length || 0}</p>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Reading</p>
             </div>
           </div>
         </div>
@@ -297,16 +309,6 @@ export default function ProfilePage() {
             >
               <Users size={20} />
               About
-            </button>
-            <button 
-               onClick={() => setActiveTab('reading')}
-               className={cn(
-                "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium",
-                activeTab === 'reading' ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" : "hover:bg-secondary text-muted-foreground"
-              )}
-            >
-              <Heart size={20} />
-              Reading List
             </button>
             
             {user?.role !== 'child' && (
@@ -404,104 +406,6 @@ export default function ProfilePage() {
                 </motion.div>
               )}
 
-              {activeTab === 'reading' && (
-                <motion.div 
-                  key="reading"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="space-y-6"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
-                    <h2 className="text-2xl font-bold">Reading List</h2>
-                    <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
-                       {['All', 'Fiction', 'Fantasy', 'Mystery', 'Adventure', 'Romance'].map(genre => (
-                         <button
-                           key={genre}
-                           onClick={() => {
-                             setReadingGenre(genre)
-                             setReadingPage(1)
-                           }}
-                           className={cn(
-                             "px-4 py-1.5 rounded-full text-xs font-bold transition-all border shrink-0",
-                             readingGenre === genre 
-                               ? "bg-primary text-primary-foreground border-primary" 
-                               : "bg-secondary/50 text-muted-foreground border-transparent hover:border-border"
-                           )}
-                         >
-                           {genre}
-                         </button>
-                       ))}
-                    </div>
-                  </div>
-
-                  <div className="space-y-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {(() => {
-                        const filteredBooks = profileData.readingList?.filter(book => readingGenre === 'All' || book.tags?.includes(readingGenre)) || [];
-                        const startIndex = (readingPage - 1) * itemsPerPage;
-                        const paginatedBooks = filteredBooks.slice(startIndex, startIndex + itemsPerPage);
-                        const totalPages = Math.ceil(filteredBooks.length / itemsPerPage);
-
-                        if (filteredBooks.length > 0) {
-                          return (
-                            <>
-                              {paginatedBooks.map((book: any) => (
-                                <Link key={book._id} href={`/book/${book._id}`} className="flex gap-4 p-4 bg-card border border-border rounded-2xl hover:border-primary/50 transition-all group">
-                                  <div className="w-16 h-24 bg-secondary rounded-lg overflow-hidden flex-shrink-0">
-                                    {book.coverImage && <img src={book.coverImage} className="w-full h-full object-cover" />}
-                                  </div>
-                                  <div>
-                                    <h4 className="font-bold group-hover:text-primary transition-colors">{book.title}</h4>
-                                    <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{book.description || book.summary}</p>
-                                    <div className="flex gap-1 mt-2">
-                                      {book.tags?.slice(0, 2).map((tag: string) => (
-                                        <span key={tag} className="text-[10px] bg-secondary px-2 py-0.5 rounded text-muted-foreground">
-                                          {tag}
-                                        </span>
-                                      ))}
-                                    </div>
-                                  </div>
-                                </Link>
-                              ))}
-                              
-                              {totalPages > 1 && (
-                                <div className="col-span-full flex items-center justify-center gap-4 mt-4">
-                                  <button 
-                                    onClick={() => setReadingPage(prev => Math.max(1, prev - 1))}
-                                    disabled={readingPage === 1}
-                                    className="p-2 rounded-xl bg-secondary hover:bg-secondary/80 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                                  >
-                                    <ArrowLeft size={18} />
-                                  </button>
-                                  <span className="text-sm font-medium">
-                                    Page {readingPage} of {totalPages}
-                                  </span>
-                                  <button 
-                                    onClick={() => setReadingPage(prev => Math.min(totalPages, prev + 1))}
-                                    disabled={readingPage === totalPages}
-                                    className="p-2 rounded-xl bg-secondary hover:bg-secondary/80 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                                  >
-                                    <ChevronRight size={18} />
-                                  </button>
-                                </div>
-                              )}
-                            </>
-                          );
-                        } else {
-                          return (
-                            <div className="col-span-full p-12 bg-card/30 rounded-3xl text-center border border-border border-dashed">
-                              <p className="text-muted-foreground">
-                                {readingGenre === 'All' ? "Your reading list is empty." : `No stories found in ${readingGenre}.`}
-                              </p>
-                            </div>
-                          );
-                        }
-                      })()}
-                    </div>
-                  </div>
-                </motion.div>
-              )}
             </AnimatePresence>
           </main>
         </div>
@@ -646,6 +550,126 @@ export default function ProfilePage() {
                   </button>
                 </div>
               </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Followers Modal */}
+      <AnimatePresence>
+        {showFollowers && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowFollowers(false)}
+              className="absolute inset-0 bg-background/80 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-md bg-card border border-border rounded-[2rem] shadow-2xl overflow-hidden"
+            >
+              <div className="flex items-center justify-between p-6 border-b border-border">
+                <h3 className="text-xl font-bold">Followers</h3>
+                <button onClick={() => setShowFollowers(false)} className="p-2 hover:bg-secondary rounded-full transition-colors">
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="max-h-[60vh] overflow-y-auto p-4 space-y-4">
+                {profileData.followers && profileData.followers.length > 0 ? (
+                  profileData.followers.map((follower: any) => (
+                    <div key={follower._id} className="flex items-center justify-between gap-4 p-2 rounded-2xl hover:bg-secondary/50 transition-all">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-xl overflow-hidden bg-secondary">
+                          <img 
+                            src={follower.profilePicture || `https://ui-avatars.com/api/?name=${follower.username}&background=random`} 
+                            alt={follower.username} 
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div>
+                          <p className="font-bold">@{follower.username}</p>
+                          <p className="text-xs text-muted-foreground">User</p>
+                        </div>
+                      </div>
+                      <Link 
+                        href={`/profile/${follower._id}`}
+                        onClick={() => setShowFollowers(false)}
+                        className="px-4 py-1.5 bg-primary/10 text-primary hover:bg-primary text-xs font-bold rounded-full transition-all hover:text-primary-foreground"
+                      >
+                        View
+                      </Link>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-12">
+                    <p className="text-muted-foreground">No followers yet.</p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Following Modal */}
+      <AnimatePresence>
+        {showFollowing && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowFollowing(false)}
+              className="absolute inset-0 bg-background/80 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-md bg-card border border-border rounded-[2rem] shadow-2xl overflow-hidden"
+            >
+              <div className="flex items-center justify-between p-6 border-b border-border">
+                <h3 className="text-xl font-bold">Following</h3>
+                <button onClick={() => setShowFollowing(false)} className="p-2 hover:bg-secondary rounded-full transition-colors">
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="max-h-[60vh] overflow-y-auto p-4 space-y-4">
+                {profileData.following && profileData.following.length > 0 ? (
+                  profileData.following.map((followed: any) => (
+                    <div key={followed._id} className="flex items-center justify-between gap-4 p-2 rounded-2xl hover:bg-secondary/50 transition-all">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-xl overflow-hidden bg-secondary">
+                          <img 
+                            src={followed.profilePicture || `https://ui-avatars.com/api/?name=${followed.username}&background=random`} 
+                            alt={followed.username} 
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div>
+                          <p className="font-bold">@{followed.username}</p>
+                          <p className="text-xs text-muted-foreground">User</p>
+                        </div>
+                      </div>
+                      <Link 
+                        href={`/profile/${followed._id}`}
+                        onClick={() => setShowFollowing(false)}
+                        className="px-4 py-1.5 bg-primary/10 text-primary hover:bg-primary text-xs font-bold rounded-full transition-all hover:text-primary-foreground"
+                      >
+                        View
+                      </Link>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-12">
+                    <p className="text-muted-foreground">You are not following anyone yet.</p>
+                  </div>
+                )}
+              </div>
             </motion.div>
           </div>
         )}

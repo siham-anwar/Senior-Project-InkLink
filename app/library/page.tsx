@@ -2,19 +2,15 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import { Search, Plus, Bookmark, X, ChevronLeft } from 'lucide-react'
-import { libraryService, LibraryWork, CurrentlyReading, ReadingList as APIReadingList } from '../services/library.service'
+import { Search, ChevronLeft } from 'lucide-react'
+import { libraryService, LibraryWork, CurrentlyReading } from '../services/library.service'
 
 export default function LibraryPage() {
   const [mounted, setMounted] = useState(false)
   const [currentReadBooks, setCurrentReadBooks] = useState<CurrentlyReading[]>([])
   const [bookmarkedBooks, setBookmarkedBooks] = useState<LibraryWork[]>([])
-  const [readLists, setReadLists] = useState<APIReadingList[]>([])
   
-  const [showCreateReadList, setShowCreateReadList] = useState(false)
-  const [newListName, setNewListName] = useState('')
-  const [newListDescription, setNewListDescription] = useState('')
-  const [activeTab, setActiveTab] = useState<'current' | 'bookmarks' | 'lists'>('current')
+  const [activeTab, setActiveTab] = useState<'current' | 'bookmarks'>('current')
   
   const [isLoading, setIsLoading] = useState(true)
 
@@ -24,7 +20,6 @@ export default function LibraryPage() {
       const lib = await libraryService.getLibrary()
       setCurrentReadBooks(lib.currentlyReading || [])
       setBookmarkedBooks(lib.bookmarked || [])
-      setReadLists(lib.readLists || [])
     } catch (error) {
       console.error('Failed to fetch library:', error)
     } finally {
@@ -37,28 +32,6 @@ export default function LibraryPage() {
     fetchLibrary()
   }, [fetchLibrary])
 
-  const handleCreateReadList = async () => {
-    if (newListName.trim()) {
-      try {
-        const updatedLib = await libraryService.createReadList(newListName, newListDescription)
-        setReadLists(updatedLib.readLists || [])
-        setNewListName('')
-        setNewListDescription('')
-        setShowCreateReadList(false)
-      } catch (error) {
-        console.error('Failed to create read list:', error)
-      }
-    }
-  }
-
-  const handleDeleteReadList = async (id: string) => {
-    try {
-      const updatedLib = await libraryService.deleteReadList(id)
-      setReadLists(updatedLib.readLists || [])
-    } catch (error) {
-      console.error('Failed to delete read list:', error)
-    }
-  }
 
   const handleToggleBookmark = async (workId: string, e: React.MouseEvent) => {
     e.preventDefault();
@@ -116,19 +89,6 @@ export default function LibraryPage() {
             >
               Bookmarked
               {activeTab === 'bookmarks' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"></div>
-              )}
-            </button>
-            <button
-              onClick={() => setActiveTab('lists')}
-              className={`pb-4 font-medium transition-colors relative ${
-                activeTab === 'lists'
-                  ? 'text-primary'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              My Reading Lists
-              {activeTab === 'lists' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"></div>
               )}
             </button>
@@ -220,118 +180,6 @@ export default function LibraryPage() {
             ) : (
               <div className="text-center py-12">
                 <p className="text-muted-foreground">No bookmarked books yet</p>
-              </div>
-            )}
-          </section>
-        )}
-
-        {/* Read Lists Section */}
-        {activeTab === 'lists' && (
-          <section>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold">My Reading Lists</h2>
-              <button
-                onClick={() => setShowCreateReadList(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
-              >
-                <Plus size={18} />
-                <span className="text-sm font-medium">Create List</span>
-              </button>
-            </div>
-
-            {/* Create Read List Modal */}
-            {showCreateReadList && (
-              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                <div className="bg-background border border-border rounded-lg p-6 w-full max-w-md">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-bold">Create Reading List</h3>
-                    <button
-                      onClick={() => setShowCreateReadList(false)}
-                      className="p-1 hover:bg-secondary rounded-lg transition-colors"
-                    >
-                      <X size={20} />
-                    </button>
-                  </div>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">List Name</label>
-                      <input
-                        type="text"
-                        value={newListName}
-                        onChange={(e) => setNewListName(e.target.value)}
-                        placeholder="e.g., Sci-Fi Adventures"
-                        className="w-full px-3 py-2 bg-secondary border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Description (optional)</label>
-                      <textarea
-                        value={newListDescription}
-                        onChange={(e) => setNewListDescription(e.target.value)}
-                        placeholder="Describe your reading list..."
-                        rows={3}
-                        className="w-full px-3 py-2 bg-secondary border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-                      />
-                    </div>
-                    <div className="flex gap-3 pt-4">
-                      <button
-                        onClick={() => setShowCreateReadList(false)}
-                        className="flex-1 px-4 py-2 border border-border rounded-lg hover:bg-secondary transition-colors"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        onClick={handleCreateReadList}
-                        className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium"
-                      >
-                        Create
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Read Lists Grid */}
-            {readLists.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {readLists.map((list) => (
-                  <div
-                    key={list._id}
-                    className="bg-secondary/50 border border-border rounded-lg p-4 hover:border-primary/50 transition-colors group"
-                  >
-                    <div className="flex items-start justify-between mb-3">
-                      <h3 className="font-bold text-lg line-clamp-2">{list.name}</h3>
-                      <button
-                        onClick={() => handleDeleteReadList(list._id)}
-                        className="p-1 opacity-0 group-hover:opacity-100 hover:bg-destructive/10 rounded-lg transition-all"
-                      >
-                        <X size={18} className="text-destructive" />
-                      </button>
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{list.description}</p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">{list.works?.length || 0} books</span>
-                      <Link
-                        href={`/library/list/${list._id}`}
-                        className="text-sm font-medium text-primary hover:underline"
-                      >
-                        View
-                      </Link>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground mb-4">No reading lists yet</p>
-                <button
-                  onClick={() => setShowCreateReadList(true)}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
-                >
-                  <Plus size={18} />
-                  Create Your First List
-                </button>
               </div>
             )}
           </section>
