@@ -11,8 +11,14 @@ import {
   Sparkles,
   Users,
   Landmark,
+  Sun,
+  Moon,
+  LogOut,
 } from 'lucide-react'
 import { cn } from '@/lib/cn'
+import { useThemeStore } from '@/app/store/theme-store'
+import { useAuthStore } from '@/app/store/authstore'
+import { useRouter } from 'next/navigation'
 
 const adminLinks = [
   { href: '/admin/authors', label: 'Authors', icon: BookOpen },
@@ -25,9 +31,17 @@ const adminLinks = [
 
 export function AdminSidebar() {
   const pathname = usePathname()
+  const router = useRouter()
+  const { theme, toggleTheme } = useThemeStore()
+  const logout = useAuthStore((state) => state.logout)
+
+  const handleLogout = async () => {
+    await logout()
+    router.push('/auth/login')
+  }
 
   return (
-    <aside className="flex w-full flex-col overflow-hidden border-b border-border/70 bg-[radial-gradient(circle_at_top,_rgba(139,0,0,0.14),_transparent_30%),linear-gradient(180deg,rgba(255,255,255,0.98),rgba(248,250,252,0.92))] dark:bg-[radial-gradient(circle_at_top,_rgba(139,0,0,0.16),_transparent_28%),linear-gradient(180deg,rgba(10,10,10,0.98),rgba(18,18,18,0.96))] lg:sticky lg:top-0 lg:h-screen lg:max-w-[300px] lg:border-b-0 lg:border-r">
+    <aside className="flex h-full w-full flex-col overflow-hidden border-b border-border/70 bg-[radial-gradient(circle_at_top,_rgba(139,0,0,0.14),_transparent_30%),linear-gradient(180deg,rgba(255,255,255,0.98),rgba(248,250,252,0.92))] dark:bg-[radial-gradient(circle_at_top,_rgba(139,0,0,0.16),_transparent_28%),linear-gradient(180deg,rgba(10,10,10,0.98),rgba(18,18,18,0.96))] lg:sticky lg:top-0 lg:h-screen lg:max-w-[300px] lg:border-b-0 lg:border-r">
 
       {/* HEADER */}
       <div className="border-b border-border/70 px-6 py-7">
@@ -101,13 +115,31 @@ export function AdminSidebar() {
       </div>
 
       {/* FOOTER */}
-      <div className="border-t border-border/70 px-6 py-5">
-        <div className="rounded-2xl border border-border/70 bg-background/75 px-4 py-4">
-          <p className="text-sm font-semibold text-foreground">
-            Centralized admin access
-          </p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Review authors, content, moderation, premium, and users from one place.
+      <div className="border-t border-border/70 p-4 space-y-3">
+        <div className="flex items-center justify-between gap-2">
+          <button
+            onClick={toggleTheme}
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-background/50 px-4 py-3 text-sm font-bold text-foreground transition-all hover:bg-background shadow-sm"
+          >
+            {theme === 'dark' ? (
+              <><Sun className="h-4 w-4 text-yellow-500" /> Light</>
+            ) : (
+              <><Moon className="h-4 w-4 text-neutral-600" /> Dark</>
+            )}
+          </button>
+          
+          <button
+            onClick={handleLogout}
+            className="flex h-11 w-11 items-center justify-center rounded-xl border border-red-200/50 bg-red-50/50 text-red-600 transition-all hover:bg-red-50 hover:shadow-md dark:border-red-900/30 dark:bg-red-900/20 dark:text-red-400"
+            title="Sign Out"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="rounded-xl border border-border/70 bg-background/40 p-3 text-center">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+            Version 2.4.0
           </p>
         </div>
       </div>

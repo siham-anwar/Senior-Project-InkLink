@@ -87,156 +87,134 @@ export default function AdminAuthorsPage() {
   const nonMonetizedCount = authors.length - monetizedCount
 
   return (
-    <main style={{ backgroundColor: '#ffffff' }} className="min-h-screen">
+    <main className="min-h-screen bg-neutral-50 dark:bg-neutral-950 transition-colors duration-300">
       {/* Header */}
-      <div className="sticky top-0 z-20 border-b" style={{ borderColor: '#e5e5e5', backgroundColor: '#ffffff' }}>
-        <div className="w-full px-6 py-6">
-          <Link href="/admin" className="mb-4 inline-flex items-center gap-2 transition-colors hover:text-opacity-80" style={{ color: '#8b0000' }}>
+      <div className="sticky top-0 z-20 border-b bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md border-neutral-200 dark:border-neutral-800">
+        <div className="w-full px-6 py-8">
+          <Link href="/admin" className="mb-4 inline-flex items-center gap-2 text-primary transition-all hover:opacity-80">
             <ArrowLeft className="h-5 w-5" />
-            <span className="text-sm font-semibold">Back</span>
+            <span className="text-sm font-black uppercase tracking-widest">Back</span>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold" style={{ color: '#0a0a0a' }}>Authors</h1>
-            <p className="mt-1 text-sm" style={{ color: '#525252' }}>{authors.length} creators on the platform</p>
-            {error && <p className="mt-2 text-sm" style={{ color: '#8b0000' }}>{error}</p>}
+            <h1 className="text-3xl font-black tracking-tight text-neutral-900 dark:text-white">Authors</h1>
+            <p className="mt-1 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">{authors.length} creators on the platform</p>
+            {error && <p className="mt-2 text-sm font-bold text-red-500">{error}</p>}
           </div>
         </div>
       </div>
 
-      <div className="w-full max-w-full px-6 py-12">
+      <div className="w-full px-6 py-12">
         {/* Search & Filter */}
-        <div className="mb-12 space-y-5">
+        <div className="mb-12 space-y-6">
           <div className="relative max-w-md group">
-            <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2" style={{ color: '#525252' }} />
+            <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-400 group-focus-within:text-primary transition-colors" />
             <input
               type="text"
               placeholder="Search by name, username..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full rounded-lg border py-3 pl-12 pr-4 text-base transition-all outline-none"
-              style={{
-                backgroundColor: '#fafafa',
-                borderColor: '#e5e5e5',
-                color: '#0a0a0a'
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.backgroundColor = '#ffffff'
-                e.currentTarget.style.borderColor = '#8b0000'
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.backgroundColor = '#fafafa'
-                e.currentTarget.style.borderColor = '#e5e5e5'
-              }}
+              className="w-full rounded-2xl border border-neutral-200 bg-white py-4 pl-12 pr-4 text-base transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:focus:border-primary"
             />
           </div>
 
           {/* Tab Buttons */}
-          <div className="flex gap-3">
+          <div className="flex gap-2 p-1 w-fit rounded-2xl bg-neutral-200/50 dark:bg-neutral-800/50">
             <button
               onClick={() => setActiveTab('monetized')}
-              className="px-6 py-3 font-bold text-sm rounded-lg transition-all duration-300"
-              style={{
-                backgroundColor: activeTab === 'monetized' ? '#8b0000' : '#fafafa',
-                color: activeTab === 'monetized' ? '#ffffff' : '#0a0a0a',
-                border: activeTab === 'monetized' ? 'none' : '1px solid #e5e5e5'
-              }}
+              className={cn(
+                "px-8 py-2.5 font-bold text-xs rounded-xl transition-all duration-300 uppercase tracking-widest",
+                activeTab === 'monetized' 
+                  ? "bg-white dark:bg-neutral-700 text-primary shadow-sm" 
+                  : "text-neutral-500 hover:text-neutral-700 dark:text-neutral-400"
+              )}
             >
               Monetized ({monetizedCount})
             </button>
             <button
               onClick={() => setActiveTab('non-monetized')}
-              className="px-6 py-3 font-bold text-sm rounded-lg transition-all duration-300"
-              style={{
-                backgroundColor: activeTab === 'non-monetized' ? '#8b0000' : '#fafafa',
-                color: activeTab === 'non-monetized' ? '#ffffff' : '#0a0a0a',
-                border: activeTab === 'non-monetized' ? 'none' : '1px solid #e5e5e5'
-              }}
+              className={cn(
+                "px-8 py-2.5 font-bold text-xs rounded-xl transition-all duration-300 uppercase tracking-widest",
+                activeTab === 'non-monetized' 
+                  ? "bg-white dark:bg-neutral-700 text-primary shadow-sm" 
+                  : "text-neutral-500 hover:text-neutral-700 dark:text-neutral-400"
+              )}
             >
-              Non-Monetized ({nonMonetizedCount})
+              Pending ({nonMonetizedCount})
             </button>
           </div>
         </div>
 
         {/* Authors Grid */}
         {filteredAuthors.length > 0 ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filteredAuthors.map((entry) => (
               <div
                 key={entry.id}
-                className="relative overflow-hidden rounded-lg border transition-all duration-300 hover:shadow-md p-5 space-y-4"
-                style={{
-                  backgroundColor: '#fafafa',
-                  borderColor: '#e5e5e5'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#ffffff'
-                  e.currentTarget.style.borderColor = '#8b0000'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#fafafa'
-                  e.currentTarget.style.borderColor = '#e5e5e5'
-                }}
+                className="group relative overflow-hidden rounded-3xl border border-neutral-200 bg-white p-6 transition-all duration-300 hover:shadow-xl dark:border-neutral-800 dark:bg-neutral-900"
               >
                 {/* Header */}
-                <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start justify-between gap-4">
                   <div className="flex-shrink-0">
                     {entry.profileImage ? (
                       <img
                         src={entry.profileImage}
                         alt={entry.name}
-                        className="h-14 w-14 rounded-lg border-2 object-cover"
-                        style={{ borderColor: '#e5e5e5' }}
+                        className="h-16 w-16 rounded-2xl border-2 border-neutral-100 object-cover dark:border-neutral-800"
                       />
                     ) : (
-                      <div className="flex h-14 w-14 items-center justify-center rounded-lg border-2 text-base font-bold" style={{ borderColor: '#e5e5e5', backgroundColor: '#fafafa', color: '#8b0000' }}>
+                      <div className="flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-dashed border-primary/30 bg-primary/5 text-xl font-black text-primary">
                         {entry.name.charAt(0).toUpperCase()}
                       </div>
                     )}
                   </div>
                   <button
                     onClick={() => void handleDeleteAuthor(entry.id)}
-                    className="rounded-lg p-2 transition-colors hover:bg-red-100"
+                    className="rounded-xl p-2.5 text-neutral-400 transition-all hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20"
                     title="Delete author"
                   >
-                    <Trash2 className="h-5 w-5" style={{ color: '#525252' }} />
+                    <Trash2 className="h-5 w-5" />
                   </button>
                 </div>
 
                 {/* Info */}
-                <div className="space-y-2 min-w-0">
-                  <h3 className="font-bold truncate text-base" style={{ color: '#0a0a0a' }}>{entry.name}</h3>
-                  <p className="text-sm font-semibold truncate" style={{ color: '#8b0000' }}>@{entry.username}</p>
-                  <p className="text-xs line-clamp-2 min-h-[2.5rem]" style={{ color: '#525252' }}>
-                    {entry.bio || 'No bio'}
+                <div className="mt-6 space-y-2 min-w-0">
+                  <h3 className="font-bold truncate text-lg text-neutral-900 dark:text-white">{entry.name}</h3>
+                  <p className="text-sm font-black text-primary/80">@{entry.username}</p>
+                  <p className="text-sm line-clamp-2 min-h-[2.5rem] text-neutral-500 dark:text-neutral-400">
+                    {entry.bio || 'No bio provided for this creator.'}
                   </p>
                 </div>
 
                 {/* Stats */}
-                <div className="pt-2 border-t" style={{ borderColor: '#e5e5e5' }}>
-                  <p className="text-xs font-semibold" style={{ color: '#525252' }}>
+                <div className="mt-6 pt-4 border-t border-neutral-100 dark:border-neutral-800 flex items-center justify-between">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400">
                     {(entry.followers || 0).toLocaleString()} followers
                   </p>
+                  <span className={cn(
+                    "h-2 w-2 rounded-full",
+                    entry.isMonetized ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-neutral-300 dark:bg-neutral-700"
+                  )} />
                 </div>
 
                 {/* Action */}
                 <button
                   onClick={() => void handleMonetization(entry.id, !entry.isMonetized)}
-                  className="w-full py-2 px-3 rounded-lg font-bold text-xs transition-all duration-300"
-                  style={{
-                    backgroundColor: entry.isMonetized ? '#8b0000' : '#ffffff',
-                    color: entry.isMonetized ? '#ffffff' : '#8b0000',
-                    border: entry.isMonetized ? 'none' : '1px solid #8b0000'
-                  }}
+                  className={cn(
+                    "mt-6 w-full py-3 px-4 rounded-xl font-black text-xs transition-all duration-300 uppercase tracking-widest",
+                    entry.isMonetized 
+                      ? "bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400" 
+                      : "bg-primary text-white hover:shadow-lg hover:shadow-primary/20"
+                  )}
                 >
-                  {entry.isMonetized ? 'Demonetize' : 'Monetize'}
+                  {entry.isMonetized ? 'Demonetize' : 'Approve Monetization'}
                 </button>
               </div>
             ))}
           </div>
         ) : (
-          <div className="rounded-lg border py-20 text-center" style={{ backgroundColor: '#fafafa', borderColor: '#e5e5e5' }}>
-            <p className="text-2xl font-bold" style={{ color: '#0a0a0a' }}>No authors found</p>
-            <p style={{ color: '#525252' }} className="mt-2">Try adjusting your filters</p>
+          <div className="rounded-3xl border border-dashed border-neutral-200 py-32 text-center dark:border-neutral-800">
+            <p className="text-2xl font-black text-neutral-900 dark:text-white">No authors found</p>
+            <p className="mt-2 text-neutral-500 dark:text-neutral-400">Try adjusting your filters or check pending requests.</p>
           </div>
         )}
       </div>

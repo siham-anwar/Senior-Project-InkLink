@@ -98,38 +98,38 @@ export default function AdminContentPage() {
   if (!user || user.role !== 'admin') return null
 
   return (
-    <main className="min-h-screen bg-white">
-      <div className="sticky top-0 z-20 border-b border-neutral-200 bg-white">
-        <div className="w-full px-6 py-6">
+    <main className="min-h-screen bg-neutral-50 dark:bg-neutral-950 transition-colors duration-300">
+      <div className="sticky top-0 z-20 border-b bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md border-neutral-200 dark:border-neutral-800">
+        <div className="w-full px-6 py-8">
           <Link
             href="/admin"
-            className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-red-700 transition-colors hover:text-red-600"
+            className="mb-4 inline-flex items-center gap-2 text-primary transition-all hover:opacity-80"
           >
             <ArrowLeft className="h-5 w-5" />
-            <span>Back</span>
+            <span className="text-sm font-black uppercase tracking-widest">Back</span>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold text-neutral-950">Content</h1>
-            <p className="mt-1 text-sm text-neutral-600">{chapters.length} total chapters</p>
-            {error && <p className="mt-2 text-sm text-red-700">{error}</p>}
+            <h1 className="text-3xl font-black tracking-tight text-neutral-900 dark:text-white">Content</h1>
+            <p className="mt-1 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">{chapters.length} total chapters</p>
+            {error && <p className="mt-2 text-sm font-bold text-red-500">{error}</p>}
           </div>
         </div>
       </div>
 
       <div className="w-full px-6 py-12">
-        <div className="mb-10 flex flex-col gap-5">
-          <div className="relative max-w-md">
-            <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-500" />
+        <div className="mb-12 flex flex-col gap-6">
+          <div className="relative max-w-md group">
+            <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-400 group-focus-within:text-primary transition-colors" />
             <input
               type="text"
-              placeholder="Search chapters, works, authors, or text..."
+              placeholder="Search chapters, works, authors..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full rounded-xl border border-neutral-200 bg-neutral-50 py-3 pl-12 pr-4 text-base text-neutral-950 outline-none transition-all focus:border-red-700 focus:bg-white"
+              className="w-full rounded-2xl border border-neutral-200 bg-white py-4 pl-12 pr-4 text-base transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:focus:border-primary"
             />
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 p-1 w-fit rounded-2xl bg-neutral-200/50 dark:bg-neutral-800/50">
             {([
               ['success', 'Published'],
               ['warning', 'Pending'],
@@ -138,11 +138,12 @@ export default function AdminContentPage() {
               <button
                 key={status}
                 onClick={() => setActiveTab(status)}
-                className={`rounded-xl px-4 py-2 text-sm font-semibold transition-all ${
+                className={cn(
+                  "px-6 py-2.5 font-bold text-xs rounded-xl transition-all duration-300 uppercase tracking-widest",
                   activeTab === status
-                    ? 'bg-red-700 text-white'
-                    : 'border border-neutral-200 bg-neutral-50 text-neutral-900 hover:border-red-200 hover:bg-white'
-                }`}
+                    ? "bg-white dark:bg-neutral-700 text-primary shadow-sm"
+                    : "text-neutral-500 hover:text-neutral-700 dark:text-neutral-400"
+                )}
               >
                 {label} ({statusCounts[status]})
               </button>
@@ -151,66 +152,70 @@ export default function AdminContentPage() {
         </div>
 
         {filteredChapters.length > 0 ? (
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 gap-4">
             {filteredChapters.map((chapter) => (
               <div
                 key={chapter.id}
-                className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5 transition-all hover:border-red-200 hover:bg-white hover:shadow-sm"
+                className="group relative overflow-hidden rounded-3xl border border-neutral-200 bg-white p-6 transition-all duration-300 hover:shadow-xl dark:border-neutral-800 dark:bg-neutral-900"
               >
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start justify-between gap-6">
                   <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="truncate text-lg font-bold text-neutral-950">{chapter.title}</h3>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <h3 className="text-lg font-bold text-neutral-900 dark:text-white">{chapter.title}</h3>
                       <span
-                        className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                        className={cn(
+                          "rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest",
                           chapter.status === 'success'
-                            ? 'bg-green-100 text-green-700'
+                            ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400"
                             : chapter.status === 'warning'
-                              ? 'bg-amber-100 text-amber-700'
-                              : 'bg-red-100 text-red-700'
-                        }`}
+                              ? "bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400"
+                              : "bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400"
+                        )}
                       >
                         {chapter.status === 'success'
-                          ? 'Published'
+                          ? 'Live'
                           : chapter.status === 'warning'
-                            ? 'Pending'
+                            ? 'Review'
                             : 'Failed'}
                       </span>
                     </div>
-                    <p className="mt-1 text-sm text-neutral-600">
-                      <span className="font-semibold text-red-700">{chapter.workTitle}</span> by{' '}
-                      {chapter.author}
+                    <p className="mt-2 text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                      <span className="font-black text-primary uppercase tracking-wider">{chapter.workTitle}</span>
+                      <span className="mx-2 text-neutral-300">/</span>
+                      <span className="text-neutral-900 dark:text-white">@{chapter.author}</span>
                     </p>
-                    <p className="mt-2 text-xs text-neutral-500">
-                      Updated {new Date(chapter.publishedAt).toLocaleString()}
+                    <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400 italic">
+                      "{chapter.content || 'No description provided.'}"
                     </p>
-                    <p className="mt-3 line-clamp-2 text-sm text-neutral-700">
-                      {chapter.content || 'No chapter text available.'}
-                    </p>
+                    <div className="mt-4 flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-neutral-400">
+                      <span>Ref ID: {chapter.id.slice(-6)}</span>
+                      <span className="h-1 w-1 rounded-full bg-neutral-300" />
+                      <span>{new Date(chapter.publishedAt).toLocaleDateString()}</span>
+                    </div>
                   </div>
 
-                  <div className="flex flex-shrink-0 gap-2">
+                  <div className="flex flex-shrink-0 items-center gap-2">
                     <button
                       onClick={() => setSelectedChapter(chapter)}
-                      className="rounded-xl border border-neutral-200 bg-white p-2.5 text-neutral-700 transition-colors hover:border-red-200 hover:text-red-700"
-                      title="Read chapter"
+                      className="rounded-xl border border-neutral-200 bg-white p-3 text-neutral-600 transition-all hover:bg-neutral-50 hover:text-primary dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400"
+                      title="Preview content"
                     >
-                      <Eye className="h-4 w-4" />
+                      <Eye className="h-5 w-5" />
                     </button>
                     {chapter.status !== 'success' && (
                       <button
                         onClick={() => void handlePublishChapter(chapter.id)}
-                        className="rounded-xl bg-red-700 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-red-800"
+                        className="rounded-xl bg-primary px-5 py-3 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95"
                       >
-                        Publish
+                        Approve
                       </button>
                     )}
                     <button
                       onClick={() => void handleDeleteChapter(chapter.id)}
-                      className="rounded-xl border border-neutral-200 bg-white p-2.5 text-neutral-700 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-700"
-                      title="Delete chapter"
+                      className="rounded-xl border border-neutral-200 bg-white p-3 text-neutral-400 transition-all hover:bg-rose-50 hover:text-rose-600 dark:border-neutral-800 dark:bg-neutral-900 dark:hover:bg-rose-900/20"
+                      title="Delete entry"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-5 w-5" />
                     </button>
                   </div>
                 </div>
@@ -218,34 +223,47 @@ export default function AdminContentPage() {
             ))}
           </div>
         ) : (
-          <div className="rounded-2xl border border-neutral-200 bg-neutral-50 py-16 text-center">
-            <p className="text-xl font-bold text-neutral-950">No chapters found</p>
-            <p className="mt-1 text-neutral-600">Try adjusting your search or status filter.</p>
+          <div className="rounded-3xl border border-dashed border-neutral-200 py-32 text-center dark:border-neutral-800">
+            <p className="text-2xl font-black text-neutral-900 dark:text-white">No content found</p>
+            <p className="mt-2 text-neutral-500 dark:text-neutral-400">Try adjusting your filters or search keywords.</p>
           </div>
         )}
       </div>
 
+      {/* Modal Overlay */}
       {selectedChapter && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4">
-          <div className="max-h-[85vh] w-full max-w-3xl overflow-hidden rounded-3xl bg-white shadow-2xl">
-            <div className="flex items-start justify-between border-b border-neutral-200 px-6 py-5">
-              <div>
-                <h2 className="text-2xl font-bold text-neutral-950">{selectedChapter.title}</h2>
-                <p className="mt-1 text-sm text-neutral-600">
-                  {selectedChapter.workTitle} by {selectedChapter.author}
-                </p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-300">
+          <div className="max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-[2.5rem] bg-white shadow-2xl dark:bg-neutral-900 animate-in zoom-in-95 duration-300">
+            <div className="flex items-start justify-between border-b border-neutral-100 px-8 py-8 dark:border-neutral-800">
+              <div className="space-y-1">
+                <h2 className="text-3xl font-black tracking-tight text-neutral-900 dark:text-white">{selectedChapter.title}</h2>
+                <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-primary">
+                  <span>{selectedChapter.workTitle}</span>
+                  <span className="text-neutral-300">by</span>
+                  <span className="text-neutral-600 dark:text-neutral-300">@{selectedChapter.author}</span>
+                </div>
               </div>
               <button
                 onClick={() => setSelectedChapter(null)}
-                className="rounded-full px-3 py-1 text-sm font-semibold text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
+                className="rounded-2xl bg-neutral-100 p-3 text-neutral-500 transition-all hover:bg-neutral-200 hover:text-neutral-900 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-white"
               >
-                Close
+                <Trash2 className="h-6 w-6 rotate-45" />
               </button>
             </div>
-            <div className="max-h-[calc(85vh-88px)] overflow-y-auto px-6 py-5">
-              <p className="whitespace-pre-wrap text-sm leading-7 text-neutral-800">
-                {selectedChapter.content || 'No chapter text available.'}
-              </p>
+            <div className="max-h-[calc(90vh-140px)] overflow-y-auto px-10 py-10">
+              <div className="prose prose-neutral dark:prose-invert max-w-none">
+                <p className="whitespace-pre-wrap text-lg leading-relaxed text-neutral-700 dark:text-neutral-300">
+                  {selectedChapter.content || 'This chapter has no content body.'}
+                </p>
+              </div>
+            </div>
+            <div className="border-t border-neutral-100 p-6 flex justify-end dark:border-neutral-800">
+               <button 
+                onClick={() => setSelectedChapter(null)}
+                className="px-8 py-3 rounded-2xl bg-primary text-white font-black uppercase tracking-widest text-xs"
+               >
+                 Close Preview
+               </button>
             </div>
           </div>
         </div>

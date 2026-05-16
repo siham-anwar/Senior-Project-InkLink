@@ -64,17 +64,17 @@ export default function AdminUsersPage() {
   if (!user || user.role !== 'admin') return null
 
   return (
-    <main style={{ backgroundColor: '#ffffff' }} className="min-h-screen">
+    <main className="min-h-screen bg-neutral-50 dark:bg-neutral-950 transition-colors duration-300">
       {/* Header */}
-      <div className="sticky top-0 z-20 border-b" style={{ borderColor: '#e5e5e5', backgroundColor: '#ffffff' }}>
-        <div className="mx-auto max-w-7xl px-6 py-6">
+      <div className="sticky top-0 z-20 border-b bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md border-neutral-200 dark:border-neutral-800">
+        <div className="mx-auto max-w-7xl px-6 py-8">
           <div className="flex items-center gap-4">
-            <Link href="/admin" className="rounded-lg p-2 transition-colors hover:bg-gray-100">
-              <ArrowLeft className="h-5 w-5" style={{ color: '#8b0000' }} />
+            <Link href="/admin" className="rounded-xl p-2 transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800">
+              <ArrowLeft className="h-6 w-6 text-primary" />
             </Link>
             <div>
-              <h1 className="text-3xl font-bold" style={{ color: '#0a0a0a' }}>Users</h1>
-              <p className="text-sm mt-0.5" style={{ color: '#525252' }}>{users.length} platform members</p>
+              <h1 className="text-3xl font-black tracking-tight text-neutral-900 dark:text-white">Users</h1>
+              <p className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">{users.length} platform members</p>
             </div>
           </div>
         </div>
@@ -84,112 +84,88 @@ export default function AdminUsersPage() {
         {/* Search Section */}
         <div className="mb-12 space-y-4">
           <div className="relative max-w-md group">
-            <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2" style={{ color: '#525252' }} />
+            <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-400 group-focus-within:text-primary transition-colors" />
             <input
               type="text"
               placeholder="Search by name, email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full rounded-lg border py-3 pl-12 pr-4 text-base transition-all outline-none"
-              style={{
-                backgroundColor: '#fafafa',
-                borderColor: '#e5e5e5',
-                color: '#0a0a0a'
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.backgroundColor = '#ffffff'
-                e.currentTarget.style.borderColor = '#8b0000'
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.backgroundColor = '#fafafa'
-                e.currentTarget.style.borderColor = '#e5e5e5'
-              }}
+              className="w-full rounded-2xl border border-neutral-200 bg-white py-4 pl-12 pr-4 text-base transition-all outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:focus:border-primary"
             />
           </div>
           <div className="flex items-center justify-between text-sm">
-            <p style={{ color: '#525252' }}>
-              Showing <span className="font-bold" style={{ color: '#0a0a0a' }}>{filteredUsers.length}</span> of <span className="font-bold" style={{ color: '#0a0a0a' }}>{users.length}</span> users
+            <p className="text-neutral-500 dark:text-neutral-400">
+              Showing <span className="font-bold text-neutral-900 dark:text-white">{filteredUsers.length}</span> of <span className="font-bold text-neutral-900 dark:text-white">{users.length}</span> users
             </p>
-            {error && <p style={{ color: '#8b0000' }} className="font-medium">{error}</p>}
+            {error && <p className="font-bold text-red-500">{error}</p>}
           </div>
         </div>
 
         {/* Users Grid */}
         {filteredUsers.length > 0 ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filteredUsers.map((entry) => (
               <div
                 key={entry.id}
-                className="relative overflow-hidden rounded-lg border transition-all duration-300 hover:shadow-md p-5 space-y-4"
-                style={{
-                  backgroundColor: '#fafafa',
-                  borderColor: '#e5e5e5'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#ffffff'
-                  e.currentTarget.style.borderColor = '#8b0000'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#fafafa'
-                  e.currentTarget.style.borderColor = '#e5e5e5'
-                }}
+                className="group relative overflow-hidden rounded-3xl border border-neutral-200 bg-white p-6 transition-all duration-300 hover:shadow-xl dark:border-neutral-800 dark:bg-neutral-900"
               >
                 {/* Header with avatar and delete button */}
-                <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start justify-between gap-4">
                   <div className="flex-shrink-0">
                     {entry.profileImage ? (
                       <img
                         src={entry.profileImage}
                         alt={entry.name}
-                        className="h-14 w-14 rounded-lg border-2 object-cover"
-                        style={{ borderColor: '#e5e5e5' }}
+                        className="h-16 w-16 rounded-2xl border-2 border-neutral-100 object-cover dark:border-neutral-800"
                       />
                     ) : (
-                      <div className="flex h-14 w-14 items-center justify-center rounded-lg border-2 text-base font-bold" style={{ borderColor: '#e5e5e5', backgroundColor: '#fafafa', color: '#8b0000' }}>
+                      <div className="flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-dashed border-primary/30 bg-primary/5 text-xl font-black text-primary">
                         {entry.name.charAt(0).toUpperCase()}
                       </div>
                     )}
                   </div>
                   <button
                     onClick={() => void handleDeleteUser(entry.id)}
-                    className="rounded-lg p-2 transition-colors hover:bg-red-100"
+                    className="rounded-xl p-2.5 text-neutral-400 transition-all hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20"
                     title="Delete user"
                   >
-                    <Trash2 className="h-5 w-5" style={{ color: '#525252' }} />
+                    <Trash2 className="h-5 w-5" />
                   </button>
                 </div>
 
                 {/* User Info */}
-                <div className="space-y-2 min-w-0">
-                  <h3 className="font-bold truncate text-base" style={{ color: '#0a0a0a' }}>
+                <div className="mt-6 space-y-2 min-w-0">
+                  <h3 className="font-bold truncate text-lg text-neutral-900 dark:text-white">
                     {entry.name}
                   </h3>
-                  <p className="text-sm font-medium truncate" style={{ color: '#8b0000' }}>
+                  <p className="text-sm font-bold truncate text-primary/80">
                     {entry.email || 'No email'}
                   </p>
-                  <p className="text-xs line-clamp-2 min-h-[2.5rem]" style={{ color: '#525252' }}>
+                  <p className="text-sm line-clamp-2 min-h-[2.5rem] text-neutral-500 dark:text-neutral-400">
                     {entry.bio || 'No bio provided'}
                   </p>
                 </div>
 
                 {/* Footer */}
-                <div className="pt-3 border-t" style={{ borderColor: '#e5e5e5' }}>
-                  <p className="text-xs" style={{ color: '#525252' }}>
-                    Joined {new Date(entry.joinDate).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric'
-                    })}
-                  </p>
+                <div className="mt-6 pt-4 border-t border-neutral-100 dark:border-neutral-800">
+                  <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-neutral-400">
+                    <span>Member Since</span>
+                    <span className="text-neutral-500 dark:text-neutral-300">
+                      {new Date(entry.joinDate).toLocaleDateString('en-US', {
+                        month: 'short',
+                        year: 'numeric'
+                      })}
+                    </span>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <div className="rounded-lg border py-20 text-center" style={{ backgroundColor: '#fafafa', borderColor: '#e5e5e5' }}>
+          <div className="rounded-3xl border border-dashed border-neutral-200 py-32 text-center dark:border-neutral-800">
             <div className="space-y-3">
-              <p className="text-2xl font-bold" style={{ color: '#0a0a0a' }}>No users found</p>
-              <p style={{ color: '#525252' }}>Try adjusting your search filters</p>
+              <p className="text-2xl font-black text-neutral-900 dark:text-white">No users found</p>
+              <p className="text-neutral-500 dark:text-neutral-400">Try adjusting your search filters or check your connection.</p>
             </div>
           </div>
         )}

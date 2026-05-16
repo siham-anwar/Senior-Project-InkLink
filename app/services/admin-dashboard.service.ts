@@ -121,4 +121,21 @@ export const AdminDashboardService = {
     const res = await api.get('/admin/revenue')
     return res.data
   },
+
+  getSubscriptions: async () => {
+    const res = await api.get('/admin/subscriptions')
+    return res.data as AdminSubscriptionDto[]
+  },
+}
+
+export interface AdminSubscriptionDto {
+  id: string
+  userId: string
+  username: string
+  email: string
+  plan: string
+  price: number
+  status: string
+  startDate: string
+  endDate: string
 }

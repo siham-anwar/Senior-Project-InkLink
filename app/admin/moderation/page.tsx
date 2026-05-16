@@ -189,152 +189,142 @@ export default function AdminModerationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-amber-50/30 to-white">
-      <main className="mx-auto max-w-6xl px-6 py-12">
+    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 transition-colors duration-300">
+      <main className="mx-auto max-w-7xl px-6 py-12">
         <div className="mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div>
-            <h1 className="text-4xl font-extrabold tracking-tight text-[#2d2d2d] lg:text-5xl">
+            <h1 className="text-4xl font-black tracking-tight text-neutral-900 dark:text-white lg:text-5xl">
               Moderation
             </h1>
-            <p className="mt-3 text-lg text-gray-600">
-              Review AI-flagged works, approve, reject, or flag for manual follow-up.
+            <p className="mt-3 text-lg font-medium text-neutral-500 dark:text-neutral-400">
+              Review AI-flagged works and enforce community standards.
             </p>
           </div>
           <Button
             variant="outline"
             asChild
-            className="rounded-full border-amber-100 text-[#8B1A1A] hover:border-[#8B1A1A]/30 hover:bg-white"
+            className="rounded-2xl border-neutral-200 bg-white shadow-sm hover:bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white"
           >
-            <Link href="/dashboard">Back to dashboard</Link>
+            <Link href="/admin">Back to dashboard</Link>
           </Button>
         </div>
 
-        <Card className="border-amber-100 bg-white">
-          <CardHeader className="flex flex-col gap-4 border-b border-amber-100 sm:flex-row sm:items-center sm:justify-between">
+        <Card className="rounded-[2rem] border-neutral-200 bg-white shadow-xl shadow-neutral-200/50 dark:border-neutral-800 dark:bg-neutral-900 dark:shadow-none overflow-hidden">
+          <CardHeader className="flex flex-col gap-4 border-b border-neutral-100 dark:border-neutral-800 p-8 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <CardTitle className="text-lg text-[#2d2d2d]">Review queue</CardTitle>
-              <CardDescription className="text-gray-600">
-                Filter by status. Scores reflect the last automated moderation run on this work.
+              <CardTitle className="text-xl font-black text-neutral-900 dark:text-white">Review queue</CardTitle>
+              <CardDescription className="text-neutral-500 dark:text-neutral-400 mt-1">
+                Scores reflect the last automated moderation run.
               </CardDescription>
             </div>
             <Tabs
               value={filter}
               onValueChange={(v) => setFilter(v as AdminModerationQueueStatus)}
+              className="bg-neutral-100 dark:bg-neutral-800 p-1 rounded-xl"
             >
-              <TabsList>
-                <TabsTrigger value="needs_admin_review">Needs review</TabsTrigger>
-                <TabsTrigger value="rejected">Rejected</TabsTrigger>
-                <TabsTrigger value="all">All flagged</TabsTrigger>
+              <TabsList className="bg-transparent">
+                <TabsTrigger value="needs_admin_review" className="rounded-lg font-bold uppercase tracking-widest text-[10px]">Needs review</TabsTrigger>
+                <TabsTrigger value="rejected" className="rounded-lg font-bold uppercase tracking-widest text-[10px]">Rejected</TabsTrigger>
+                <TabsTrigger value="all" className="rounded-lg font-bold uppercase tracking-widest text-[10px]">All flagged</TabsTrigger>
               </TabsList>
             </Tabs>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0">
             {error && (
-              <Alert variant="destructive" className="mb-4 border-red-200 bg-red-50 text-red-900">
-                <AlertTitle>Could not load queue</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
+              <div className="m-8 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-bold text-rose-600 dark:border-rose-900/30 dark:bg-rose-900/20 dark:text-rose-400">
+                {error}
+              </div>
             )}
 
             {loading ? (
-              <div className="flex justify-center py-16">
-                <Spinner className="size-8 text-[#8B1A1A]" />
+              <div className="flex justify-center py-24">
+                <Spinner className="size-10 text-primary" />
               </div>
             ) : queue.length === 0 ? (
-              <Empty className="border border-dashed border-amber-200 bg-amber-50/50 py-12">
-                <EmptyHeader>
-                  <EmptyMedia variant="icon">
-                    <ShieldAlert className="text-amber-700" />
-                  </EmptyMedia>
-                  <EmptyTitle className="text-[#2d2d2d]">Nothing in this queue</EmptyTitle>
-                  <EmptyDescription className="text-gray-600">
-                    When content needs human review or is rejected by automation, it will appear here.
-                  </EmptyDescription>
-                </EmptyHeader>
-              </Empty>
+              <div className="py-32 text-center">
+                <div className="mx-auto w-16 h-16 rounded-3xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center mb-6">
+                  <ShieldAlert className="text-neutral-400 size-8" />
+                </div>
+                <h3 className="text-xl font-black text-neutral-900 dark:text-white">Queue Clear</h3>
+                <p className="text-neutral-500 dark:text-neutral-400 mt-2">No items currently need attention.</p>
+              </div>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-b border-amber-100 hover:bg-transparent">
-                    <TableHead className="text-gray-600">Work</TableHead>
-                    <TableHead className="text-gray-600">Author</TableHead>
-                    <TableHead className="text-gray-600">Status</TableHead>
-                    <TableHead className="text-gray-600">Confidence</TableHead>
-                    <TableHead className="text-gray-600">Updated</TableHead>
-                    <TableHead className="text-right text-gray-600">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {queue.map((row) => (
-                    <TableRow key={row.id} className="border-b border-amber-100 hover:bg-amber-50/50">
-                      <TableCell className="max-w-[220px]">
-                        <button
-                          type="button"
-                          onClick={() => void openDetail(row.id)}
-                          className="text-left font-medium text-[#8B1A1A] hover:underline"
-                        >
-                          {row.title}
-                        </button>
-                        {row.moderationReason && (
-                          <p className="mt-1 line-clamp-2 text-xs text-gray-600">
-                            {row.moderationReason}
-                          </p>
-                        )}
-                      </TableCell>
-                      <TableCell className="whitespace-nowrap text-sm text-gray-700">
-                        {row.authorUsername || row.authorId || '—'}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={statusBadgeVariant(row.status)}>{row.status}</Badge>
-                      </TableCell>
-                      <TableCell className="text-sm tabular-nums text-gray-700">
-                        {typeof row.moderationConfidence === 'number'
-                          ? row.moderationConfidence.toFixed(2)
-                          : '—'}
-                      </TableCell>
-                      <TableCell className="whitespace-nowrap text-sm text-gray-600">
-                        {(() => {
-                          const raw = row.moderationUpdatedAt || row.updatedAt
-                          if (!raw) return '—'
-                          const d = new Date(raw)
-                          return Number.isNaN(d.getTime())
-                            ? '—'
-                            : formatDistanceToNow(d, { addSuffix: true })
-                        })()}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex flex-wrap justify-end gap-1">
-                          <Button
-                            size="sm"
-                            className="bg-green-600 hover:bg-green-700"
-                            disabled={actionId === row.id}
-                            onClick={() => void handleApprove(row.id)}
-                          >
-                            Approve
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            disabled={actionId === row.id}
-                            onClick={() => void handleReject(row.id)}
-                          >
-                            Reject
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="border-amber-100 text-[#8B1A1A] hover:bg-amber-50"
-                            disabled={actionId === row.id}
-                            onClick={() => void handleFlag(row.id)}
-                          >
-                            Flag
-                          </Button>
-                        </div>
-                      </TableCell>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-b border-neutral-100 dark:border-neutral-800 hover:bg-transparent bg-neutral-50/50 dark:bg-neutral-800/30">
+                      <TableHead className="py-4 px-8 font-black uppercase tracking-widest text-[10px] text-neutral-500">Work</TableHead>
+                      <TableHead className="py-4 px-8 font-black uppercase tracking-widest text-[10px] text-neutral-500">Author</TableHead>
+                      <TableHead className="py-4 px-8 font-black uppercase tracking-widest text-[10px] text-neutral-500">Status</TableHead>
+                      <TableHead className="py-4 px-8 font-black uppercase tracking-widest text-[10px] text-neutral-500">Confidence</TableHead>
+                      <TableHead className="py-4 px-8 font-black uppercase tracking-widest text-[10px] text-neutral-500">Updated</TableHead>
+                      <TableHead className="py-4 px-8 font-black uppercase tracking-widest text-[10px] text-neutral-500 text-right">Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {queue.map((row) => (
+                      <TableRow key={row.id} className="border-b border-neutral-100 dark:border-neutral-800 hover:bg-neutral-50/50 dark:hover:bg-neutral-800/50 transition-colors">
+                        <TableCell className="py-6 px-8 max-w-[280px]">
+                          <button
+                            type="button"
+                            onClick={() => void openDetail(row.id)}
+                            className="text-left font-black text-neutral-900 dark:text-white hover:text-primary transition-colors block truncate"
+                          >
+                            {row.title}
+                          </button>
+                          {row.moderationReason && (
+                            <p className="mt-2 line-clamp-1 text-xs font-bold text-rose-500/80 italic">
+                              {row.moderationReason}
+                            </p>
+                          )}
+                        </TableCell>
+                        <TableCell className="py-6 px-8">
+                          <span className="font-bold text-primary/80">@{row.authorUsername || 'unknown'}</span>
+                        </TableCell>
+                        <TableCell className="py-6 px-8">
+                          <Badge variant={statusBadgeVariant(row.status)} className="rounded-lg font-black uppercase tracking-widest text-[10px]">{row.status}</Badge>
+                        </TableCell>
+                        <TableCell className="py-6 px-8 font-black text-neutral-600 dark:text-neutral-400 tabular-nums">
+                          {typeof row.moderationConfidence === 'number'
+                            ? row.moderationConfidence.toFixed(2)
+                            : '—'}
+                        </TableCell>
+                        <TableCell className="py-6 px-8 text-xs font-bold text-neutral-400">
+                          {(() => {
+                            const raw = row.moderationUpdatedAt || row.updatedAt
+                            if (!raw) return '—'
+                            const d = new Date(raw)
+                            return Number.isNaN(d.getTime())
+                              ? '—'
+                              : formatDistanceToNow(d, { addSuffix: true })
+                          })()}
+                        </TableCell>
+                        <TableCell className="py-6 px-8 text-right">
+                          <div className="flex flex-wrap justify-end gap-2">
+                            <Button
+                              size="sm"
+                              className="bg-emerald-500 hover:bg-emerald-600 text-white font-black text-[10px] uppercase tracking-widest rounded-xl"
+                              disabled={actionId === row.id}
+                              onClick={() => void handleApprove(row.id)}
+                            >
+                              Approve
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              className="font-black text-[10px] uppercase tracking-widest rounded-xl"
+                              disabled={actionId === row.id}
+                              onClick={() => void handleReject(row.id)}
+                            >
+                              Reject
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             )}
           </CardContent>
         </Card>
@@ -342,114 +332,97 @@ export default function AdminModerationPage() {
 
       <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
         <DialogContent
-          showCloseButton
-          className="flex max-h-[90vh] max-w-[calc(100%-2rem)] flex-col border-amber-100 bg-white sm:max-w-3xl"
+          className="flex max-h-[90vh] max-w-4xl flex-col border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900 rounded-[2.5rem] overflow-hidden"
         >
-          <DialogHeader>
-            <DialogTitle className="text-[#2d2d2d]">{detail?.title ?? 'Work details'}</DialogTitle>
-            <DialogDescription className="text-gray-600">
-              {detail?.authorUsername || detail?.authorId
-                ? `Author: ${detail.authorUsername || detail.authorId}`
-                : 'Author unknown'}
+          <DialogHeader className="p-8 border-b border-neutral-100 dark:border-neutral-800">
+            <DialogTitle className="text-3xl font-black tracking-tight text-neutral-900 dark:text-white">{detail?.title ?? 'Work details'}</DialogTitle>
+            <DialogDescription className="text-primary font-black uppercase tracking-widest text-xs mt-2">
+              Author: @{detail?.authorUsername || 'unknown'}
             </DialogDescription>
           </DialogHeader>
 
           {detailLoading ? (
-            <div className="flex justify-center py-12">
-              <Spinner className="size-8 text-[#8B1A1A]" />
+            <div className="flex justify-center py-24">
+              <Spinner className="size-10 text-primary" />
             </div>
           ) : detail ? (
             <>
-              <div className="grid gap-3 text-sm sm:grid-cols-2">
-                <div className="rounded-lg border border-amber-100 bg-amber-50 p-3">
-                  <p className="text-xs font-medium text-gray-600">Work status</p>
-                  <Badge className="mt-1" variant={statusBadgeVariant(detail.status)}>
+              <div className="grid gap-4 p-8 sm:grid-cols-3">
+                <div className="rounded-2xl border border-neutral-100 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-800/50">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-2">Work status</p>
+                  <Badge variant={statusBadgeVariant(detail.status)} className="font-black uppercase tracking-widest text-[10px]">
                     {detail.status}
                   </Badge>
                 </div>
-                <div className="rounded-lg border border-amber-100 bg-amber-50 p-3">
-                  <p className="text-xs font-medium text-gray-600">Model confidence</p>
-                  <p className="mt-1 tabular-nums font-medium text-[#2d2d2d]">
+                <div className="rounded-2xl border border-neutral-100 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-800/50">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-2">Model Confidence</p>
+                  <p className="text-xl font-black text-neutral-900 dark:text-white tabular-nums">
                     {typeof detail.moderationConfidence === 'number'
                       ? detail.moderationConfidence.toFixed(3)
                       : '—'}
                   </p>
                 </div>
-                <div className="rounded-lg border border-amber-100 bg-amber-50 p-3 sm:col-span-2">
-                  <p className="text-xs font-medium text-gray-600">Safety</p>
-                  <p className="mt-1 text-[#2d2d2d]">
-                    childSafe:{' '}
-                    <span className="font-medium">{String(detail.childSafe ?? '—')}</span>
-                    {' · '}
-                    adultSafe:{' '}
-                    <span className="font-medium">{String(detail.adultSafe ?? '—')}</span>
-                  </p>
-                  {detail.moderationReason && (
-                    <p className="mt-2 text-gray-700">{detail.moderationReason}</p>
-                  )}
+                <div className="rounded-2xl border border-neutral-100 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-800/50">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-2">Safety Score</p>
+                  <div className="flex gap-2">
+                    <Badge variant="outline" className="font-black text-[9px] uppercase tracking-widest">Child: {String(detail.childSafe)}</Badge>
+                    <Badge variant="outline" className="font-black text-[9px] uppercase tracking-widest">Adult: {String(detail.adultSafe)}</Badge>
+                  </div>
                 </div>
-                <div className="rounded-lg border border-amber-100 bg-amber-50 p-3 sm:col-span-2">
-                  <p className="text-xs font-medium text-gray-600">Summary</p>
-                  <p className="mt-2 text-[#2d2d2d]">{summaryPreview}</p>
+                
+                <div className="rounded-2xl border border-neutral-100 bg-neutral-50 p-5 dark:border-neutral-800 dark:bg-neutral-800/50 sm:col-span-3">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-2">Summary Insight</p>
+                  <p className="text-sm font-medium leading-relaxed text-neutral-700 dark:text-neutral-300 italic">"{summaryPreview}"</p>
                 </div>
               </div>
 
-              <div>
-                <p className="mb-2 text-sm font-medium text-[#2d2d2d]">Chapters</p>
-                <ScrollArea className="h-[min(40vh,320px)] rounded-md border border-amber-100">
-                  <div className="space-y-3 p-3">
+              <div className="px-8 pb-8 flex-1 overflow-hidden flex flex-col">
+                <p className="mb-4 text-xs font-black uppercase tracking-widest text-neutral-400">Chapters ({detail.chapters?.length || 0})</p>
+                <ScrollArea className="flex-1 rounded-2xl border border-neutral-100 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-950/50">
+                  <div className="space-y-4 p-4">
                     {(detail.chapters || []).map((ch) => (
                       <div
                         key={ch.id}
-                        className="rounded-lg border border-amber-100 bg-white p-3 text-sm"
+                        className="rounded-2xl border border-neutral-100 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900 shadow-sm"
                       >
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <span className="font-medium text-[#2d2d2d]">{ch.title}</span>
-                          {ch.moderationStatus && (
-                            <Badge variant="outline" className="text-xs">
-                              {ch.moderationStatus}
-                            </Badge>
-                          )}
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="font-black text-neutral-900 dark:text-white">{ch.title}</span>
+                          <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest">
+                            Score: {ch.moderationConfidence?.toFixed(2) || '—'}
+                          </Badge>
                         </div>
-                        {typeof ch.moderationConfidence === 'number' && (
-                          <p className="mt-1 text-xs text-gray-600">
-                            Confidence {ch.moderationConfidence.toFixed(2)}
-                          </p>
-                        )}
-                        <p className="mt-2 whitespace-pre-wrap text-xs text-gray-700">
-                          {stripHtmlToPreview(ch.contentText || '', 500) || '—'}
+                        <p className="whitespace-pre-wrap text-sm leading-relaxed text-neutral-600 dark:text-neutral-400 line-clamp-3">
+                          {stripHtmlToPreview(ch.contentText || '', 500) || 'No text content available.'}
                         </p>
                       </div>
                     ))}
-                    {(!detail.chapters || detail.chapters.length === 0) && (
-                      <p className="text-sm text-gray-600">No chapters.</p>
-                    )}
                   </div>
                 </ScrollArea>
               </div>
 
-              <DialogFooter className="gap-2 border-t border-amber-100 pt-4 sm:justify-end">
+              <DialogFooter className="p-8 border-t border-neutral-100 dark:border-neutral-800 gap-3">
                 <Button
                   variant="outline"
-                  className="border-amber-100 text-[#8B1A1A] hover:bg-amber-50"
+                  className="rounded-xl border-neutral-200 font-black uppercase tracking-widest text-[10px] dark:border-neutral-800 dark:bg-neutral-900"
                   disabled={actionId === detail.id}
                   onClick={() => void handleFlag(detail.id)}
                 >
-                  Flag
+                  Flag Manual
                 </Button>
                 <Button
                   variant="destructive"
+                  className="rounded-xl font-black uppercase tracking-widest text-[10px] px-8"
                   disabled={actionId === detail.id}
                   onClick={() => void handleReject(detail.id)}
                 >
                   Reject
                 </Button>
                 <Button
-                  className="bg-green-600 hover:bg-green-700"
+                  className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-black uppercase tracking-widest text-[10px] px-8"
                   disabled={actionId === detail.id}
                   onClick={() => void handleApprove(detail.id)}
                 >
-                  Approve
+                  Approve Entry
                 </Button>
               </DialogFooter>
             </>
