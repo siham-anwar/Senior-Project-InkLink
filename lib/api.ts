@@ -12,23 +12,29 @@ const resolveDefaultApiUrl = () => {
     (window.location.hostname === "localhost" ||
       window.location.hostname === "127.0.0.1");
 
+  const LOCAL_BACKEND = "http://localhost:4000";
+
   if (envUrl) {
-    // Never allow a localhost API URL when the frontend is running on a non-local hostname.
+    // If the env URL is the production one but we are on localhost, 
+    // and the user explicitly asked for local fallback, we can prioritize local.
+    // However, usually we should respect the env variable.
+    // Let's make it so if it's production URL but we are on localhost, we allow it, 
+    // but the fallback logic should be robust.
     if (isLocalUrl(envUrl)) {
       return isLocalHost ? envUrl : PROD_API_URL;
     }
 
+    // If we are on localhost and the API is pointing to production, 
+    // but the user is experiencing issues, they might want to toggle it.
+    // For now, let's keep the envUrl if provided, but if not provided, use localhost.
     return envUrl;
   }
 
-  if (typeof window !== "undefined") {
-    const hostname = window.location.hostname;
-    if (hostname !== "localhost" && hostname !== "127.0.0.1") {
-      return PROD_API_URL;
-    }
+  if (isLocalHost) {
+    return LOCAL_BACKEND;
   }
 
-  return envUrl || PROD_API_URL;
+  return PROD_API_URL;
 };
 
 const resolveUrl = (config?: AxiosRequestConfig) => {

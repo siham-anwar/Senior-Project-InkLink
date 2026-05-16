@@ -31,7 +31,7 @@ interface Transaction {
 }
 
 export default function RevenuePage() {
-  const [selectedPeriod, setSelectedPeriod] = useState<'today' | 'this_week' | 'this_month' | 'this_year'>('today')
+  const [selectedPeriod, setSelectedPeriod] = useState<'today' | 'this_week' | 'this_month' | 'this_year' | 'all'>('today')
   const [revenueData, setRevenueData] = useState<Record<string, Transaction[]>>({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -58,6 +58,7 @@ export default function RevenuePage() {
     { id: 'this_week', label: 'This Week', icon: Calendar },
     { id: 'this_month', label: 'This Month', icon: CreditCard },
     { id: 'this_year', label: 'This Year', icon: PieChart },
+    { id: 'all', label: 'All Time', icon: History },
   ]
 
   const transactions = revenueData[selectedPeriod] || []
@@ -130,7 +131,7 @@ export default function RevenuePage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="mb-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mb-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
         {periods.map((period) => {
           const Icon = period.icon
           const isActive = selectedPeriod === period.id
