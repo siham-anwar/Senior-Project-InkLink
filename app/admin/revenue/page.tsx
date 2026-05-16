@@ -103,7 +103,7 @@ export default function RevenuePage() {
   return (
     <div className="min-h-screen bg-[#fafafa] dark:bg-neutral-950 p-6 lg:p-10 transition-colors duration-300">
       {/* Header */}
-      <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <Link 
             href="/admin" 
@@ -115,7 +115,7 @@ export default function RevenuePage() {
           <h1 className="text-4xl font-bold tracking-tight text-neutral-900 dark:text-white">
             Revenue Analytics
           </h1>
-          <p className="mt-2 text-neutral-500 dark:text-neutral-400">
+          <p className="mt-1 text-neutral-500 dark:text-neutral-400">
             Monitor and analyze platform financial growth and distribution.
           </p>
         </div>
@@ -131,7 +131,7 @@ export default function RevenuePage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="mb-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="mb-8 flex flex-wrap gap-4 lg:flex-nowrap">
         {periods.map((period) => {
           const Icon = period.icon
           const isActive = selectedPeriod === period.id
@@ -141,26 +141,24 @@ export default function RevenuePage() {
               key={period.id}
               onClick={() => setSelectedPeriod(period.id as any)}
               className={cn(
-                "group relative flex flex-col gap-4 rounded-3xl border p-6 transition-all duration-500",
+                "group relative flex flex-1 items-center gap-4 rounded-2xl border p-4 transition-all duration-300 min-w-[180px]",
                 isActive 
-                  ? "border-primary bg-white dark:bg-neutral-900 shadow-xl shadow-primary/10 scale-[1.02] z-10" 
-                  : "border-neutral-200 dark:border-neutral-800 bg-white/50 dark:bg-neutral-900/50 hover:bg-white dark:hover:bg-neutral-900 hover:shadow-md"
+                  ? "border-primary bg-white dark:bg-neutral-900 shadow-lg shadow-primary/5 scale-[1.02] z-10" 
+                  : "border-neutral-200 dark:border-neutral-800 bg-white/50 dark:bg-neutral-900/50 hover:bg-white dark:hover:bg-neutral-900"
               )}
             >
-              <div className="flex items-center justify-between">
-                <div className={cn(
-                  "flex h-12 w-12 items-center justify-center rounded-2xl transition-colors duration-500",
-                  isActive ? "bg-primary text-white" : "bg-neutral-100 dark:bg-neutral-800 text-neutral-500"
-                )}>
-                  <Icon className="h-6 w-6" />
-                </div>
+              <div className={cn(
+                "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors duration-300",
+                isActive ? "bg-primary text-white" : "bg-neutral-100 dark:bg-neutral-800 text-neutral-500"
+              )}>
+                <Icon className="h-5 w-5" />
               </div>
-              <div className="text-left">
-                <p className="text-sm font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+              <div className="text-left overflow-hidden">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 truncate">
                   {period.label}
                 </p>
                 <p className={cn(
-                  "mt-1 text-3xl font-black tracking-tight transition-colors duration-500",
+                  "mt-0.5 text-lg font-black tracking-tight transition-colors duration-300 truncate",
                   isActive ? "text-primary dark:text-white" : "text-neutral-900 dark:text-neutral-200"
                 )}>
                   ETB {totalAmount.toLocaleString()}
@@ -168,7 +166,7 @@ export default function RevenuePage() {
               </div>
               
               {isActive && (
-                <div className="absolute bottom-0 left-1/2 h-1.5 w-12 -translate-x-1/2 rounded-t-full bg-primary" />
+                <div className="absolute bottom-0 left-4 right-4 h-1 rounded-t-full bg-primary" />
               )}
             </button>
           )
