@@ -9,6 +9,7 @@ import { AdminDashboardService, type AdminAuthorDto } from '@/app/services/admin
 import { useAuthStore } from '@/app/store/authstore'
 import { extractApiErrorMessage } from '@/lib/api'
 import { toast } from 'sonner'
+import { cn } from '@/lib/cn'
 
 export default function AdminAuthorsPage() {
   const router = useRouter()
@@ -187,9 +188,14 @@ export default function AdminAuthorsPage() {
 
                 {/* Stats */}
                 <div className="mt-6 pt-4 border-t border-neutral-100 dark:border-neutral-800 flex items-center justify-between">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400">
-                    {(entry.followers || 0).toLocaleString()} followers
-                  </p>
+                  <div className="flex flex-col gap-1">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400">
+                      {(entry.followers || 0).toLocaleString()} followers
+                    </p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-primary/60">
+                      {entry.worksCount || 0} Published Works
+                    </p>
+                  </div>
                   <span className={cn(
                     "h-2 w-2 rounded-full",
                     entry.isMonetized ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-neutral-300 dark:bg-neutral-700"

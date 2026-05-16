@@ -8,6 +8,7 @@ import { AdminDashboardService, type AdminUserDto } from '@/app/services/admin-d
 import { useAuthStore } from '@/app/store/authstore'
 import { extractApiErrorMessage } from '@/lib/api'
 import { toast } from 'sonner'
+import { cn } from '@/lib/cn'
 
 export default function AdminUsersPage() {
   const router = useRouter()
@@ -67,20 +68,20 @@ export default function AdminUsersPage() {
     <main className="min-h-screen bg-neutral-50 dark:bg-neutral-950 transition-colors duration-300">
       {/* Header */}
       <div className="sticky top-0 z-20 border-b bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md border-neutral-200 dark:border-neutral-800">
-        <div className="mx-auto max-w-7xl px-6 py-8">
-          <div className="flex items-center gap-4">
-            <Link href="/admin" className="rounded-xl p-2 transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800">
-              <ArrowLeft className="h-6 w-6 text-primary" />
-            </Link>
-            <div>
-              <h1 className="text-3xl font-black tracking-tight text-neutral-900 dark:text-white">Users</h1>
-              <p className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">{users.length} platform members</p>
-            </div>
+        <div className="w-full px-6 py-8">
+          <Link href="/admin" className="mb-4 inline-flex items-center gap-2 text-primary transition-all hover:opacity-80">
+            <ArrowLeft className="h-5 w-5" />
+            <span className="text-sm font-black uppercase tracking-widest">Back</span>
+          </Link>
+          <div>
+            <h1 className="text-3xl font-black tracking-tight text-neutral-900 dark:text-white">Users</h1>
+            <p className="mt-1 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">{users.length} platform members</p>
+            {error && <p className="mt-2 text-sm font-bold text-red-500">{error}</p>}
           </div>
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-6 py-12">
+      <div className="w-full px-6 py-12">
         {/* Search Section */}
         <div className="mb-12 space-y-4">
           <div className="relative max-w-md group">

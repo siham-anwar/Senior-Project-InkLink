@@ -8,6 +8,7 @@ import { AdminDashboardService, type AdminContentDto } from '@/app/services/admi
 import { useAuthStore } from '@/app/store/authstore'
 import { extractApiErrorMessage } from '@/lib/api'
 import { toast } from 'sonner'
+import { cn } from '@/lib/cn'
 
 export default function AdminContentPage() {
   const router = useRouter()
