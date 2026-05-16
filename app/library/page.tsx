@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import { Search, ChevronLeft } from 'lucide-react'
+import { Search, ChevronLeft, Bookmark } from 'lucide-react'
 import { libraryService, LibraryWork, CurrentlyReading } from '../services/library.service'
 
 export default function LibraryPage() {
