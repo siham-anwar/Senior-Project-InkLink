@@ -14,10 +14,34 @@ export default function PremiumPage() {
   const [mounted, setMounted] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState<'weekly' | 'monthly' | 'yearly' | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [plansLoading, setPlansLoading] = useState(true)
+  const [pricingPlans, setPricingPlans] = useState<any[]>([])
   const { user } = useAuthStore()
 
   useEffect(() => {
     setMounted(true)
+    const fetchPlans = async () => {
+      try {
+        const plans = await SubscriptionService.getPlans()
+        // Map backend plan structure to frontend UI needs
+        const mappedPlans = plans.map(p => ({
+          id: p.plan,
+          name: p.plan.charAt(0).toUpperCase() + p.plan.slice(1),
+          price: p.price,
+          currency: p.currency,
+          period: `per ${p.plan.replace('ly', '')}`,
+          popular: p.plan === 'monthly',
+          savings: p.plan === 'yearly' ? 'Best Value!' : undefined
+        }))
+        setPricingPlans(mappedPlans)
+      } catch (error) {
+        console.error('Failed to fetch pricing plans:', error)
+        // Fallback to empty or error state
+      } finally {
+        setPlansLoading(false)
+      }
+    }
+    fetchPlans()
   }, [])
 
   const handleSubscribe = async () => {
@@ -67,57 +91,64 @@ export default function PremiumPage() {
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 items-stretch">
-          {PRICING_PLANS.map((plan) => (
-            <div
-              key={plan.id}
-              className={`relative rounded-2xl border-2 transition-all duration-300 cursor-pointer p-6 flex flex-col ${plan.popular
-                ? 'border-primary bg-gradient-to-b from-primary/10 via-primary/5 to-transparent shadow-[0_0_40px_-8px] shadow-primary/30 md:scale-105 z-10 ring-1 ring-primary/20'
-                : ''
-                } ${selectedPlan === plan.id
-                  ? 'border-primary bg-primary/5'
-                  : plan.popular
-                    ? ''
-                    : 'border-border hover:border-primary/50'
-                }`}
-              onClick={() => setSelectedPlan(plan.id as 'weekly' | 'monthly' | 'yearly')}
-            >
-
-              {/* Plan Header */}
-              <div className="mb-6">
-                <h3 className={`text-2xl font-bold mb-2 ${plan.popular ? 'text-primary' : ''}`}>{plan.name}</h3>
-                <div className="flex items-baseline gap-2 mb-2">
-                  <span className={`text-4xl font-black ${plan.popular ? 'text-primary' : ''}`}>{plan.price}</span>
-                  <span className="text-muted-foreground">{plan.currency}</span>
-                </div>
-                <p className="text-sm text-muted-foreground">{plan.period}</p>
-                {plan.savings && (
-                  <p className="text-sm text-primary font-bold mt-2">{plan.savings}</p>
-                )}
-              </div>
-
-              {/* Features List */}
-              <div className="flex-1 mb-6">
-                <div className="flex items-center gap-3">
-                  <Check size={18} className="text-primary flex-shrink-0" />
-                  <span className="text-sm font-medium">Ad-Free Reading</span>
-                </div>
-              </div>
-
-              {/* Select Button */}
-              <button
-                className={`w-full py-3 px-4 rounded-lg font-bold transition-all duration-200 ${selectedPlan === plan.id
-                  ? 'bg-primary text-white shadow-lg shadow-primary/30'
-                  : plan.popular
-                    ? 'bg-primary text-white hover:bg-primary/90 shadow-md shadow-primary/20'
-                    : 'bg-secondary hover:bg-secondary/80 text-foreground'
+        {plansLoading ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <Loader2 className="h-10 w-10 animate-spin text-primary mb-4" />
+            <p className="text-muted-foreground font-medium">Fetching best deals...</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 items-stretch">
+            {pricingPlans.map((plan) => (
+              <div
+                key={plan.id}
+                className={`relative rounded-2xl border-2 transition-all duration-300 cursor-pointer p-6 flex flex-col ${plan.popular
+                  ? 'border-primary bg-gradient-to-b from-primary/10 via-primary/5 to-transparent shadow-[0_0_40px_-8px] shadow-primary/30 md:scale-105 z-10 ring-1 ring-primary/20'
+                  : ''
+                  } ${selectedPlan === plan.id
+                    ? 'border-primary bg-primary/5'
+                    : plan.popular
+                      ? ''
+                      : 'border-border hover:border-primary/50'
                   }`}
+                onClick={() => setSelectedPlan(plan.id as 'weekly' | 'monthly' | 'yearly')}
               >
-                {selectedPlan === plan.id ? '✓ Selected' : plan.popular ? 'Get Started' : 'Select Plan'}
-              </button>
-            </div>
-          ))}
-        </div>
+
+                {/* Plan Header */}
+                <div className="mb-6">
+                  <h3 className={`text-2xl font-bold mb-2 ${plan.popular ? 'text-primary' : ''}`}>{plan.name}</h3>
+                  <div className="flex items-baseline gap-2 mb-2">
+                    <span className={`text-4xl font-black ${plan.popular ? 'text-primary' : ''}`}>{plan.price}</span>
+                    <span className="text-muted-foreground">{plan.currency}</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{plan.period}</p>
+                  {plan.savings && (
+                    <p className="text-sm text-primary font-bold mt-2">{plan.savings}</p>
+                  )}
+                </div>
+
+                {/* Features List */}
+                <div className="flex-1 mb-6">
+                  <div className="flex items-center gap-3">
+                    <Check size={18} className="text-primary flex-shrink-0" />
+                    <span className="text-sm font-medium">Ad-Free Reading</span>
+                  </div>
+                </div>
+
+                {/* Select Button */}
+                <button
+                  className={`w-full py-3 px-4 rounded-lg font-bold transition-all duration-200 ${selectedPlan === plan.id
+                    ? 'bg-primary text-white shadow-lg shadow-primary/30'
+                    : plan.popular
+                      ? 'bg-primary text-white hover:bg-primary/90 shadow-md shadow-primary/20'
+                      : 'bg-secondary hover:bg-secondary/80 text-foreground'
+                    }`}
+                >
+                  {selectedPlan === plan.id ? '✓ Selected' : plan.popular ? 'Get Started' : 'Select Plan'}
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Continue Button */}
         {selectedPlan && (
